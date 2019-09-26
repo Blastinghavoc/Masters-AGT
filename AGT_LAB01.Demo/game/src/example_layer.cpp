@@ -18,8 +18,8 @@ example_layer::example_layer()
 	m_skybox = engine::skybox::create(50.f,
 		std::vector<engine::ref<engine::texture_2d>>{ engine::texture_2d::create("assets/textures/black.png") });
 
-	float radius = 2.f;
-	uint32_t stacks = 10;
+	float radius = 3.f;
+	uint32_t stacks = 20;
 	uint32_t slices = 20;
 
 	engine::ref<engine::sphere> m_sphere_shape = engine::sphere::create(stacks, slices, radius);
@@ -45,7 +45,7 @@ void example_layer::on_render()
 	const auto colour_shader = engine::renderer::shaders_library()->get("colour");
 	engine::renderer::begin_scene(m_3d_camera, colour_shader);
 
-	glm::vec4 sphere_colour = glm::vec4(1.f, 1.f, 1.f, 1.f);
+	glm::vec4 sphere_colour = glm::vec4(1.f, 3.f, 1.f, 1.f);
 	glm::vec3 sphere_position = glm::vec3(0.0f, 1.5f, -20.0f);
 
 	std::dynamic_pointer_cast<engine::gl_shader>(colour_shader)->set_uniform("a_color", sphere_colour);
