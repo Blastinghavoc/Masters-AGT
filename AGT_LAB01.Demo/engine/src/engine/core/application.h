@@ -20,6 +20,9 @@ namespace engine
         /// \brief
         void run();
 
+		/// \brief
+		void run_fixed();
+
         /// \brief
         virtual void on_event(event &event);
 
@@ -40,6 +43,7 @@ namespace engine
     private:
         scope<engine::window> m_window;
         layers_stack          m_layers_stack;
+		float m_last_frame_time;
 
     private:                  
         static application*   s_instance;
