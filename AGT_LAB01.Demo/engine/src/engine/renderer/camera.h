@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "engine/core/timestep.h"
 #define GLM_FORCE_CTOR_INIT
 #include "glm/glm.hpp"
@@ -145,7 +145,9 @@ namespace engine
         glm::vec3   m_front_vector{0.f}; 
         glm::vec3   m_up_vector{0.f,1.f,0.f}; 
         glm::vec3   m_righ_vector{0.f}; 
-        glm::vec3   m_world_up_vector{0.f,1.f,0.f}; 
+        glm::vec3   m_world_up_vector{0.f,1.f,0.f};
+
+		std::pair<float, float> m_mouse_prev_pos{NAN,NAN};
 
         /// \brief 
         float m_yaw = YAW; 

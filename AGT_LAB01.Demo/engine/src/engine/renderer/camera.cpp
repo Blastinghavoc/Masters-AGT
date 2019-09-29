@@ -3,6 +3,10 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "engine/core/input.h"
 #include "engine/key_codes.h"
+#include "engine/mouse_buttons_codes.h"
+#include "engine/core/application.h"
+
+
 
 
 //================== Orthographic Camera [2D] =================================
@@ -100,8 +104,27 @@ void engine::perspective_camera::on_update(const timestep& timestep)
     else if(engine::input::key_pressed(engine::key_codes::KEY_W)) // up
         move(e_direction::forward, timestep);
 
-    auto [mouse_delta_x, mouse_delta_y] = input::mouse_position();
-    process_mouse(mouse_delta_x, mouse_delta_y);
+	//if (input::mouse_button_pressed(engine::mouse_button_codes::MOUSE_BUTTON_1))
+	//{
+
+	if (engine::application::window().is_cursor_visible())
+	{
+		auto mouse_pos = input::mouse_position();
+		if (!isnan(m_mouse_prev_pos.first)&&!isnan(m_mouse_prev_pos.second))
+		{
+			auto mouse_delta_x = mouse_pos.first - m_mouse_prev_pos.first;
+			//Invert y axis
+			auto mouse_delta_y = -(mouse_pos.second - m_mouse_prev_pos.second);			
+			process_mouse(mouse_delta_x, mouse_delta_y);
+		}
+		m_mouse_prev_pos = mouse_pos;
+	}
+	else {
+		auto [mouse_delta_x, mouse_delta_y] = input::mouse_position();
+		process_mouse(mouse_delta_x, mouse_delta_y);		
+	}
+	
+	//}
 
     //float delta = input::mouse_scroll();
     //process_mouse_scroll(delta);

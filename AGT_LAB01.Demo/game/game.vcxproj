@@ -131,9 +131,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\cube_layer.h" />
     <ClInclude Include="src\example_layer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\cube_layer.cpp" />
     <ClCompile Include="src\example_layer.cpp" />
     <ClCompile Include="src\game.cpp" />
   </ItemGroup>

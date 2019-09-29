@@ -40,6 +40,8 @@ void example_layer::on_update(const engine::timestep& time_step)
 		m_speed = -m_speed;
 	}
 	m_position += m_speed * time_step;
+
+	m_3d_camera.on_update(time_step);
 } 
 
 void example_layer::on_render() 
