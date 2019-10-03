@@ -3,6 +3,12 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Libs
+*.lib
+
+# external stuff I won't be modifying
+[Ee]xternal/
+
 # User-specific files
 *.suo
 *.user
