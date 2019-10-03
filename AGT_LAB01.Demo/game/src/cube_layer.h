@@ -23,4 +23,6 @@ private:
 
 	engine::orthographic_camera       m_2d_camera;
 	engine::perspective_camera        m_3d_camera;
+
+	float wave_offset;
 };

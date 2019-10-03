@@ -5,6 +5,11 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "engine/events/key_event.h"
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
+
+
 cube_layer::cube_layer()
 	:m_2d_camera(-1.6f, 1.6f, -0.9f, 0.9f),
 	m_3d_camera((float)engine::application::window().width(), (float)engine::application::window().height())	
@@ -36,6 +41,7 @@ cube_layer::~cube_layer()
 void cube_layer::on_update(const engine::timestep& time_step)
 {
 	m_3d_camera.on_update(time_step);
+	wave_offset = fmod(wave_offset + 0.1f, 2* M_PI);
 }
 
 void cube_layer::on_render()
@@ -63,7 +69,10 @@ void cube_layer::render_cube_sine(const glm::vec4& colour,const engine::ref<engi
 	for (int i = -x/2; i < x/2; i++)
 	{
 		for (int j = -y/2; j < y/2; j++) {
-			render_one_cube(glm::vec3(i,j,sin(sqrt(i*i+j*j))),colour, colour_shader);
+			double z_pos = sqrt(i * i + j * j);
+			z_pos += wave_offset;
+			z_pos = sin(z_pos);
+			render_one_cube(glm::vec3(i,j,z_pos),colour, colour_shader);
 		}
 	}
 }
