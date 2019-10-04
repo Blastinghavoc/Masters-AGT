@@ -5,6 +5,11 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "engine/events/key_event.h"
 
+#include "pickup.h"
+
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 example_layer::example_layer() 
     :m_2d_camera(-1.6f, 1.6f, -0.9f, 0.9f), 
     m_3d_camera((float)engine::application::window().width(), (float)engine::application::window().height())
@@ -102,6 +107,16 @@ example_layer::example_layer()
 	m_physics_manager = engine::bullet_manager::create(m_game_objects);
 
 	m_text_manager = engine::text_manager::create();
+
+	// Medkit texture from https://www.textures.com/download/manmadeboxes0007/105116
+	engine::ref<engine::cuboid> pickup_shape = engine::cuboid::create(glm::vec3(0.5f), false);
+	engine::ref<engine::texture_2d> pickup_texture = engine::texture_2d::create("assets/textures/medkit.jpg");
+	engine::game_object_properties pickup_props;
+	pickup_props.position = { 5.f, 1.f, 5.f };
+	pickup_props.meshes = { pickup_shape->mesh() };
+	pickup_props.textures = { pickup_texture };
+	m_pickup = pickup::create(pickup_props);
+	m_pickup->init();
 }
 
 example_layer::~example_layer() {}
@@ -109,6 +124,8 @@ example_layer::~example_layer() {}
 void example_layer::on_update(const engine::timestep& time_step) 
 {
     m_3d_camera.on_update(time_step);
+
+	m_pickup->update(m_3d_camera.position(), time_step);
 
 	m_physics_manager->dynamics_world_update(m_game_objects, double(time_step));
 } 
@@ -146,6 +163,63 @@ void example_layer::on_render()
 	cow_transform = glm::rotate(cow_transform, m_cow->rotation_amount(), m_cow->rotation_axis());
 	cow_transform = glm::scale(cow_transform, m_cow->scale());
 	engine::renderer::submit(textured_lighting_shader, cow_transform, m_cow);
+
+	//Reset matrix for another cow!
+	cow_transform = glm::mat4(1.f);
+	cow_transform = glm::translate(cow_transform, m_cow->position()+glm::vec3(0,.5f,0));
+	cow_transform = glm::rotate(cow_transform, m_cow->rotation_amount(), m_cow->rotation_axis());
+	cow_transform = glm::scale(cow_transform, m_cow->scale());
+	engine::renderer::submit(textured_lighting_shader, cow_transform, m_cow);
+
+	//Reset matrix for the creepy staring cow.
+	cow_transform = glm::mat4(1.f);
+	cow_transform = glm::translate(cow_transform,glm::vec3(0, 1.f, 5.f));
+
+	auto cow_pos = glm::vec3(0, .5f, 5.f);
+	auto cam_pos = m_3d_camera.position();
+	auto cow_to_cam_vec = cam_pos - cow_pos;
+
+	//cow_to_cam_vec = glm::normalize(cow_to_cam_vec);
+	//default cow facing in the z direction
+	//glm::vec3 cow_facing(0, 0, 1);
+	//cow_facing = glm::normalize(cow_facing);//Not necessary in this case.
+
+	//auto cross = glm::cross(cow_to_cam_vec, cow_facing);
+	//auto angle_in_cross_plane = acos(glm::dot(cow_to_cam_vec,cow_facing));
+	
+	float y_angle = atan2(cow_to_cam_vec.x, cow_to_cam_vec.z);
+
+	//float x_angle = atan2(cow_to_cam_vec.z, cow_to_cam_vec.y) -M_PI_2;
+
+	//TODO Figure out how to rotate on multiple axes!
+	//y_angle = M_PI_2;
+	////x_angle = -M_PI_2;
+	//auto rot_amnt = m_cow->rotation_amount();//0
+	//auto rat_ax = m_cow->rotation_axis();//0,1,0
+
+	//glm::vec3 local_x_axis(1, 0, 0);
+	//glm::mat4 transformed_basis = glm::rotate(glm::mat4(1.f), y_angle, glm::vec3(0, 1, 0));
+	////glm::vec3 new_x_ = transformed_basis * glm::vec4(1,0,0,1);
+	////local_x_axis = transformed_basis[0];
+
+	//cow_transform = glm::rotate(cow_transform, x_angle, local_x_axis);
+
+	cow_transform = glm::rotate(cow_transform, y_angle, glm::vec3(0,1,0));
+	//cow_transform = glm::rotate(cow_transform, angle_in_cross_plane, cross);
+	cow_transform = glm::scale(cow_transform, m_cow->scale());
+	engine::renderer::submit(textured_lighting_shader, cow_transform, m_cow);
+
+
+	//Pickup stuff
+	if (m_pickup->active())
+	{
+		m_pickup->textures().at(0)->bind();
+		glm::mat4 pickup_transform(1.0f);
+		pickup_transform = glm::translate(pickup_transform, m_pickup->position());
+		pickup_transform = glm::rotate(pickup_transform, m_pickup->rotation_amount(), m_pickup->rotation_axis());
+		engine::renderer::submit(textured_lighting_shader, m_pickup->meshes().at(0), pickup_transform);
+	}
+
 
     engine::renderer::end_scene();
 

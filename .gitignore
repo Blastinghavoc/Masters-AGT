@@ -9,6 +9,9 @@
 # external stuff I won't be modifying
 [Ee]xternal/
 
+# intermediate files and debug builds
+[Ii]nter/
+
 # User-specific files
 *.suo
 *.user
