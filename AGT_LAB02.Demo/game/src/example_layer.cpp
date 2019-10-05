@@ -179,33 +179,14 @@ void example_layer::on_render()
 	auto cam_pos = m_3d_camera.position();
 	auto cow_to_cam_vec = cam_pos - cow_pos;
 
-	//cow_to_cam_vec = glm::normalize(cow_to_cam_vec);
-	//default cow facing in the z direction
-	//glm::vec3 cow_facing(0, 0, 1);
-	//cow_facing = glm::normalize(cow_facing);//Not necessary in this case.
-
-	//auto cross = glm::cross(cow_to_cam_vec, cow_facing);
-	//auto angle_in_cross_plane = acos(glm::dot(cow_to_cam_vec,cow_facing));
-	
 	float y_angle = atan2(cow_to_cam_vec.x, cow_to_cam_vec.z);
 
-	//float x_angle = atan2(cow_to_cam_vec.z, cow_to_cam_vec.y) -M_PI_2;
-
-	//TODO Figure out how to rotate on multiple axes!
-	//y_angle = M_PI_2;
-	////x_angle = -M_PI_2;
-	//auto rot_amnt = m_cow->rotation_amount();//0
-	//auto rat_ax = m_cow->rotation_axis();//0,1,0
-
-	//glm::vec3 local_x_axis(1, 0, 0);
-	//glm::mat4 transformed_basis = glm::rotate(glm::mat4(1.f), y_angle, glm::vec3(0, 1, 0));
-	////glm::vec3 new_x_ = transformed_basis * glm::vec4(1,0,0,1);
-	////local_x_axis = transformed_basis[0];
-
-	//cow_transform = glm::rotate(cow_transform, x_angle, local_x_axis);
+	//REF: https://stackoverflow.com/questions/26555040/yaw-pitch-and-roll-to-glmrotate
+	float projectionLength = std::sqrt(cow_to_cam_vec.x * cow_to_cam_vec.x + cow_to_cam_vec.z * cow_to_cam_vec.z);
+	float pitch = std::atan2(cow_to_cam_vec.y, projectionLength);
 
 	cow_transform = glm::rotate(cow_transform, y_angle, glm::vec3(0,1,0));
-	//cow_transform = glm::rotate(cow_transform, angle_in_cross_plane, cross);
+	cow_transform = glm::rotate(cow_transform, -pitch, glm::vec3(1, 0, 0));
 	cow_transform = glm::scale(cow_transform, m_cow->scale());
 	engine::renderer::submit(textured_lighting_shader, cow_transform, m_cow);
 
