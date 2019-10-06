@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "engine/core/timestep.h"
 #define GLM_FORCE_CTOR_INIT
 #include "glm/glm.hpp"
@@ -126,9 +126,11 @@ namespace engine
         const glm::mat4& view_matrix() const override; 
         const glm::mat4& view_projection_matrix() const override;
 
+		void look_at(glm::vec3& target);
+        void move(e_direction direction, timestep ts); 
+
     private: 
         void process_mouse(float mouse_delta_x, float mouse_delta_y, bool constrain_pitch = true);
-        void move(e_direction direction, timestep ts); 
         void rotate(e_rotation rotation, e_axis rotation_axis, timestep ts);
         void update_camera_vectors();
         void update_view_matrix(); 

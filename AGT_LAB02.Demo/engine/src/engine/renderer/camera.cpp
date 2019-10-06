@@ -225,3 +225,12 @@ void engine::perspective_camera::update_camera_vectors()
     m_up_vector   = glm::normalize(glm::cross(m_righ_vector, m_front_vector));
     update_view_matrix();
 }
+
+void engine::perspective_camera::look_at(glm::vec3& target)
+{
+	m_front_vector = glm::normalize(target);
+
+	m_righ_vector = glm::normalize(glm::cross(m_front_vector, m_world_up_vector));
+	m_up_vector = glm::normalize(glm::cross(m_righ_vector, m_front_vector));
+	update_view_matrix();
+}

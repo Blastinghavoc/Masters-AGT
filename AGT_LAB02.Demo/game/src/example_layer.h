@@ -9,6 +9,7 @@ public:
 	~example_layer();
 
     void on_update(const engine::timestep& time_step) override;
+	void update_camera_for_loading_screen(const engine::timestep& time_step);
     void on_render() override; 
     void on_event(engine::event& event) override;
 
@@ -32,4 +33,6 @@ private:
     engine::perspective_camera        m_3d_camera;
 
 	engine::ref<pickup> m_pickup{};
+
+	bool m_loading_screen;
 };

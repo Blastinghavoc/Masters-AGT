@@ -12,7 +12,8 @@
 
 example_layer::example_layer() 
     :m_2d_camera(-1.6f, 1.6f, -0.9f, 0.9f), 
-    m_3d_camera((float)engine::application::window().width(), (float)engine::application::window().height())
+    m_3d_camera((float)engine::application::window().width(), (float)engine::application::window().height()),
+	m_loading_screen(true)
 {
     // Hide the mouse and lock it inside the window
     //engine::input::anchor_mouse(true);
@@ -128,18 +129,32 @@ example_layer::example_layer()
 	pickup_props.textures = { pickup_texture };
 	m_pickup = pickup::create(pickup_props);
 	m_pickup->init();
+
+	//Back the camera up
+	m_3d_camera.position({ 0,5,10 });
 }
 
 example_layer::~example_layer() {}
 
 void example_layer::on_update(const engine::timestep& time_step) 
 {
-    m_3d_camera.on_update(time_step);
+	if (m_loading_screen)
+	{
+		update_camera_for_loading_screen(time_step);
+	}
+	else {
+		m_3d_camera.on_update(time_step);
+	}
 
 	m_pickup->update(m_3d_camera.position(), time_step);
 
 	m_physics_manager->dynamics_world_update(m_game_objects, double(time_step));
-} 
+}
+
+void example_layer::update_camera_for_loading_screen(const engine::timestep& time_step) {
+	m_3d_camera.look_at(glm::vec3(0,0,0)-m_3d_camera.position());
+	m_3d_camera.move(engine::perspective_camera::e_direction::left, time_step);
+}
 
 void example_layer::on_render() 
 {
@@ -240,6 +255,13 @@ void example_layer::on_event(engine::event& event)
         if(e.key_code() == engine::key_codes::KEY_TAB) 
         { 
             engine::render_command::toggle_wireframe();
-        } 
+        }
+
+		if (e.key_code() == engine::key_codes::KEY_ENTER)
+		{
+			m_loading_screen = false;
+			//Reset camera
+			m_3d_camera = engine::perspective_camera((float)engine::application::window().width(), (float)engine::application::window().height());
+		}
     } 
 }
