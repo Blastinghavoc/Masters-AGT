@@ -22,7 +22,7 @@ void pickup::update(glm::vec3 c, float dt)
 
 	auto c_to_p = position() - c;
 	float dist = glm::length(c_to_p);
-	LOG_INFO("dist = {}", dist);
+	//LOG_INFO("dist = {}", dist);
 	if (dist < 2.f)
 	{
 		m_is_active = false;
