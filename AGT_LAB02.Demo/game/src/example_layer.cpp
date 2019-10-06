@@ -45,14 +45,25 @@ example_layer::example_layer()
 	m_light = engine::light::create(glm::vec3(-60.f, 50.f, 40.f), glm::vec3(1.f, 1.f, 1.f), 0.1f, 1.f, 0.5f);
 	m_material = engine::material::create(32.0f, glm::vec3(1.0f, 0.1f, 0.07f), glm::vec3(1.0f, 0.1f, 0.07f), glm::vec3(0.5f, 0.5f, 0.5f));
 
-	// Skybox texture from http://www.vwall.it/wp-content/plugins/canvasio3dpro/inc/resource/cubeMaps/
+	//// Skybox texture from http://www.vwall.it/wp-content/plugins/canvasio3dpro/inc/resource/cubeMaps/
+	//m_skybox = engine::skybox::create(50.f,
+	//	{ engine::texture_2d::create("assets/textures/skybox/SkyboxFront.bmp"),
+	//	  engine::texture_2d::create("assets/textures/skybox/SkyboxRight.bmp"),
+	//	  engine::texture_2d::create("assets/textures/skybox/SkyboxBack.bmp"),
+	//	  engine::texture_2d::create("assets/textures/skybox/SkyboxLeft.bmp"),
+	//	  engine::texture_2d::create("assets/textures/skybox/SkyboxTop.bmp"),
+	//	  engine::texture_2d::create("assets/textures/skybox/SkyboxBottom.bmp")
+	//	});
+
+
+	// Skybox texture from https://opengameart.org/content/mountain-skyboxes
 	m_skybox = engine::skybox::create(50.f,
-		{ engine::texture_2d::create("assets/textures/skybox/SkyboxFront.bmp"),
-		  engine::texture_2d::create("assets/textures/skybox/SkyboxRight.bmp"),
-		  engine::texture_2d::create("assets/textures/skybox/SkyboxBack.bmp"),
-		  engine::texture_2d::create("assets/textures/skybox/SkyboxLeft.bmp"),
-		  engine::texture_2d::create("assets/textures/skybox/SkyboxTop.bmp"),
-		  engine::texture_2d::create("assets/textures/skybox/SkyboxBottom.bmp")
+		{ engine::texture_2d::create("assets/textures/skybox/mountain-skyboxes/Maskonaive2/posz.jpg"),
+		  engine::texture_2d::create("assets/textures/skybox/mountain-skyboxes/Maskonaive2/posx.jpg"),
+		  engine::texture_2d::create("assets/textures/skybox/mountain-skyboxes/Maskonaive2/negz.jpg"),
+		  engine::texture_2d::create("assets/textures/skybox/mountain-skyboxes/Maskonaive2/negx.jpg"),
+		  engine::texture_2d::create("assets/textures/skybox/mountain-skyboxes/Maskonaive2/posy.jpg"),
+		  engine::texture_2d::create("assets/textures/skybox/mountain-skyboxes/Maskonaive2/negy.jpg")
 		});
 
 	// Load the terrain texture and create a terrain mesh. Create a terrain object. Set its properties
