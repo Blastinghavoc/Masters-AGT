@@ -80,6 +80,17 @@ example_layer::example_layer()
 	terrain_props.restitution = 0.92f;
 	m_terrain = engine::game_object::create(terrain_props);
 
+	//Load the test model.
+	engine::ref <engine::model> test_model = engine::model::create("assets/models/modular/Modular_Terrain_Hilly/Grass_Flat.obj");	
+	engine::game_object_properties test_props;
+	test_props.meshes = test_model->meshes();
+	test_props.textures = test_model->textures();
+	float test_scale = 1.f / glm::max(test_model->size().x, glm::max(test_model->size().y, test_model->size().z));
+	test_props.position = { 0,2, 0 };
+	test_props.scale = glm::vec3(test_scale);
+	test_props.bounding_shape = test_model->size() / 2.f * test_scale;
+	m_test_obj = engine::game_object::create(test_props);
+
 	// Load the cow model. Create a cow object. Set its properties
 	engine::ref <engine::model> cow_model = engine::model::create("assets/models/cow4.3ds");
 	engine::game_object_properties cow_props;
@@ -227,6 +238,13 @@ void example_layer::on_render()
 		pickup_transform = glm::rotate(pickup_transform, m_pickup->rotation_amount(), m_pickup->rotation_axis());
 		engine::renderer::submit(textured_lighting_shader, m_pickup->meshes().at(0), pickup_transform);
 	}
+
+	//Render test object
+	glm::mat4 test_transform(1.0f);
+	test_transform = glm::translate(test_transform, m_test_obj->position());
+	test_transform = glm::rotate(test_transform, m_test_obj->rotation_amount(), m_test_obj->rotation_axis());
+	test_transform = glm::scale(test_transform, m_test_obj->scale());
+	engine::renderer::submit(textured_lighting_shader, test_transform, m_test_obj);
 
 
     engine::renderer::end_scene();

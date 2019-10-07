@@ -35,4 +35,6 @@ private:
 	engine::ref<pickup> m_pickup{};
 
 	bool m_loading_screen;
+
+	engine::ref<engine::game_object>	m_test_obj{};
 };
