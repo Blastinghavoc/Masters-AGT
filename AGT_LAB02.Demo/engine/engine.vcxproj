@@ -530,6 +530,7 @@
     <ClInclude Include="src\engine\entities\game_object.h" />
     <ClInclude Include="src\engine\entities\shapes\cuboid.h" />
     <ClInclude Include="src\engine\entities\shapes\sphere.h" />
+    <ClInclude Include="src\engine\entities\shapes\tetrahedron.h" />
     <ClInclude Include="src\engine\entities\skybox.h" />
     <ClInclude Include="src\engine\entities\terrain.h" />
     <ClInclude Include="src\engine\events\application_event.h" />
@@ -583,6 +584,7 @@
     <ClCompile Include="src\engine\entities\game_object.cpp" />
     <ClCompile Include="src\engine\entities\shapes\cuboid.cpp" />
     <ClCompile Include="src\engine\entities\shapes\sphere.cpp" />
+    <ClCompile Include="src\engine\entities\shapes\tetrahedron.cpp" />
     <ClCompile Include="src\engine\entities\skybox.cpp" />
     <ClCompile Include="src\engine\entities\terrain.cpp" />
     <ClCompile Include="src\engine\renderer\buffer.cpp" />

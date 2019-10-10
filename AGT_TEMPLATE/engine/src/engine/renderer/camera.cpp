@@ -92,23 +92,23 @@ void engine::perspective_camera::on_update(const timestep& timestep)
 {
 	auto [mouse_delta_x, mouse_delta_y] = input::mouse_position();
 
-	update_rail(timestep);
+	//update_rail(timestep);
 	process_mouse(mouse_delta_x, mouse_delta_y);
 
 	update_camera_vectors();
 
     if(input::key_pressed(engine::key_codes::KEY_A)) // left
-        move_rail(e_direction::left, timestep);
+        move(e_direction::left, timestep);
     else if(input::key_pressed(engine::key_codes::KEY_D)) // right
-		move_rail(e_direction::right, timestep);
+		move(e_direction::right, timestep);
 
     if(input::key_pressed(engine::key_codes::KEY_S)) // down
-		move_rail(e_direction::backward, timestep);
+		move(e_direction::backward, timestep);
     else if(engine::input::key_pressed(engine::key_codes::KEY_W)) // up
-		move_rail(e_direction::forward, timestep);
+		move(e_direction::forward, timestep);
 
-	m_position.x = glm::clamp(m_position.x, -5.f, 5.f);
-	m_position.y = glm::clamp(m_position.y, 1.f, 11.f);
+	/*m_position.x = glm::clamp(m_position.x, -5.f, 5.f);
+	m_position.y = glm::clamp(m_position.y, 1.f, 11.f);*/
 
 	//float delta = input::mouse_scroll();
     //process_mouse_scroll(delta);
