@@ -140,7 +140,9 @@ namespace engine
 
     private: 
         void process_mouse(float mouse_delta_x, float mouse_delta_y, bool constrain_pitch = true);
-        void move(e_direction direction, timestep ts); 
+        void move(e_direction direction, timestep ts);
+		void move_rail(e_direction direction, timestep ts);
+
         void rotate(e_rotation rotation, e_axis rotation_axis, timestep ts);
         void update_camera_vectors();
         void update_view_matrix(); 
