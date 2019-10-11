@@ -1,9 +1,12 @@
 #include "game_layer.h"
 #include "platform/opengl/gl_shader.h"
+#include "engine/events/key_event.h"
+#include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
+
 #include <iostream>
 #include <filesystem>
 namespace fs = std::filesystem;
-#include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
+
 
 game_layer::game_layer() :
 m_2d_camera(-1.6f, 1.6f, -0.9f, 0.9f),
@@ -121,6 +124,27 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	auto& wall_top = m_complete_wall_segment[2];
 	wall_top->set_position(wall_top->position() + glm::vec3(0,0.365f ,0));
 
+
+	//Tst
+	engine::ref <engine::model> model = engine::model::create(path + "modified/wall_straight" + extn);
+	engine::game_object_properties props;
+	props.meshes = model->meshes();
+	props.textures = model->textures();
+	float scale = 1.f / glm::max(model->size().x, glm::max(model->size().y, model->size().z));
+	props.position = { 0,1.f, 0 };
+	props.scale = glm::vec3(scale);
+	props.bounding_shape = model->size() / 2.f * scale;
+	m_level_segments.push_back(engine::game_object::create(props));
+
+
+	//Create grid square
+	engine::ref<engine::grid_square> grid_shape = engine::grid_square::create(0.05f);
+	engine::game_object_properties grid_shape_props;
+	grid_shape_props.position = { 0.f, 0.8f, 0.f };
+	grid_shape_props.meshes = { grid_shape->mesh() };
+	grid_shape_props.bounding_shape = glm::vec3(1.f);	
+	m_grid_square = engine::game_object::create(grid_shape_props);
+
 	//Create text manager
 	m_text_manager = engine::text_manager::create();
 }
@@ -136,6 +160,8 @@ void game_layer::on_update(const engine::timestep& time_step)
 
 void game_layer::on_render()
 {
+	const auto cam_pos = m_3d_camera.position();
+
 	engine::render_command::clear_color({ 0.2f, 0.3f, 0.3f, 1.0f });
 	engine::render_command::clear();
 
@@ -166,15 +192,61 @@ void game_layer::on_render()
 		engine::renderer::submit(textured_lighting_shader, m_complete_wall_segment[i]);
 	}
 
-	
+	engine::renderer::end_scene();
+
+	// Set up material shader. (does not render textures, renders materials instead)
+	const auto textured_material_shader = engine::renderer::shaders_library()->get("mesh_material");
+	engine::renderer::begin_scene(m_3d_camera, textured_material_shader);
+
+	m_material->submit(textured_material_shader);
+	std::dynamic_pointer_cast<engine::gl_shader>(textured_material_shader)->set_uniform("gEyeWorldPos", m_3d_camera.position());
+
+	//Shows a 1m debug grid. Not super efficient, and uses lots of magic numbers
+	//TODO maybe improve?
+	if (m_show_debug)
+	{
+		int row_width = 10;
+		const glm::vec3 base_position{ floor(cam_pos.x)-row_width/2,0.6f,floor(cam_pos.z)-row_width/2 };
+		for (int i = 0; i < row_width*row_width; i++)
+		{
+			auto offset = base_position + glm::vec3(i % row_width, 0.f, i / row_width);
+			glm::mat4 transform(1.0f);
+			transform = glm::translate(transform, offset);
+			transform = glm::rotate(transform, 0.f, {0,1,0});
+			transform = glm::scale(transform, {1,1,1});
+			engine::renderer::submit(textured_material_shader, transform, m_grid_square);
+		}
+	}
+
 
 	// Render text
 	const auto text_shader = engine::renderer::shaders_library()->get("text_2D");
 	m_text_manager->render_text(text_shader, "Placeholder UI", 10.f, (float)engine::application::window().height() - 25.f, 0.5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
+	if (m_show_debug)
+	{
+		m_text_manager->render_text(text_shader, "Pos:{" + std::to_string(cam_pos.x) + "," + std::to_string(cam_pos.y)
+			+ "," + std::to_string(cam_pos.z) + "}", 10.f, (float)engine::application::window().height() - 50.f, .5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
+	}
 }
 
 void game_layer::on_event(engine::event& event)
 {
+	if (event.event_type() == engine::event_type_e::key_pressed)
+	{
+		auto& e = dynamic_cast<engine::key_pressed_event&>(event);
+		switch (e.key_code())
+		{
+		case engine::key_codes::KEY_TAB:
+			engine::render_command::toggle_wireframe();
+			break;
+		case engine::key_codes::KEY_F1:
+			m_show_debug = !m_show_debug;
+			break;
+		default:
+			break;
+		}
+		
+	}
 }
 
 /*

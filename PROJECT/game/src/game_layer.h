@@ -17,6 +17,7 @@ private:
 
 	engine::ref<engine::skybox>			m_skybox{};
 	engine::ref<engine::game_object>	m_terrain{};
+	engine::ref<engine::game_object>	m_grid_square{};
 
 	std::vector<engine::ref < engine::game_object>> m_level_segments{};
 
@@ -35,6 +36,7 @@ private:
 
 	std::vector < engine::ref<engine::game_object>> m_complete_wall_segment;
 
+	bool m_show_debug{ false };
 };
 
 void get_all_models_in_directory(std::vector<std::string>& vec, const std::string& path, const std::string& extension);

@@ -1359,6 +1359,9 @@
     <ClInclude Include="src\platform\windows\win_window.h">
       <Filter>src\platform\windows</Filter>
     </ClInclude>
+    <ClInclude Include="src\engine\entities\shapes\grid_square.h">
+      <Filter>src\engine\entities\shapes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\engine\core\application.cpp">
@@ -1480,6 +1483,9 @@
     </ClCompile>
     <ClCompile Include="src\platform\windows\win_window.cpp">
       <Filter>src\platform\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\entities\shapes\grid_square.cpp">
+      <Filter>src\engine\entities\shapes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
