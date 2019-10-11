@@ -142,6 +142,19 @@ example_layer::example_layer()
 	m_pickup = pickup::create(pickup_props);
 	m_pickup->init();
 
+	//Tetrahedron from lab 3
+	std::vector<glm::vec3> tetrahedron_vertices;
+	tetrahedron_vertices.push_back(glm::vec3(0.f, 10.f, 0.f));//0
+	tetrahedron_vertices.push_back(glm::vec3(0.f, 0.f, 10.f));//1
+	tetrahedron_vertices.push_back(glm::vec3(-10.f, 0.f, -10.f)); //2
+	tetrahedron_vertices.push_back(glm::vec3(10.f, 0.f, -10.f)); //3
+	engine::ref<engine::tetrahedron> tetrahedron_shape = engine::tetrahedron::create(tetrahedron_vertices);
+	engine::game_object_properties tetrahedron_props;
+
+	tetrahedron_props.position = { 0.f, 0.5f, -20.f };
+	tetrahedron_props.meshes = { tetrahedron_shape-> mesh() };
+	m_tetrahedron = engine::game_object::create(tetrahedron_props);
+
 	//Back the camera up
 	m_3d_camera.position({ 0,5,10 });
 }
@@ -258,6 +271,9 @@ void example_layer::on_render()
 	std::dynamic_pointer_cast<engine::gl_shader>(textured_material_shader)->set_uniform("view_pos", m_3d_camera.position());
 
 	engine::renderer::submit(textured_material_shader, m_ball);
+
+	//tetrahedron
+	engine::renderer::submit(textured_material_shader, m_tetrahedron);
 
 	engine::renderer::end_scene();
 

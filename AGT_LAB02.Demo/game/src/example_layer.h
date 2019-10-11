@@ -37,4 +37,6 @@ private:
 	bool m_loading_screen;
 
 	engine::ref<engine::game_object>	m_test_obj{};
+
+	engine::ref<engine::game_object>	m_tetrahedron{};
 };
