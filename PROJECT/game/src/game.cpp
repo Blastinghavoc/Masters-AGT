@@ -1,5 +1,6 @@
 // --------- Entry Point ---------------
 #include "example_layer.h"
+#include "game_layer.h"
 #include "engine/core/entry_point.h"
 #include "engine/events/key_event.h"
 
@@ -9,7 +10,8 @@ class sandbox_app : public engine::application
 public: 
     sandbox_app() 
     { 
-        push_layer(new example_layer()); 
+        //push_layer(new example_layer());
+		push_layer(new game_layer());
     } 
 
     ~sandbox_app() = default; 

@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\game.cpp" />
+    <ClCompile Include="src\example_layer.cpp">
+      <Filter>layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game_layer.cpp">
+      <Filter>layers</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="layers">
+      <UniqueIdentifier>{9cca66c1-9920-4ab8-b715-5d8acabe4b42}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\example_layer.h">
+      <Filter>layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game_layer.h">
+      <Filter>layers</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
