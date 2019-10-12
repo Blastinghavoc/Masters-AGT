@@ -133,11 +133,15 @@
   <ItemGroup>
     <ClInclude Include="src\example_layer.h" />
     <ClInclude Include="src\game_layer.h" />
+    <ClInclude Include="src\grid\grid.h" />
+    <ClInclude Include="src\grid\grid_tile.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\example_layer.cpp" />
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\game_layer.cpp" />
+    <ClCompile Include="src\grid\grid.cpp" />
+    <ClCompile Include="src\grid\grid_tile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\engine\engine.vcxproj">

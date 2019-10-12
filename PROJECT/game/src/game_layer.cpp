@@ -7,6 +7,9 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 
 game_layer::game_layer() :
 m_2d_camera(-1.6f, 1.6f, -0.9f, 0.9f),
@@ -81,63 +84,59 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	terrain_props.restitution = 0.92f;
 	m_terrain = engine::game_object::create(terrain_props);
 
-	//Display all dungeon pieces
-	std::vector<std::string> level_segments;
+
 	std::string path = "assets/models/static/dungeon/";
 	std::string extn = ".obj";
-	get_all_models_in_directory(level_segments, path, extn);
-	for (int i = 0; i < level_segments.size(); i++)
-	{
-		// Load the level segment model. Create object. Set its properties
-		engine::ref <engine::model> model = engine::model::create(path+level_segments[i]+extn);
-		engine::game_object_properties props;
-		props.meshes = model->meshes();
-		props.textures = model->textures();
-		float scale = 1.f / glm::max(model->size().x, glm::max(model->size().y, model->size().z));
-		props.position = { -4*(i%6),1.f, -4*(i / 6) };
-		props.scale = glm::vec3(scale);
-		props.bounding_shape = model->size() / 2.f * scale;
-		m_level_segments.push_back(engine::game_object::create(props));
-	}
+	//Display all dungeon pieces
+	//generate_all_level_pieces(m_level_segments,path,extn);
 
 	//Create complete wall segment
-	level_segments = { "Wall_Base_Straight" ,"Wall_Straight","Wall_Top_Straight" };
-	float pos = 1.f;
-	for (int i = 0; i < level_segments.size(); i++)
-	{
-		// Load the level segment model. Create object. Set its properties
-		engine::ref <engine::model> model = engine::model::create(path + level_segments[i] + extn);
-		engine::game_object_properties props;
-		props.meshes = model->meshes();
-		props.textures = model->textures();
-		float scale = 1.f / glm::max(model->size().x, glm::max(model->size().y, model->size().z));
-		props.position = { 4,pos, 4 };
-		props.scale = glm::vec3(scale);
-		props.bounding_shape = model->size() / 2.f * scale;
-		m_complete_wall_segment.push_back(engine::game_object::create(props));		
-	}
-	auto& wall_base = m_complete_wall_segment[0];	
+	//std::vector<std::string> level_segments = { "Wall_Base_Straight" ,"Wall_Straight","Wall_Top_Straight" };
+	//float pos = 1.f;
+	//for (int i = 0; i < level_segments.size(); i++)
+	//{
+	//	// Load the level segment model. Create object. Set its properties
+	//	engine::ref <engine::model> model = engine::model::create(path + level_segments[i] + extn);
+	//	engine::game_object_properties props;
+	//	props.meshes = model->meshes();
+	//	props.textures = model->textures();
+	//	float scale = 1.f / glm::max(model->size().x, glm::max(model->size().y, model->size().z));
+	//	props.position = { 4,pos, 4 };
+	//	props.scale = glm::vec3(scale);
+	//	props.bounding_shape = model->size() / 2.f * scale;
+	//	m_complete_wall_segment.push_back(engine::game_object::create(props));		
+	//}
+	//auto& wall_base = m_complete_wall_segment[0];	
 
-	auto& wall_straight = m_complete_wall_segment[1];
-	wall_straight->set_position(wall_straight->position() + glm::vec3(0, 0.25f, .039f));
+	//auto& wall_straight = m_complete_wall_segment[1];
+	//wall_straight->set_position(wall_straight->position() + glm::vec3(0, 0.25f, .039f));
 
-	auto& wall_top = m_complete_wall_segment[2];
-	wall_top->set_position(wall_top->position() + glm::vec3(0,0.365f ,0));
+	//auto& wall_top = m_complete_wall_segment[2];
+	//wall_top->set_position(wall_top->position() + glm::vec3(0,0.365f ,0));
 
 
-	//Tst
+	//Models in the "modified" directory were put together by me from the original pieces.
 	engine::ref <engine::model> model = engine::model::create(path + "modified/wall_straight" + extn);
 	engine::game_object_properties props;
 	props.meshes = model->meshes();
 	props.textures = model->textures();
 	float scale = 1.f / glm::max(model->size().x, glm::max(model->size().y, model->size().z));
-	props.position = { 0,1.f, 0 };
 	props.scale = glm::vec3(scale);
 	props.bounding_shape = model->size() / 2.f * scale;
+	props.rotation_axis = { 0,1, 0};
+	props.position = { 0,1.f, .5f };
+	props.rotation_amount = M_PI/2;
+	m_level_segments.push_back(engine::game_object::create(props));
+	props.position = { 1,1.f, .5f };
+	m_level_segments.push_back(engine::game_object::create(props));
+	props.position = { .5f,1.f, 0 };
+	props.rotation_amount = M_PI;
+	m_level_segments.push_back(engine::game_object::create(props));
+	props.position = { .5f,1.f, 1 };	
 	m_level_segments.push_back(engine::game_object::create(props));
 
 
-	//Create grid square
+	//Create grid square for debug
 	engine::ref<engine::grid_square> grid_shape = engine::grid_square::create(0.05f);
 	engine::game_object_properties grid_shape_props;
 	grid_shape_props.position = { 0.f, 0.8f, 0.f };
@@ -246,6 +245,25 @@ void game_layer::on_event(engine::event& event)
 			break;
 		}
 		
+	}
+}
+
+void generate_all_level_pieces(std::vector<engine::ref<engine::game_object>>& level_segments,const std::string& path,const std::string& extn) {
+	//Display all dungeon pieces
+	std::vector<std::string> models;	
+	get_all_models_in_directory(models, path, extn);
+	for (int i = 0; i < models.size(); i++)
+	{
+		// Load the level segment model. Create object. Set its properties
+		engine::ref <engine::model> model = engine::model::create(path + models[i] + extn);
+		engine::game_object_properties props;
+		props.meshes = model->meshes();
+		props.textures = model->textures();
+		float scale = 1.f / glm::max(model->size().x, glm::max(model->size().y, model->size().z));
+		props.position = { -4 * (i % 6),1.f, -4 * (i / 6) };
+		props.scale = glm::vec3(scale);
+		props.bounding_shape = model->size() / 2.f * scale;
+		level_segments.push_back(engine::game_object::create(props));
 	}
 }
 

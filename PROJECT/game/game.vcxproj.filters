@@ -8,10 +8,15 @@
     <ClCompile Include="src\game_layer.cpp">
       <Filter>layers</Filter>
     </ClCompile>
+    <ClCompile Include="src\grid\grid_tile.cpp" />
+    <ClCompile Include="src\grid\grid.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="layers">
       <UniqueIdentifier>{9cca66c1-9920-4ab8-b715-5d8acabe4b42}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="grid">
+      <UniqueIdentifier>{38bf35ae-3694-47f3-a701-2127276694cd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -20,6 +25,12 @@
     </ClInclude>
     <ClInclude Include="src\game_layer.h">
       <Filter>layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\grid\grid.h">
+      <Filter>grid</Filter>
+    </ClInclude>
+    <ClInclude Include="src\grid\grid_tile.h">
+      <Filter>grid</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

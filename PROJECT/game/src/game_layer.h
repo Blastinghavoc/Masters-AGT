@@ -1,6 +1,5 @@
 #pragma once
 
-#pragma once
 #include <engine.h>
 
 class game_layer : public engine::layer
@@ -38,5 +37,7 @@ private:
 
 	bool m_show_debug{ false };
 };
+
+void generate_all_level_pieces(std::vector<engine::ref<engine::game_object>>& level_segments, const std::string& path, const std::string& extn);
 
 void get_all_models_in_directory(std::vector<std::string>& vec, const std::string& path, const std::string& extension);
