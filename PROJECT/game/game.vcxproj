@@ -131,6 +131,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="orientation.h" />
     <ClInclude Include="src\example_layer.h" />
     <ClInclude Include="src\game_layer.h" />
     <ClInclude Include="src\grid\grid.h" />

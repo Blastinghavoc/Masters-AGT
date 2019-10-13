@@ -8,8 +8,12 @@
     <ClCompile Include="src\game_layer.cpp">
       <Filter>layers</Filter>
     </ClCompile>
-    <ClCompile Include="src\grid\grid_tile.cpp" />
-    <ClCompile Include="src\grid\grid.cpp" />
+    <ClCompile Include="src\grid\grid.cpp">
+      <Filter>grid</Filter>
+    </ClCompile>
+    <ClCompile Include="src\grid\grid_tile.cpp">
+      <Filter>grid</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="layers">
@@ -32,5 +36,6 @@
     <ClInclude Include="src\grid\grid_tile.h">
       <Filter>grid</Filter>
     </ClInclude>
+    <ClInclude Include="orientation.h" />
   </ItemGroup>
 </Project>

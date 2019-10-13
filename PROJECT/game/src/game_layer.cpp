@@ -116,7 +116,7 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 
 
 	//Models in the "modified" directory were put together by me from the original pieces.
-	engine::ref <engine::model> model = engine::model::create(path + "modified/wall_straight" + extn);
+	/*engine::ref <engine::model> model = engine::model::create(path + "modified/wall_straight" + extn);
 	engine::game_object_properties props;
 	props.meshes = model->meshes();
 	props.textures = model->textures();
@@ -125,16 +125,28 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	props.bounding_shape = model->size() / 2.f * scale;
 	props.rotation_axis = { 0,1, 0};
 	props.position = { 0,1.f, .5f };
-	props.rotation_amount = M_PI/2;
+	props.rotation_amount = M_PI/2.f;
 	m_level_segments.push_back(engine::game_object::create(props));
 	props.position = { 1,1.f, .5f };
 	m_level_segments.push_back(engine::game_object::create(props));
 	props.position = { .5f,1.f, 0 };
-	props.rotation_amount = M_PI;
+	props.rotation_amount = (float)M_PI;
 	m_level_segments.push_back(engine::game_object::create(props));
 	props.position = { .5f,1.f, 1 };	
-	m_level_segments.push_back(engine::game_object::create(props));
+	m_level_segments.push_back(engine::game_object::create(props));*/
 
+	//Populate level grid
+	for (int i = 0; i < 15; i++)
+	{
+		m_level_grid.set_border(0,i,orientation::east);
+		m_level_grid.set_border(14, i, orientation::west);
+		m_level_grid.set_border(i, 0, orientation::south);
+		m_level_grid.set_border(i, 14, orientation::north);
+		for (int j = 0; j < 15; j++)
+		{
+			m_level_grid.set_floor(i, j);
+		}
+	}
 
 	//Create grid square for debug
 	engine::ref<engine::grid_square> grid_shape = engine::grid_square::create(0.05f);
@@ -155,6 +167,7 @@ game_layer::~game_layer()
 void game_layer::on_update(const engine::timestep& time_step)
 {
 	m_3d_camera.on_update(time_step);
+	m_fps = 1 / time_step;
 }
 
 void game_layer::on_render()
@@ -191,6 +204,8 @@ void game_layer::on_render()
 		engine::renderer::submit(textured_lighting_shader, m_complete_wall_segment[i]);
 	}
 
+	m_level_grid.render(textured_lighting_shader);
+
 	engine::renderer::end_scene();
 
 	// Set up material shader. (does not render textures, renders materials instead)
@@ -225,6 +240,8 @@ void game_layer::on_render()
 	{
 		m_text_manager->render_text(text_shader, "Pos:{" + std::to_string(cam_pos.x) + "," + std::to_string(cam_pos.y)
 			+ "," + std::to_string(cam_pos.z) + "}", 10.f, (float)engine::application::window().height() - 50.f, .5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
+		m_text_manager->render_text(text_shader, "FPS:{" + std::to_string((int) m_fps) + "}", 10.f, (float)engine::application::window().height() - 75.f, .5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
+
 	}
 }
 

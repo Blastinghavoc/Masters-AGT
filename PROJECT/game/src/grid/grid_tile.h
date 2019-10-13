@@ -1,22 +1,18 @@
 #pragma once
 #include <engine.h>
-
+#include "../../game/orientation.h"
 
 //Represents a 1m x 1m tile on the world grid
 class grid_tile {
 public:
 	grid_tile();
-	~grid_tile();
+	~grid_tile();	
 
-	enum cardinal_orientation
-	{
-		north = 0,
-		east = 1,
-		south = 2,
-		west = 3
-	};
+	void set_border(const engine::ref<engine::game_object>& obj, const orientation& facing);
 
-	//Assumes begin scene already been called
+	void set_floor(const engine::ref<engine::game_object>& obj);
+
+	//Assumes begin scene has already been called
 	void render(const engine::ref<engine::shader>& shader);
 
 private:
