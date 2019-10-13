@@ -1,4 +1,5 @@
 #pragma once
+#include <engine.h>
 
 enum orientation
 {
@@ -11,3 +12,6 @@ enum orientation
 	north_west = 6,
 	south_west = 7
 };
+
+
+glm::vec3 to_vec(orientation o);

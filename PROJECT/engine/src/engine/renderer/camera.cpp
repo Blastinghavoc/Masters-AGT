@@ -225,3 +225,25 @@ void engine::perspective_camera::update_camera_vectors()
     m_up_vector   = glm::normalize(glm::cross(m_right_vector, m_front_vector));
     update_view_matrix();
 }
+
+//Makes the camera look towards a point
+void engine::perspective_camera::look_at(glm::vec3& target)
+{
+	auto dir = target - m_position;
+	face(dir);
+}
+
+//Makes the camera face a particular direction
+void engine::perspective_camera::face(glm::vec3& direction) {
+	m_front_vector = glm::normalize(direction);
+
+	m_right_vector = glm::normalize(glm::cross(m_front_vector, m_world_up_vector));
+	m_up_vector = glm::normalize(glm::cross(m_right_vector, m_front_vector));
+	update_view_matrix();
+
+	//reverse engineer yaw and pitch to keep them correct
+	auto pitch_radians = asin(m_front_vector.y);
+	auto yaw_radians = acos(m_front_vector.x / cos(pitch_radians));
+	m_yaw = glm::degrees(yaw_radians);
+	m_pitch = glm::degrees(pitch_radians);
+}

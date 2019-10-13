@@ -2,7 +2,7 @@
 #include <engine.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include "../../game/orientation.h"
+#include "../orientation.h"
 #include "grid_tile.h"
 
 //Two dimensional grid of game objects
@@ -21,6 +21,9 @@ public:
 
 	grid_tile& operator[](const glm::vec2& vec);
 	grid_tile& operator[](const std::pair<int,int>& loc);
+
+	glm::vec3 grid_to_world_coords(int x, int z);
+	std::pair<int,int> world_to_grid_coords(glm::vec3 vec);
 
 	const engine::ref<engine::game_object>& get_wall(const orientation& facing) const;
 private:

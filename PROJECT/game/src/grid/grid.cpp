@@ -80,6 +80,16 @@ grid_tile& grid::operator[](const std::pair<int, int>& loc)
 	return m_tiles[loc];
 }
 
+glm::vec3 grid::grid_to_world_coords(int x, int z)
+{
+	return glm::vec3(m_cell_size*x,m_y,m_cell_size*z);
+}
+
+std::pair<int, int> grid::world_to_grid_coords(glm::vec3 vec)
+{
+	return std::pair<int, int>((int)floor(vec.x/m_cell_size),(int)floor(vec.z/m_cell_size));
+}
+
 const engine::ref<engine::game_object>& grid::get_wall(const orientation& facing) const
 {
 	return m_walls_prefabs[facing];

@@ -19,8 +19,6 @@ private:
 	engine::ref<engine::game_object>	m_terrain{};
 	engine::ref<engine::game_object>	m_grid_square{};
 
-	std::vector<engine::ref<engine::game_object>> m_level_segments{};
-
 	engine::ref<engine::material>		m_material{};
 
 	engine::DirectionalLight            m_directionalLight;
@@ -34,13 +32,13 @@ private:
 	engine::orthographic_camera       m_2d_camera;
 	engine::perspective_camera        m_3d_camera;
 
-	std::vector < engine::ref<engine::game_object>> m_complete_wall_segment;
-
 	grid m_level_grid{2.f,.55f};
 
 	bool m_show_debug{ false };
 
 	float m_fps{0};
+
+	glm::vec3 m_camera_start_pos{0.1f,3.f,0.1f};
 };
 
 void generate_all_level_pieces(std::vector<engine::ref<engine::game_object>>& level_segments, const std::string& path, const std::string& extn);

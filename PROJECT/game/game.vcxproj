@@ -131,11 +131,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="orientation.h" />
     <ClInclude Include="src\example_layer.h" />
     <ClInclude Include="src\game_layer.h" />
     <ClInclude Include="src\grid\grid.h" />
     <ClInclude Include="src\grid\grid_tile.h" />
+    <ClInclude Include="src\intro_screen.h" />
+    <ClInclude Include="src\orientation.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\example_layer.cpp" />
@@ -143,6 +144,8 @@
     <ClCompile Include="src\game_layer.cpp" />
     <ClCompile Include="src\grid\grid.cpp" />
     <ClCompile Include="src\grid\grid_tile.cpp" />
+    <ClCompile Include="src\intro_screen.cpp" />
+    <ClCompile Include="src\orientation.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\engine\engine.vcxproj">

@@ -9,6 +9,7 @@ namespace fs = std::filesystem;
 
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include "intro_screen.h"
 
 
 game_layer::game_layer() :
@@ -90,51 +91,6 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	//Display all dungeon pieces
 	//generate_all_level_pieces(m_level_segments,path,extn);
 
-	//Create complete wall segment
-	//std::vector<std::string> level_segments = { "Wall_Base_Straight" ,"Wall_Straight","Wall_Top_Straight" };
-	//float pos = 1.f;
-	//for (int i = 0; i < level_segments.size(); i++)
-	//{
-	//	// Load the level segment model. Create object. Set its properties
-	//	engine::ref <engine::model> model = engine::model::create(path + level_segments[i] + extn);
-	//	engine::game_object_properties props;
-	//	props.meshes = model->meshes();
-	//	props.textures = model->textures();
-	//	float scale = 1.f / glm::max(model->size().x, glm::max(model->size().y, model->size().z));
-	//	props.position = { 4,pos, 4 };
-	//	props.scale = glm::vec3(scale);
-	//	props.bounding_shape = model->size() / 2.f * scale;
-	//	m_complete_wall_segment.push_back(engine::game_object::create(props));		
-	//}
-	//auto& wall_base = m_complete_wall_segment[0];	
-
-	//auto& wall_straight = m_complete_wall_segment[1];
-	//wall_straight->set_position(wall_straight->position() + glm::vec3(0, 0.25f, .039f));
-
-	//auto& wall_top = m_complete_wall_segment[2];
-	//wall_top->set_position(wall_top->position() + glm::vec3(0,0.365f ,0));
-
-
-	//Models in the "modified" directory were put together by me from the original pieces.
-	/*engine::ref <engine::model> model = engine::model::create(path + "modified/wall_straight" + extn);
-	engine::game_object_properties props;
-	props.meshes = model->meshes();
-	props.textures = model->textures();
-	float scale = 1.f / glm::max(model->size().x, glm::max(model->size().y, model->size().z));
-	props.scale = glm::vec3(scale);
-	props.bounding_shape = model->size() / 2.f * scale;
-	props.rotation_axis = { 0,1, 0};
-	props.position = { 0,1.f, .5f };
-	props.rotation_amount = M_PI/2.f;
-	m_level_segments.push_back(engine::game_object::create(props));
-	props.position = { 1,1.f, .5f };
-	m_level_segments.push_back(engine::game_object::create(props));
-	props.position = { .5f,1.f, 0 };
-	props.rotation_amount = (float)M_PI;
-	m_level_segments.push_back(engine::game_object::create(props));
-	props.position = { .5f,1.f, 1 };	
-	m_level_segments.push_back(engine::game_object::create(props));*/
-
 	//Populate level grid
 	for (int i = 0; i < 15; i++)
 	{
@@ -147,6 +103,10 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 			m_level_grid.set_floor(i, j);
 		}
 	}
+	glm::vec3 center = m_level_grid.grid_to_world_coords(7,7);
+
+	//Initialise intro screen
+	intro_screen::init(m_3d_camera,center);
 
 	//Create grid square for debug
 	engine::ref<engine::grid_square> grid_shape = engine::grid_square::create(0.05f);
@@ -166,8 +126,14 @@ game_layer::~game_layer()
 
 void game_layer::on_update(const engine::timestep& time_step)
 {
-	m_3d_camera.on_update(time_step);
-	m_fps = 1 / time_step;
+	if (intro_screen::active())
+	{
+		intro_screen::update(m_3d_camera, time_step);
+	}
+	else {
+		m_3d_camera.on_update(time_step);
+		m_fps = 1 / time_step;
+	}
 }
 
 void game_layer::on_render()
@@ -193,16 +159,6 @@ void game_layer::on_render()
 	engine::renderer::submit(textured_lighting_shader, m_skybox, skybox_tranform);
 
 	engine::renderer::submit(textured_lighting_shader, m_terrain);
-
-	for (size_t i = 0; i < m_level_segments.size(); i++)
-	{
-		engine::renderer::submit(textured_lighting_shader, m_level_segments[i]);
-	}
-
-	for (size_t i = 0; i < m_complete_wall_segment.size(); i++)
-	{
-		engine::renderer::submit(textured_lighting_shader, m_complete_wall_segment[i]);
-	}
 
 	m_level_grid.render(textured_lighting_shader);
 
@@ -234,21 +190,30 @@ void game_layer::on_render()
 
 
 	// Render text
-	const auto text_shader = engine::renderer::shaders_library()->get("text_2D");
-	m_text_manager->render_text(text_shader, "Placeholder UI", 10.f, (float)engine::application::window().height() - 25.f, 0.5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
-	if (m_show_debug)
-	{
-		m_text_manager->render_text(text_shader, "Pos:{" + std::to_string(cam_pos.x) + "," + std::to_string(cam_pos.y)
-			+ "," + std::to_string(cam_pos.z) + "}", 10.f, (float)engine::application::window().height() - 50.f, .5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
-		m_text_manager->render_text(text_shader, "FPS:{" + std::to_string((int) m_fps) + "}", 10.f, (float)engine::application::window().height() - 75.f, .5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
 
+	if (intro_screen::active())
+	{
+		intro_screen::render(m_text_manager);
+	}
+	else {
+		const auto text_shader = engine::renderer::shaders_library()->get("text_2D");
+		m_text_manager->render_text(text_shader, "Placeholder UI", 10.f, (float)engine::application::window().height() - 25.f, 0.5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
+		if (m_show_debug)
+		{
+			m_text_manager->render_text(text_shader, "Pos:{" + std::to_string(cam_pos.x) + "," + std::to_string(cam_pos.y)
+				+ "," + std::to_string(cam_pos.z) + "}", 10.f, (float)engine::application::window().height() - 50.f, .5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
+			m_text_manager->render_text(text_shader, "FPS:{" + std::to_string((int) m_fps) + "}", 10.f, (float)engine::application::window().height() - 75.f, .5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
+			m_text_manager->render_text(text_shader, "Facing:{" +std::to_string(m_3d_camera.front_vector().x) + "," + std::to_string(m_3d_camera.front_vector().y)
+				+ "," + std::to_string(m_3d_camera.front_vector().z) + "}", 10.f, (float)engine::application::window().height() - 100.f, .5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
+		}
 	}
 }
 
 void game_layer::on_event(engine::event& event)
 {
 	if (event.event_type() == engine::event_type_e::key_pressed)
-	{
+	{		
+
 		auto& e = dynamic_cast<engine::key_pressed_event&>(event);
 		switch (e.key_code())
 		{
@@ -257,6 +222,15 @@ void game_layer::on_event(engine::event& event)
 			break;
 		case engine::key_codes::KEY_F1:
 			m_show_debug = !m_show_debug;
+			break;
+
+		case engine::key_codes::KEY_ENTER:			
+			if (intro_screen::active())
+			{
+				intro_screen::active(false);
+				m_3d_camera.position(m_camera_start_pos);
+				m_3d_camera.face(to_vec(north));
+			}
 			break;
 		default:
 			break;

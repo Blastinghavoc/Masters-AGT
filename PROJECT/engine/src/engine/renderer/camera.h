@@ -138,14 +138,18 @@ namespace engine
         const glm::mat4& view_matrix() const override; 
         const glm::mat4& view_projection_matrix() const override;
 
+		void look_at(glm::vec3& target);
+		void face(glm::vec3& direction);
+        void move(e_direction direction, timestep ts); 
+
     private: 
         void process_mouse(float mouse_delta_x, float mouse_delta_y, bool constrain_pitch = true);
-        void move(e_direction direction, timestep ts); 
         void rotate(e_rotation rotation, e_axis rotation_axis, timestep ts);
         void update_camera_vectors();
         void update_view_matrix(); 
 
-    private: 
+    private:
+
         glm::mat4   m_projection_mat{1}; 
         glm::mat4   m_view_mat{1}; 
         glm::mat4   m_view_projection_mat{1}; 
