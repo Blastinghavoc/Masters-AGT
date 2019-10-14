@@ -33,6 +33,7 @@
 #include "engine/entities/terrain.h"
 #include "engine/entities/skybox.h"
 #include "engine/entities/shapes/grid_square.h"
+#include "engine/entities/shapes/rhombicuboctahedron.h"
 
 // ---utils---------------------------
 #include "engine/utils/bullet_manager.h"

@@ -116,6 +116,13 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	grid_shape_props.bounding_shape = glm::vec3(1.f);	
 	m_grid_square = engine::game_object::create(grid_shape_props);
 
+	engine::ref<engine::rhombicuboctahedron> shape = engine::rhombicuboctahedron::create();
+	engine::game_object_properties shape_props;
+	shape_props.position = { 10.f, 2.f, 10.f };
+	shape_props.meshes = { shape->mesh() };
+	shape_props.bounding_shape = glm::vec3(1.f);
+	m_game_objects.push_back(engine::game_object::create(shape_props));
+
 	//Create text manager
 	m_text_manager = engine::text_manager::create();
 }
@@ -161,6 +168,11 @@ void game_layer::on_render()
 	engine::renderer::submit(textured_lighting_shader, m_terrain);
 
 	m_level_grid.render(textured_lighting_shader);
+
+	for each (auto var in m_game_objects)
+	{
+		engine::renderer::submit(textured_lighting_shader, var);
+	}
 
 	engine::renderer::end_scene();
 
