@@ -9,8 +9,8 @@ enum orientation
 	west = 3,
 	north_east = 4,
 	south_east = 5,
-	north_west = 6,
-	south_west = 7
+	south_west = 6,
+	north_west = 7,
 };
 
 

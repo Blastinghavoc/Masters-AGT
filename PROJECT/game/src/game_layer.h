@@ -32,7 +32,7 @@ private:
 	engine::orthographic_camera       m_2d_camera;
 	engine::perspective_camera        m_3d_camera;
 
-	grid m_level_grid{2.f,.55f};
+	grid m_level_grid{2.f,0.001f};
 
 	bool m_show_debug{ false };
 

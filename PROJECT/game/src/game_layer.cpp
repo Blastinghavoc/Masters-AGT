@@ -83,6 +83,7 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	terrain_props.type = 0;
 	terrain_props.bounding_shape = glm::vec3(100.f, 0.5f, 100.f);
 	terrain_props.restitution = 0.92f;
+	terrain_props.position = { 0,-.5f,0 };
 	m_terrain = engine::game_object::create(terrain_props);
 
 
@@ -98,12 +99,24 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 		m_level_grid.set_border(14, i, orientation::west);
 		m_level_grid.set_border(i, 0, orientation::south);
 		m_level_grid.set_border(i, 14, orientation::north);
+
+		m_level_grid.set_corner(0, i, orientation::south_east);
+		m_level_grid.set_corner(14, i, orientation::south_west);		
+		m_level_grid.set_corner(i, 0, orientation::south_east);
+		m_level_grid.set_corner(i, 14, orientation::north_east);
+		
+
 		for (int j = 0; j < 15; j++)
 		{
 			m_level_grid.set_floor(i, j);
 		}
 	}
+	m_level_grid.set_corner(15, 15,south_east);
 	glm::vec3 center = m_level_grid.grid_to_world_coords(7,7);
+	m_level_grid.set_corner(7, 7, orientation::north_east);
+	m_level_grid.set_corner(7, 7, orientation::south_east);
+	m_level_grid.set_corner(7, 7, orientation::south_west);
+	m_level_grid.set_corner(7, 7, orientation::north_west);
 
 	//Initialise intro screen
 	intro_screen::init(m_3d_camera,center);

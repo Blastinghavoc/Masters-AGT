@@ -16,7 +16,7 @@ public:
 	void render(const engine::ref<engine::shader>& shader);
 
 	void set_border(const int& x, const int& z, const orientation& facing);
-
+	void set_corner(const int& x, const int& z, const orientation& facing);
 	void set_floor(const int& x, const int& z);
 
 	grid_tile& operator[](const glm::vec2& vec);
@@ -33,6 +33,6 @@ private:
 	std::map<std::pair<int,int>, grid_tile> m_tiles{};
 
 	std::vector<engine::ref<engine::game_object>> m_walls_prefabs{4};
-	engine::ref<engine::game_object> m_corner_prefab{};
+	std::vector < engine::ref<engine::game_object>> m_corner_prefabs{4};
 	engine::ref<engine::game_object> m_floor_prefab{};
 };

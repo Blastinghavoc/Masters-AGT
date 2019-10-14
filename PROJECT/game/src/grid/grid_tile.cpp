@@ -13,6 +13,11 @@ void grid_tile::set_border(const engine::ref<engine::game_object>& obj, const or
 	m_borders[facing] = obj;
 }
 
+void grid_tile::set_corner(const engine::ref<engine::game_object>& obj, const int& index)
+{
+	m_corners[index] = obj;
+}
+
 void grid_tile::set_floor(const engine::ref<engine::game_object>& obj)
 {
 	m_floor = obj;
