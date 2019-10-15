@@ -9,10 +9,10 @@ public:
 	~grid_tile();	
 
 	void set_border(const engine::ref<engine::game_object>& obj, const orientation& facing);
-
 	void set_corner(const engine::ref<engine::game_object>& obj);
-
 	void set_floor(const engine::ref<engine::game_object>& obj);
+
+	void del_border(const orientation& facing);
 
 	//Assumes begin scene has already been called
 	void render(const engine::ref<engine::shader>& shader);

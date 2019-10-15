@@ -20,6 +20,8 @@ public:
 	void set_corner(const int& x, const int& z, const orientation& relative_heading);
 	void set_floor(const int& x, const int& z);
 
+	void del_border(const int& x, const int& z, const orientation& relative_heading);
+
 	grid_tile& operator[](const glm::vec2& vec);
 	grid_tile& operator[](const std::pair<int,int>& loc);
 

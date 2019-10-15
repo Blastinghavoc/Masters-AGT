@@ -119,10 +119,12 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	m_level_grid.set_corner(7, 7, orientation::north_west);
 
 	m_level_grid.set_gateway(13, 14, north_east);
-	m_level_grid.set_gateway(14, 14, north_east,M_PI);
+	m_level_grid.set_gateway(13, 14, north_west,M_PI);
+	m_level_grid.del_border(13, 14, north);
 
 	m_level_grid.set_gateway(1, 0, south_east);
-	m_level_grid.set_gateway(2, 0, south_east, M_PI);
+	m_level_grid.set_gateway(1, 0, south_west, M_PI);
+	m_level_grid.del_border(1, 0, south);
 
 	//Initialise intro screen
 	intro_screen::init(m_3d_camera,center);

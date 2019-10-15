@@ -162,6 +162,17 @@ void grid::set_floor(const int& x, const int& z)
 	m_tiles[{x, z}].set_floor(obj);
 }
 
+void grid::del_border(const int& x, const int& z, const orientation& relative_heading)
+{
+	//If facing is not a cardinal direction, exception
+	if (relative_heading > orientation::west)
+	{
+		throw std::exception();
+	}
+	
+	m_tiles[{x, z}].del_border(relative_heading);
+}
+
 grid_tile& grid::operator[](const glm::vec2& vec)
 {
 	std::pair<int, int> index = std::make_pair((int)floor(vec.x), (int)floor(vec.y));

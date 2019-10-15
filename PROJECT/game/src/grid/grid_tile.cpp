@@ -23,6 +23,11 @@ void grid_tile::set_floor(const engine::ref<engine::game_object>& obj)
 	m_floor = obj;
 }
 
+void grid_tile::del_border(const orientation& facing)
+{
+	m_borders[facing] = engine::ref<engine::game_object>();
+}
+
 //Submit all contained objects for rendering, provided the pointers to them are valid
 void grid_tile::render(const engine::ref<engine::shader>& shader)
 {
