@@ -10,7 +10,7 @@ public:
 
 	void set_border(const engine::ref<engine::game_object>& obj, const orientation& facing);
 
-	void set_corner(const engine::ref<engine::game_object>& obj, const int& index);
+	void set_corner(const engine::ref<engine::game_object>& obj);
 
 	void set_floor(const engine::ref<engine::game_object>& obj);
 
@@ -20,8 +20,8 @@ public:
 private:
 	std::vector<engine::ref<engine::game_object>> m_borders{ 4 };
 
-	//Currently not using whole vector, just the south-east.
-	std::vector<engine::ref<engine::game_object>> m_corners{ 4 };
+	//The grid tile owns a single corner, the one with the lowest x and z coordinates.
+	engine::ref<engine::game_object> m_corner{};
 
 	engine::ref<engine::game_object> m_floor{};
 	engine::ref<engine::game_object> m_ceiling{};

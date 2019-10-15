@@ -15,8 +15,9 @@ public:
 	//Assumes begin scene has already been called
 	void render(const engine::ref<engine::shader>& shader);
 
-	void set_border(const int& x, const int& z, const orientation& facing);
-	void set_corner(const int& x, const int& z, const orientation& facing);
+	void set_border(const int& x, const int& z, const orientation& relative_heading);
+	void set_gateway(const int& x, const int& z, const orientation& relative_heading, const float& rotation_angle = 0.f);
+	void set_corner(const int& x, const int& z, const orientation& relative_heading);
 	void set_floor(const int& x, const int& z);
 
 	grid_tile& operator[](const glm::vec2& vec);
@@ -27,6 +28,12 @@ public:
 
 	const engine::ref<engine::game_object>& get_wall(const orientation& facing) const;
 private:
+	//functions
+
+	std::pair<int, int> get_corner_index_from_relative_heading(const int& x, const int& z, const orientation& heading);
+
+	//data
+
 	float m_cell_size;
 	float m_y;
 
@@ -35,4 +42,5 @@ private:
 	std::vector<engine::ref<engine::game_object>> m_walls_prefabs{4};
 	std::vector < engine::ref<engine::game_object>> m_corner_prefabs{4};
 	engine::ref<engine::game_object> m_floor_prefab{};
+	engine::ref<engine::game_object> m_gateway_prefab{};
 };

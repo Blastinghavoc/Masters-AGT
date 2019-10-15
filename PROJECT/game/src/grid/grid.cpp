@@ -41,6 +41,7 @@ grid::grid(float cell_size,float y):
 	props.position = { m_cell_size * .5f,0,m_cell_size * .5f };
 	m_floor_prefab = engine::game_object::create(props);
 
+	//pillar
 	model = engine::model::create(path + "modified/pillar" + extn);
 	props = engine::game_object_properties();
 	props.meshes = model->meshes();
@@ -57,6 +58,19 @@ grid::grid(float cell_size,float y):
 	m_corner_prefabs[orientation::south_west - 4] = engine::game_object::create(props);
 	props.position = { m_cell_size * 1,0,m_cell_size * 1 };
 	m_corner_prefabs[orientation::north_west - 4] = engine::game_object::create(props);
+
+	//Testing
+	model = engine::model::create(path + "modified/gateway_large" + extn);
+	props = engine::game_object_properties();
+	props.meshes = model->meshes();
+	props.textures = model->textures();	
+	scale = (m_cell_size * 1.f) / model->size().x;
+	auto max_scale = (m_cell_size * 1.f) / glm::max(model->size().x, glm::max(model->size().y, model->size().z));
+	props.scale = glm::vec3(scale);
+	props.bounding_shape = model->size() / 2.f * max_scale;
+	props.rotation_axis = { 0,1, 0 };
+	props.position = { 0,0,0 };
+	m_gateway_prefab = engine::game_object::create(props);
 }
 
 grid::~grid()
@@ -71,43 +85,58 @@ void grid::render(const engine::ref<engine::shader>& shader)
 	}
 }
 
-void grid::set_border(const int& x, const int& z, const orientation& facing)
+//Set the border wall at a particular position and orientation. Care must be taken to ensure these do not overlap.
+void grid::set_border(const int& x, const int& z, const orientation& relative_heading)
 {
 	//If facing is not a cardinal direction, exception
-	if (facing > orientation::west)
+	if (relative_heading > orientation::west)
 	{
 		throw std::exception();
 	}
 
 	//copy from the prefabs
-	engine::ref<engine::game_object> wall_obj = std::make_shared<engine::game_object>(*m_walls_prefabs[facing]);
+	engine::ref<engine::game_object> wall_obj = std::make_shared<engine::game_object>(*m_walls_prefabs[relative_heading]);
 	wall_obj->set_position(wall_obj->position() + grid_to_world_coords(x, z));
-	m_tiles[{x, z}].set_border(wall_obj, facing);
+	m_tiles[{x, z}].set_border(wall_obj, relative_heading);
 }
 
-void grid::set_corner(const int& x, const int& z, const orientation& facing)
-{
+void grid::set_gateway(const int& x, const int& z, const orientation& relative_heading,const float& rotation_angle) {
+	engine::ref<engine::game_object> obj = std::make_shared < engine::game_object>(*m_gateway_prefab);
+
+	//Determine which tile will own the gateway.
+	std::pair<int, int> index = get_corner_index_from_relative_heading(x, z, relative_heading);
+
+	obj->set_position(obj->position() + grid_to_world_coords(index.first, index.second));
+	//Rotate the gateway.
+	obj->set_rotation_amount(rotation_angle);
+
+	m_tiles[index].set_corner(obj);
+}
+
+//Sets a corner piece at the given grid square and facing.
+void grid::set_corner(const int& x, const int& z, const orientation& relative_heading)
+{	
+	/*NOTE: any corner can be expressed as the south_east corner of some tile, since the corner models are rotationally
+	symmetrical. This prevents two tiles trying to render models for the same corner.
+	*/
+	
+	engine::ref<engine::game_object> corner_obj = std::make_shared < engine::game_object>(*m_corner_prefabs[1]);
+
+	std::pair<int, int> index = get_corner_index_from_relative_heading(x, z, relative_heading);
+
+	corner_obj->set_position(corner_obj->position() + grid_to_world_coords(index.first, index.second));
+	m_tiles[index].set_corner(corner_obj);
+}
+
+std::pair<int, int> grid::get_corner_index_from_relative_heading(const int& x, const int& z,const orientation& relative_heading) {
 	//If facing is not a corner, exception
-	if (facing <= orientation::west)
+	if (relative_heading <= orientation::west)
 	{
 		throw std::exception();
 	}
 
-	/*int index = facing - 4;
-	engine::ref<engine::game_object> corner_obj = std::make_shared < engine::game_object>(*m_corner_prefabs[index]);*/
-
-	/*NOTE: since the corner acts like a point, it may not necessarily be "owned" by the same tile as associated walls.
-	e.g, tile 1,1 owns corner 1,1 but not corner 1,2 despite them being adjacent. Corners are visually
-	 and literally shared by multiple tiles.
-	
-	Therefore, only using the south east corner, but adjusting which tile it belongs to.
-	This is because any corner can be expressed as the south_east corner of some tile, since the corner models are rotationally
-	symmetrical. This prevents two tiles trying to render models for the same corner.
-	*/
-
-	int effective_x = x, effective_z =z;
-	engine::ref<engine::game_object> corner_obj = std::make_shared < engine::game_object>(*m_corner_prefabs[1]);	
-	switch (facing)
+	int effective_x = x, effective_z = z;
+	switch (relative_heading)
 	{
 	case north_east:
 		effective_z += 1;
@@ -122,9 +151,7 @@ void grid::set_corner(const int& x, const int& z, const orientation& facing)
 	default:
 		break;
 	}
-
-	corner_obj->set_position(corner_obj->position() + grid_to_world_coords(effective_x, effective_z));
-	m_tiles[{effective_x, effective_z}].set_corner(corner_obj, 1);
+	return std::make_pair(effective_x, effective_z);
 }
 
 void grid::set_floor(const int& x, const int& z)

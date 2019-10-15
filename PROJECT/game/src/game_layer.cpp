@@ -118,6 +118,12 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	m_level_grid.set_corner(7, 7, orientation::south_west);
 	m_level_grid.set_corner(7, 7, orientation::north_west);
 
+	m_level_grid.set_gateway(13, 14, north_east);
+	m_level_grid.set_gateway(14, 14, north_east,M_PI);
+
+	m_level_grid.set_gateway(1, 0, south_east);
+	m_level_grid.set_gateway(2, 0, south_east, M_PI);
+
 	//Initialise intro screen
 	intro_screen::init(m_3d_camera,center);
 
@@ -129,12 +135,13 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	grid_shape_props.bounding_shape = glm::vec3(1.f);	
 	m_grid_square = engine::game_object::create(grid_shape_props);
 
+	//Testing
 	engine::ref<engine::rhombicuboctahedron> shape = engine::rhombicuboctahedron::create();
 	engine::game_object_properties shape_props;
 	shape_props.position = { 10.f, 2.f, 10.f };
 	shape_props.meshes = { shape->mesh() };
 	shape_props.bounding_shape = glm::vec3(1.f);
-	m_game_objects.push_back(engine::game_object::create(shape_props));
+	m_game_objects.push_back(engine::game_object::create(shape_props));	
 
 	//Create text manager
 	m_text_manager = engine::text_manager::create();
