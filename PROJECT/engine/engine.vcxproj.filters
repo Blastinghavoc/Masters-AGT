@@ -1490,7 +1490,9 @@
     <ClCompile Include="src\engine\entities\shapes\grid_square.cpp">
       <Filter>src\engine\entities\shapes</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\entities\shapes\rhombicuboctahedron.cpp" />
+    <ClCompile Include="src\engine\entities\shapes\rhombicuboctahedron.cpp">
+      <Filter>src\engine\entities\shapes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="external\FMOD\include\fmod.cs">

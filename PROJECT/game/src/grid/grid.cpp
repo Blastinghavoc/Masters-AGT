@@ -40,6 +40,9 @@ grid::grid(float cell_size,float y):
 	props.rotation_axis = { 0,1, 0 };
 	props.position = { m_cell_size * .5f,0,m_cell_size * .5f };
 	m_floor_prefab = engine::game_object::create(props);
+	//ceiling
+	props.position += glm::vec3{0, m_cell_size * .8, 0};
+	m_ceiling_prefab = engine::game_object::create(props);
 
 	//pillar
 	model = engine::model::create(path + "modified/pillar" + extn);
@@ -59,7 +62,7 @@ grid::grid(float cell_size,float y):
 	props.position = { m_cell_size * 1,0,m_cell_size * 1 };
 	m_corner_prefabs[orientation::north_west - 4] = engine::game_object::create(props);
 
-	//Testing
+	//Gateway
 	model = engine::model::create(path + "modified/gateway_large" + extn);
 	props = engine::game_object_properties();
 	props.meshes = model->meshes();
@@ -162,6 +165,112 @@ void grid::set_floor(const int& x, const int& z)
 	m_tiles[{x, z}].set_floor(obj);
 }
 
+//Places a ceiling at the target location
+void grid::set_ceiling(const int& x, const int& z)
+{
+	engine::ref < engine::game_object> obj = std::make_shared<engine::game_object>(*m_ceiling_prefab);
+	obj->set_position(obj->position() + grid_to_world_coords(x, z));
+	m_tiles[{x, z}].set_ceiling(obj);
+}
+
+void grid::place_block(const int& x, const int& z)
+{
+	set_ceiling(x, z);
+	set_corner(x, z,south_east);
+	set_corner(x, z, south_west);
+	set_corner(x, z, north_east);
+	set_corner(x, z, north_west);
+	orientation wall_facings[]{north,south,east,west};
+
+	auto index = std::make_pair(x, z);
+	auto& tile = m_tiles[index];
+
+	tile.type = grid_tile::tile_type::maze;
+
+	//Must be careful about placing walls so as not to have two adjacent tiles both rendering walls.
+	for each (auto facing in wall_facings)
+	{
+		auto offset = to_vec(facing);
+		std::pair<int, int> adjacent_index{ index.first + offset.x,index.second + offset.z };
+		orientation opposite_facing = invert(facing);
+		auto& adjacent_tile = m_tiles[adjacent_index];
+
+
+		if (!(tile.has_border(facing)))
+		{
+			bool need_to_place_border = true;
+
+			if (adjacent_tile.type == grid_tile::tile_type::maze)
+			{
+				//Delete the adjacent border (if it exists)
+				adjacent_tile.del_border(opposite_facing);
+				//Don't need a border, as it won't be visible next to the other solid block.
+				need_to_place_border = false;
+			}
+			else {
+				if (adjacent_tile.has_border(opposite_facing))
+				{
+					need_to_place_border = false;
+				}
+			}
+
+			if (need_to_place_border)
+			{
+				set_border(x, z, facing);
+			}
+		}
+	}
+}
+
+void grid::remove_block(const int& x, const int& z)
+{
+	auto index = std::make_pair(x, z);
+
+	if (m_tiles.count(index) > 0)
+	{
+		orientation wall_facings[]{ north,south,east,west };
+		auto& old_tile = m_tiles[index];
+
+		old_tile.type = grid_tile::tile_type::empty;
+
+		if (m_tiles_baked.count(index) > 0)
+		{
+			//Restore saved version if possible.
+			m_tiles[index] = m_tiles_baked[index];			
+		}
+		else {
+			for each (auto facing in wall_facings)
+			{
+				old_tile.del_border(facing);
+				//TODO need del_corner functionality.
+			}
+		}
+
+		//Similar to placing a tile, must smartly update adjacent walls.
+		//Any adjacent maze tiles should have a border in this direction, and a corner.
+		for each (auto facing in wall_facings)
+		{
+			auto offset = to_vec(facing);
+			std::pair<int, int> adjacent_index{ index.first + offset.x,index.second + offset.z };
+			orientation opposite_facing = invert(facing);
+			auto& adjacent_tile = m_tiles[adjacent_index];
+
+			if (adjacent_tile.type == grid_tile::tile_type::maze)
+			{
+				//TODO smarter corner updating than this.
+				set_corner(adjacent_index.first, adjacent_index.second, north_east);
+				set_corner(adjacent_index.first, adjacent_index.second, north_west);
+				set_corner(adjacent_index.first, adjacent_index.second, south_east);
+				set_corner(adjacent_index.first, adjacent_index.second, south_west);
+				if (!adjacent_tile.has_border(opposite_facing))
+				{
+					set_border(adjacent_index.first, adjacent_index.second, opposite_facing);
+				}
+			}
+		}
+	}
+}
+
 void grid::del_border(const int& x, const int& z, const orientation& relative_heading)
 {
 	//If facing is not a cardinal direction, exception
@@ -171,6 +280,13 @@ void grid::del_border(const int& x, const int& z, const orientation& relative_he
 	}
 	
 	m_tiles[{x, z}].del_border(relative_heading);
+}
+
+//Save a copy of all tiles so that they can be restored later.
+void grid::bake_tiles()
+{
+	m_tiles_baked.clear();
+	m_tiles_baked.insert(m_tiles.begin(), m_tiles.end());
 }
 
 grid_tile& grid::operator[](const glm::vec2& vec)

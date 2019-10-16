@@ -126,6 +126,13 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	m_level_grid.set_gateway(1, 0, south_west, M_PI);
 	m_level_grid.del_border(1, 0, south);
 
+	m_level_grid.bake_tiles();
+
+	m_level_grid.place_block(10, 10);
+	m_level_grid.place_block(11, 10);
+	m_level_grid.place_block(12, 10);
+	m_level_grid.remove_block(12, 10);
+
 	//Initialise intro screen
 	intro_screen::init(m_3d_camera,center);
 

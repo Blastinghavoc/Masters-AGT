@@ -23,9 +23,20 @@ void grid_tile::set_floor(const engine::ref<engine::game_object>& obj)
 	m_floor = obj;
 }
 
+void grid_tile::set_ceiling(const engine::ref<engine::game_object>& obj)
+{
+	m_ceiling = obj;
+}
+
 void grid_tile::del_border(const orientation& facing)
 {
 	m_borders[facing] = engine::ref<engine::game_object>();
+}
+
+//Checks if the reference for the given facing is valid.
+bool grid_tile::has_border(const orientation& facing) const
+{
+	return (m_borders[facing]) ? true : false;
 }
 
 //Submit all contained objects for rendering, provided the pointers to them are valid

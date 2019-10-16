@@ -6,13 +6,23 @@
 class grid_tile {
 public:
 	grid_tile();
-	~grid_tile();	
+	~grid_tile();
+
+	enum class tile_type {
+		maze,
+		empty
+	};
+
+	tile_type type{tile_type::empty};
 
 	void set_border(const engine::ref<engine::game_object>& obj, const orientation& facing);
 	void set_corner(const engine::ref<engine::game_object>& obj);
 	void set_floor(const engine::ref<engine::game_object>& obj);
+	void set_ceiling(const engine::ref<engine::game_object>& obj);
 
 	void del_border(const orientation& facing);
+
+	bool has_border(const orientation& facing) const;
 
 	//Assumes begin scene has already been called
 	void render(const engine::ref<engine::shader>& shader);

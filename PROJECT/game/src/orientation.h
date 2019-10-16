@@ -15,3 +15,5 @@ enum orientation
 
 
 glm::vec3 to_vec(orientation o);
+
+orientation invert(orientation o);

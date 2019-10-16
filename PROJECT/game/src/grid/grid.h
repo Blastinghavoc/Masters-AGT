@@ -19,8 +19,14 @@ public:
 	void set_gateway(const int& x, const int& z, const orientation& relative_heading, const float& rotation_angle = 0.f);
 	void set_corner(const int& x, const int& z, const orientation& relative_heading);
 	void set_floor(const int& x, const int& z);
+	void set_ceiling(const int& x, const int& z);
+
+	void place_block(const int& x, const int& z);
+	void remove_block(const int& x, const int& z);
 
 	void del_border(const int& x, const int& z, const orientation& relative_heading);
+
+	void bake_tiles();
 
 	grid_tile& operator[](const glm::vec2& vec);
 	grid_tile& operator[](const std::pair<int,int>& loc);
@@ -41,8 +47,12 @@ private:
 
 	std::map<std::pair<int,int>, grid_tile> m_tiles{};
 
+	//A map of tiles that can be restored later.
+	std::map<std::pair<int, int>, grid_tile> m_tiles_baked{};
+
 	std::vector<engine::ref<engine::game_object>> m_walls_prefabs{4};
-	std::vector < engine::ref<engine::game_object>> m_corner_prefabs{4};
+	std::vector <engine::ref<engine::game_object>> m_corner_prefabs{4};
 	engine::ref<engine::game_object> m_floor_prefab{};
+	engine::ref<engine::game_object> m_ceiling_prefab{};
 	engine::ref<engine::game_object> m_gateway_prefab{};
 };
