@@ -17,3 +17,7 @@ enum orientation
 glm::vec3 to_vec(orientation o);
 
 orientation invert(orientation o);
+
+std::vector<orientation> cardinal_to_composite(orientation o);
+
+std::vector<orientation> composite_components(orientation o);

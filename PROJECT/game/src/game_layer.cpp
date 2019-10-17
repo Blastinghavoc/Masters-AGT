@@ -132,6 +132,8 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	m_level_grid.place_block(11, 10);
 	m_level_grid.place_block(12, 10);
 	m_level_grid.remove_block(12, 10);
+	m_level_grid.place_block(10, 9);
+	m_level_grid.place_block(11, 9);
 
 	//Initialise intro screen
 	intro_screen::init(m_3d_camera,center);

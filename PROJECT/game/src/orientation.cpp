@@ -60,3 +60,43 @@ orientation invert(orientation o)
 		break;
 	}
 }
+
+std::vector<orientation> cardinal_to_composite(orientation o)
+{	
+	switch (o)
+	{
+	case north:
+		return { north_east,north_west };
+		break;
+	case east:
+		return { north_east,south_east };
+		break;
+	case south:
+		return { south_east,south_west };
+		break;
+	case west:
+		return { north_west,south_west };
+		break;	
+	default:
+		throw std::exception();
+		break;
+	}
+}
+
+std::vector<orientation> composite_components(orientation o)
+{
+	switch (o)
+	{	
+	case north_east:
+		break;
+	case south_east:
+		break;
+	case south_west:
+		break;
+	case north_west:
+		break;
+	default:
+		throw std::exception();
+		break;
+	}
+}

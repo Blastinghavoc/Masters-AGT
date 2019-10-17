@@ -21,8 +21,11 @@ public:
 	void set_ceiling(const engine::ref<engine::game_object>& obj);
 
 	void del_border(const orientation& facing);
+	void del_corner();
+	
 
-	bool has_border(const orientation& facing) const;
+	bool has_border(const orientation& facing) const { return (m_borders[facing]) ? true : false; };
+	bool has_corner() const { return (m_corner) ? true : false; };
 
 	//Assumes begin scene has already been called
 	void render(const engine::ref<engine::shader>& shader);

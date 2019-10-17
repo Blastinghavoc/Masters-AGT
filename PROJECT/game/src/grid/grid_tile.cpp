@@ -33,10 +33,9 @@ void grid_tile::del_border(const orientation& facing)
 	m_borders[facing] = engine::ref<engine::game_object>();
 }
 
-//Checks if the reference for the given facing is valid.
-bool grid_tile::has_border(const orientation& facing) const
+void grid_tile::del_corner()
 {
-	return (m_borders[facing]) ? true : false;
+	m_corner = engine::ref<engine::game_object>();
 }
 
 //Submit all contained objects for rendering, provided the pointers to them are valid

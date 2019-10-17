@@ -17,7 +17,7 @@ public:
 
 	void set_border(const int& x, const int& z, const orientation& relative_heading);
 	void set_gateway(const int& x, const int& z, const orientation& relative_heading, const float& rotation_angle = 0.f);
-	void set_corner(const int& x, const int& z, const orientation& relative_heading);
+	void set_corner(const int& x, const int& z, const orientation& relative_heading = south_east);
 	void set_floor(const int& x, const int& z);
 	void set_ceiling(const int& x, const int& z);
 
@@ -25,6 +25,8 @@ public:
 	void remove_block(const int& x, const int& z);
 
 	void del_border(const int& x, const int& z, const orientation& relative_heading);
+	void del_corner(const int& x, const int& z, const orientation& relative_heading = south_east);
+
 
 	void bake_tiles();
 
@@ -38,6 +40,7 @@ public:
 private:
 	//functions
 
+	bool has_corner(const int& x, const int& z, const orientation& relative_heading = south_east);
 	std::pair<int, int> get_corner_index_from_relative_heading(const int& x, const int& z, const orientation& heading);
 
 	//data

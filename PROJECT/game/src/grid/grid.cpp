@@ -131,6 +131,12 @@ void grid::set_corner(const int& x, const int& z, const orientation& relative_he
 	m_tiles[index].set_corner(corner_obj);
 }
 
+bool grid::has_corner(const int& x, const int& z, const orientation& relative_heading)
+{
+	std::pair<int, int> index = get_corner_index_from_relative_heading(x, z, relative_heading);
+	return m_tiles[index].has_corner();
+}
+
 std::pair<int, int> grid::get_corner_index_from_relative_heading(const int& x, const int& z,const orientation& relative_heading) {
 	//If facing is not a corner, exception
 	if (relative_heading <= orientation::west)
@@ -176,10 +182,6 @@ void grid::set_ceiling(const int& x, const int& z)
 void grid::place_block(const int& x, const int& z)
 {
 	set_ceiling(x, z);
-	set_corner(x, z,south_east);
-	set_corner(x, z, south_west);
-	set_corner(x, z, north_east);
-	set_corner(x, z, north_west);
 	orientation wall_facings[]{north,south,east,west};
 
 	auto index = std::make_pair(x, z);
@@ -187,20 +189,22 @@ void grid::place_block(const int& x, const int& z)
 
 	tile.type = grid_tile::tile_type::maze;
 
+	std::vector<bool> adjacent_is_maze{ 8 };
+
 	//Must be careful about placing walls so as not to have two adjacent tiles both rendering walls.
-	for each (auto facing in wall_facings)
+	for each (const auto& facing in wall_facings)
 	{
 		auto offset = to_vec(facing);
 		std::pair<int, int> adjacent_index{ index.first + offset.x,index.second + offset.z };
 		orientation opposite_facing = invert(facing);
 		auto& adjacent_tile = m_tiles[adjacent_index];
-
+		adjacent_is_maze[facing] = adjacent_tile.type == grid_tile::tile_type::maze;
 
 		if (!(tile.has_border(facing)))
 		{
 			bool need_to_place_border = true;
 
-			if (adjacent_tile.type == grid_tile::tile_type::maze)
+			if (adjacent_is_maze[facing])
 			{
 				//Delete the adjacent border (if it exists)
 				adjacent_tile.del_border(opposite_facing);
@@ -219,6 +223,42 @@ void grid::place_block(const int& x, const int& z)
 				set_border(x, z, facing);
 			}
 		}
+	}
+
+	//Set the SE corner if necessary.
+	if (!tile.has_corner())
+	{
+		set_corner(x, z);
+	}	
+
+	//Ensure adjacent tiles don't render extra corners.
+	orientation other_corner_owners[]{ north,west,north_west};
+	for each (const auto& facing in other_corner_owners)
+	{
+		auto offset = to_vec(facing);
+		std::pair<int, int> other_index{ index.first + offset.x,index.second + offset.z };
+		auto& other_tile = m_tiles[other_index];		
+
+		if (!other_tile.has_corner())
+		{
+			set_corner(other_index.first, other_index.second);
+		}
+
+	}
+
+	//Check if diagonally adjacent tiles are maze tiles
+	for each (const auto & corner_facing in std::vector<orientation>{north_east, north_west, south_west,south_east})
+	{
+		auto offset = to_vec(corner_facing);
+		std::pair<int, int> other_index{ index.first + offset.x,index.second + offset.z };
+		auto& other_tile = m_tiles[other_index];
+		adjacent_is_maze[corner_facing] = other_tile.type == grid_tile::tile_type::maze;
+	}
+
+	//Delete corner if shared on all sides by maze blocks.
+	if (adjacent_is_maze[north] && adjacent_is_maze[east] && adjacent_is_maze[north_east])
+	{
+		del_corner(x,z, north_east);
 	}
 }
 
@@ -239,16 +279,47 @@ void grid::remove_block(const int& x, const int& z)
 			m_tiles[index] = m_tiles_baked[index];			
 		}
 		else {
+			//This branch should not really be executed in normal gameplay, because the whole map should have been baked before play begins.
+			throw std::exception();
+
+			//What the code would do if this was allowed.
 			for each (auto facing in wall_facings)
 			{
-				old_tile.del_border(facing);
-				//TODO need del_corner functionality.
+				old_tile.del_border(facing);				
+			}
+			del_corner(x, z, north_east);
+			del_corner(x, z, south_east);
+			del_corner(x, z, south_west);
+			del_corner(x, z, north_west);
+		}
+
+		//Remove any extraneous corners.
+		//These can occur in the any position except the south-east, as that corner is owned by the block being deleted.
+		for each (const auto& corner_facing in std::vector<orientation>{north_east,north_west,south_west})
+		{
+			auto corner_index = get_corner_index_from_relative_heading(x, z, corner_facing);
+			auto& corner_tile = m_tiles[corner_index];
+			//Maze type tiles should keep their corners. Any others get them reset if applicable, or removed
+			if (corner_tile.type != grid_tile::tile_type::maze && corner_tile.has_corner())
+			{
+				bool should_remove = true;
+				//If the baked version of the tile exists and has a corner, keep it.
+				if (m_tiles_baked.count(corner_index) > 0 && m_tiles_baked[corner_index].has_corner())
+				{
+					should_remove = false;
+				}
+
+				//Otherwise, remove the corner.
+				if (should_remove)
+				{
+					corner_tile.del_corner();
+				}
 			}
 		}
 
 		//Similar to placing a tile, must smartly update adjacent walls.
 		//Any adjacent maze tiles should have a border in this direction, and a corner.
-		for each (auto facing in wall_facings)
+		for each (const auto& facing in wall_facings)
 		{
 			auto offset = to_vec(facing);
 			std::pair<int, int> adjacent_index{ index.first + offset.x,index.second + offset.z };
@@ -257,16 +328,21 @@ void grid::remove_block(const int& x, const int& z)
 
 			if (adjacent_tile.type == grid_tile::tile_type::maze)
 			{
-				//TODO smarter corner updating than this.
-				set_corner(adjacent_index.first, adjacent_index.second, north_east);
-				set_corner(adjacent_index.first, adjacent_index.second, north_west);
-				set_corner(adjacent_index.first, adjacent_index.second, south_east);
-				set_corner(adjacent_index.first, adjacent_index.second, south_west);
+				//Set any missing corners
+				for each (auto corner_facing in cardinal_to_composite(opposite_facing))
+				{
+					if (!has_corner(adjacent_index.first, adjacent_index.second, corner_facing))
+					{
+						set_corner(adjacent_index.first, adjacent_index.second, corner_facing);
+					}
+				}
+
+				//Set any missing borders.
 				if (!adjacent_tile.has_border(opposite_facing))
 				{
 					set_border(adjacent_index.first, adjacent_index.second, opposite_facing);
 				}
-			}
+			}			
 		}
 	}
 }
@@ -280,6 +356,19 @@ void grid::del_border(const int& x, const int& z, const orientation& relative_he
 	}
 	
 	m_tiles[{x, z}].del_border(relative_heading);
+}
+
+void grid::del_corner(const int& x, const int& z, const orientation& relative_heading)
+{
+	//If facing is not a composite direction, exception
+	if (relative_heading <= orientation::west)
+	{
+		throw std::exception();
+	}
+
+	std::pair<int, int> index = get_corner_index_from_relative_heading(x, z, relative_heading);
+
+	m_tiles[index].del_corner();
 }
 
 //Save a copy of all tiles so that they can be restored later.
