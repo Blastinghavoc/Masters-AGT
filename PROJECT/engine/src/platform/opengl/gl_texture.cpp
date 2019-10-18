@@ -4,7 +4,7 @@
 #include "stb_image.h"
 #include "glad/glad.h"
 
-engine::gl_texture_2d::gl_texture_2d(const std::string& path)
+engine::gl_texture_2d::gl_texture_2d(const std::string& path, const bool& clamp)
     : m_path(path)
 {
     int width, height, channels;
@@ -36,8 +36,16 @@ engine::gl_texture_2d::gl_texture_2d(const std::string& path)
 	// set texture params 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	if (clamp)
+	{
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	}
+	else
+	{
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	}
 
 	// upload texture to gpu 
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_width, m_height, data_format, GL_UNSIGNED_BYTE, data);

@@ -58,11 +58,19 @@ namespace engine {
 
 		void BoneTransform(float time);
 
-		void switch_animation(uint32_t index) { m_current_animation_index = index; }
+		void switch_animation(uint32_t index) { m_current_animation_index = index; m_running_time = 0.0f;}
+		void set_default_animation(uint32_t index) { m_default_animation_index = index; }
+		uint32_t default_animation() { return m_default_animation_index; }
 
 		void LoadAnimationFile(const std::string& Filename);
 
 		const std::vector<aiAnimation*> animations() { return m_pAnimations; }
+
+		// switch that denotes whether the root movement is on or not
+		void switch_root_movement(const bool& on) { m_root_movement_on = on; }
+
+		glm::vec3 size() const { return m_size; }
+		glm::vec3 offset() const { return m_offset; }
 
 	private:
 #define NUM_BONES_PER_VEREX 4
@@ -131,8 +139,12 @@ namespace engine {
 		void Clear();
 
 		void AddAnimations(const aiScene* pScene);
-		
 
+		void ExtractRootMovement(const aiAnimation* animation);
+		
+		///\brief - compares the values of the vertex that is being loaded with min and max values
+		/// if any coordinate is smaller than min or bigger than max, record it as new min/max value
+		void min_max_compare(const aiVector3D& point);
 
 #define INVALID_MATERIAL 0xFFFFFFFF
 
@@ -176,9 +188,38 @@ namespace engine {
 		std::vector<engine::ref<engine::Animation>>		m_extra_animations;
 		std::vector<aiAnimation*> m_pAnimations;
 		uint32_t m_current_animation_index;
+		uint32_t m_default_animation_index;
+
+		float m_running_time;
 		Assimp::Importer m_Importer;
 
 		bool m_AnimationPlaying = true;
+
+		// min values of the model in x, y and z coordinates
+		aiVector3D m_min_point;
+
+		// max values of the model in x, y and z coordinates
+		aiVector3D m_max_point;
+
+		// switch that checks if the current point is the first point loaded for the model
+		bool m_first_point = true;
+
+		// dimensions of the object in x, y and z
+		glm::vec3 m_size;
+
+		// offset of the model from the origin of the local coordinates
+		glm::vec3 m_offset;
+
+		// switch that denotes whether the root movement is on or not
+		bool m_root_movement_on = true;
+
+		// vector of displacements to switch off root movement
+		std::vector<std::vector<aiVector3D>> m_root_movements;
+
+		// offset of the model from the origin of the local coordinates due to root movement
+		glm::vec3 m_current_root_movement_offset;
+
+		bool m_update_root_offset = true;
 	};
 
 	struct Animation

@@ -20,15 +20,11 @@ private:
 	engine::ref<engine::game_object>	m_cow{};
 	engine::ref<engine::game_object>	m_tree{};
 	engine::ref<engine::game_object>	m_ball{};
+	engine::ref<engine::game_object>	m_mannequin{};
 
 	engine::ref<engine::material>		m_material{};
-	engine::ref<engine::material> m_transparent_material{};
 
-	engine::ref<engine::skinned_mesh>   m_skinned_mesh;
 	engine::DirectionalLight            m_directionalLight;
-	float                               m_running_time = 0.f;
-	float								m_anim_timer = 0.0f;
-	glm::vec3							m_anim_displacement;
 
 	std::vector<engine::ref<engine::game_object>>     m_game_objects{};
 
@@ -39,5 +35,4 @@ private:
 
     engine::orthographic_camera       m_2d_camera; 
     engine::perspective_camera        m_3d_camera;
-
 };

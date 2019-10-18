@@ -43,6 +43,7 @@ namespace engine
         virtual const ref<vertex_array>& va() const = 0;
         virtual uint32_t indices_count() const = 0;
 		virtual std::vector<vertex> vertices() const = 0;
+		virtual std::vector<uint32_t> indices() const = 0;
 
         static ref<mesh> create(
             const std::vector<vertex>& vertices,

@@ -63,6 +63,8 @@ engine::skinned_mesh::skinned_mesh()
 	ZERO_MEM(m_Buffers);
 	m_NumBones = 0;
 	m_current_animation_index = 0;
+	m_default_animation_index = 0;
+	m_running_time = 0.f;
 }
 
 
@@ -113,6 +115,11 @@ bool engine::skinned_mesh::LoadMesh(const std::string& Filename)
 
 	// Make sure the VAO is not changed from the outside
 	glBindVertexArray(0);
+
+	aiVector3D min_and_max = m_max_point + m_min_point;
+	m_offset = glm::vec3(min_and_max.x, min_and_max.y, min_and_max.z) / 2.0f;
+	aiVector3D size = m_max_point - m_min_point;
+	m_size = glm::vec3(size.x, size.y, size.z);
 
 	return Ret;
 }
@@ -207,6 +214,16 @@ void engine::skinned_mesh::InitMesh(uint32_t MeshIndex,
 		const aiVector3D* pNormal = &(paiMesh->mNormals[i]);
 		const aiVector3D* pTexCoord = paiMesh->HasTextureCoords(0) ? &(paiMesh->mTextureCoords[0][i]) : &Zero3D;
 
+		if (m_first_point)
+		{
+			m_min_point = *pPos; m_max_point = *pPos;
+			m_first_point = false;
+		}
+		else
+		{
+			min_max_compare(*pPos);
+		}
+
 		Positions.push_back(glm::vec3(pPos->x, pPos->y, pPos->z));
 		Normals.push_back(glm::vec3(pNormal->x, pNormal->y, pNormal->z));
 		TexCoords.push_back(glm::vec2(pTexCoord->x, pTexCoord->y));
@@ -289,7 +306,7 @@ bool engine::skinned_mesh::InitMaterials(const aiScene* pScene, const std::strin
 
 				std::string FullPath = Dir + "/" + p;
 
-				m_textures[i] = texture_2d::create(FullPath.c_str());
+				m_textures[i] = texture_2d::create(FullPath.c_str(), false);
 			}
 		}
 		else
@@ -312,7 +329,14 @@ bool engine::skinned_mesh::InitMaterials(const aiScene* pScene, const std::strin
 void engine::skinned_mesh::on_render(const glm::mat4& transform /*= glm::mat4(1.f)*/, const ref<shader>& meshShader )
 {
 	glBindVertexArray(m_VAO);
-	std::static_pointer_cast<gl_shader>(meshShader)->set_uniform("u_ModelMatrix", transform);
+
+
+	glm::mat4 new_transform = transform;
+	new_transform = glm::scale(new_transform, glm::vec3(0.01f));
+	if (!m_root_movement_on)
+		new_transform = glm::translate(new_transform, m_current_root_movement_offset);
+
+	std::static_pointer_cast<gl_shader>(meshShader)->set_uniform("u_ModelMatrix", new_transform);
 	std::static_pointer_cast<gl_shader>(meshShader)->set_uniform("num_bones", (int)m_BoneTransforms.size());
 	for (size_t i = 0; i < m_BoneTransforms.size(); i++)
 	{
@@ -341,6 +365,8 @@ void engine::skinned_mesh::on_render(const glm::mat4& transform /*= glm::mat4(1.
 
 	// Make sure the VAO is not changed from the outside    
 	glBindVertexArray(0);
+
+	m_update_root_offset = true;
 }
 
 
@@ -385,19 +411,17 @@ void engine::skinned_mesh::ReadNodeHeirarchy(float AnimationTime, const aiNode* 
 
 void engine::skinned_mesh::on_update(const timestep& ts)
 {
+	m_running_time += ts;
 	if (m_pAnimations.size()!=0)
 	{
 		if (m_pAnimations[m_current_animation_index])
 		{
-
 			float TicksPerSecond = (float)(m_pAnimations[m_current_animation_index]->mTicksPerSecond != 0 ? m_pAnimations[m_current_animation_index]->mTicksPerSecond : 25.0f);// *m_TimeMultiplier;
-			float TimeInTicks = ts * TicksPerSecond;
+			float TimeInTicks = m_running_time * TicksPerSecond;
 			float AnimationTime = fmod(TimeInTicks, (float)m_pAnimations[m_current_animation_index]->mDuration);
 
 			BoneTransform(AnimationTime);
-		}
-
-		
+		}		
 	}
 }
 
@@ -484,6 +508,17 @@ glm::vec3 engine::skinned_mesh::InterpolateTranslation(float animationTime, cons
 	aiVector3D Delta = End - Start;
 	aiVector3D v_factor = { Factor,Factor,Factor };
 	aiVector3D aiVec = Start + Factor * Delta;
+
+	if (m_update_root_offset)
+	{
+		const aiVector3D& OffsetStart = m_root_movements.at(m_current_animation_index).at(PositionIndex);
+		const aiVector3D& OffsetEnd = m_root_movements.at(m_current_animation_index).at(NextPositionIndex);
+		aiVector3D OffsetDelta = OffsetEnd - OffsetStart;
+		aiVector3D offset = OffsetStart + Factor * OffsetDelta;
+		m_current_root_movement_offset = glm::vec3(offset.x, offset.y, offset.z);
+		m_update_root_offset = false;
+	}
+
 	return { aiVec.x, aiVec.y, aiVec.z };
 }
 
@@ -543,6 +578,7 @@ void engine::skinned_mesh::AddAnimations(const aiScene* pScene)
 	{
 		if (pScene->mAnimations[i])
 		{
+			ExtractRootMovement(pScene->mAnimations[i]);
 			m_pAnimations.push_back(pScene->mAnimations[i]);
 		}
 	}
@@ -576,4 +612,32 @@ engine::ref<engine::Animation> engine::Animation::create()
 {
 	engine::ref<engine::Animation> animation = std::make_shared<engine::Animation>();
 	return animation;
+}
+
+
+void engine::skinned_mesh::min_max_compare(const aiVector3D& point)
+{
+	if (point.x < m_min_point.x)
+		m_min_point.x = point.x;
+	if (point.x > m_max_point.x)
+		m_max_point.x = point.x;
+	if (point.y < m_min_point.y)
+		m_min_point.y = point.y;
+	if (point.y > m_max_point.y)
+		m_max_point.y = point.y;
+	if (point.z < m_min_point.z)
+		m_min_point.z = point.z;
+	if (point.z > m_max_point.z)
+		m_max_point.z = point.z;
+}
+
+void engine::skinned_mesh::ExtractRootMovement(const aiAnimation* animation)
+{
+	std::vector<aiVector3D> frame_offsets;
+	aiVector3D first_frame_offset = animation->mChannels[0]->mPositionKeys[0].mValue;
+	for (uint32_t i = 0; i < animation->mChannels[0]->mNumPositionKeys; i++) {
+		aiVector3D offset = first_frame_offset - animation->mChannels[0]->mPositionKeys[i].mValue;
+		frame_offsets.push_back(offset);
+	}
+	m_root_movements.push_back(frame_offsets);
 }

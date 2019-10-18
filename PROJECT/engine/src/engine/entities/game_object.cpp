@@ -11,6 +11,7 @@ engine::game_object::game_object(const game_object_properties& props)
     m_rotation_amount(props.rotation_amount),
     m_meshes(props.meshes),
 	m_textures(props.textures),
+	m_animated_mesh(props.animated_mesh),
     m_scale(props.scale),
     m_mass(props.mass),
 	m_restitution(props.restitution),

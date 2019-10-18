@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "renderer.h"
 #include "platform/opengl/gl_shader.h"
+#include "engine/renderer/skinned_mesh.h"
 
 engine::renderer::scene_data* engine::renderer::s_scene_data = new scene_data;
 engine::renderer* engine::renderer::s_instance = new renderer();
@@ -77,6 +78,10 @@ void engine::renderer::submit(
 			i++;
 		}
 	}
+	else if (object->animated_mesh() != NULL)
+	{
+		object->animated_mesh()->on_render(transform, shader);
+	}
 }
 
 void engine::renderer::submit(
@@ -99,6 +104,10 @@ void engine::renderer::submit(
 			submit(shader, mesh, transform);
 			i++;
 		}
+	}
+	else if (object->animated_mesh() != NULL)
+	{
+		object->animated_mesh()->on_render(transform, shader);
 	}
 }
 

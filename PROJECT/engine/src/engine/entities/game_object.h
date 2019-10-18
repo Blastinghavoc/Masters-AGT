@@ -6,11 +6,13 @@ namespace engine
 	class mesh;
 	class texture_2d;
 	class shader;
+	class skinned_mesh;
 
     /// \brief Struct used to initialise/create a game object
 	struct game_object_properties final
 	{
         std::vector<ref<mesh>> meshes{};
+		ref<skinned_mesh> animated_mesh{};
 		std::vector<ref<texture_2d>> textures{};
         glm::vec3 position{0};
         glm::vec3 velocity{0};
@@ -63,6 +65,7 @@ namespace engine
 		glm::vec3 bounding_shape() const { return m_bounding_shape; }
 		const std::vector<ref<mesh>>& meshes() const { return m_meshes; }
 		const std::vector<ref<texture_2d>>& textures() const { return m_textures; }
+		ref<skinned_mesh> animated_mesh() const { return m_animated_mesh; }
 
 		glm::vec3 offset() const { return m_offset; }
 
@@ -87,6 +90,7 @@ namespace engine
 		void set_mesh(ref<mesh> mesh) { m_meshes.push_back(mesh); }
 		void set_mesh(std::vector<ref<mesh>> meshes) { m_meshes = meshes; }
 		void set_textures(std::vector<ref<texture_2d>> textures) { m_textures = textures; }
+		void set_animated_mesh(ref<skinned_mesh> animated_mesh) { m_animated_mesh = animated_mesh; }
 		void set_offset(glm::vec3 offset) { m_offset = offset; }
 
 		// rotate the object to face the specific direction
@@ -131,6 +135,9 @@ namespace engine
 		std::vector<ref<mesh>> m_meshes;
 		// object's textures
 		std::vector<ref<texture_2d>> m_textures;
+
+		// object'sanimated mesh
+		ref<skinned_mesh> m_animated_mesh;
 
 		// object's scale vector
 		glm::vec3		m_scale{ 1.0f };

@@ -189,7 +189,7 @@ void grid::place_block(const int& x, const int& z)
 
 	tile.type = grid_tile::tile_type::maze;
 
-	std::vector<bool> adjacent_is_maze{ 8 };
+	std::vector<bool> adjacent_is_maze(4);
 
 	//Must be careful about placing walls so as not to have two adjacent tiles both rendering walls.
 	for each (const auto& facing in wall_facings)
@@ -250,16 +250,19 @@ void grid::place_block(const int& x, const int& z)
 	for each (const auto & corner_facing in std::vector<orientation>{north_east, north_west, south_west,south_east})
 	{
 		auto offset = to_vec(corner_facing);
-		std::pair<int, int> other_index{ index.first + offset.x,index.second + offset.z };
-		auto& other_tile = m_tiles[other_index];
-		adjacent_is_maze[corner_facing] = other_tile.type == grid_tile::tile_type::maze;
+		std::pair<int, int> corner_index{ index.first + offset.x,index.second + offset.z };
+		auto& corner_tile = m_tiles[corner_index];
+		bool corner_is_maze = corner_tile.type == grid_tile::tile_type::maze;
+
+		auto components = composite_components(corner_facing);		
+		//Delete corner if shared on all sides by maze blocks.
+		if (corner_is_maze && adjacent_is_maze[components[0]] && adjacent_is_maze[components[1]])
+		{
+			del_corner(x,z, corner_facing);
+		}
 	}
 
-	//Delete corner if shared on all sides by maze blocks.
-	if (adjacent_is_maze[north] && adjacent_is_maze[east] && adjacent_is_maze[north_east])
-	{
-		del_corner(x,z, north_east);
-	}
+
 }
 
 void grid::remove_block(const int& x, const int& z)

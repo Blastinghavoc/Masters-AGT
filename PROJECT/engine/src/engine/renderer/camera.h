@@ -138,6 +138,8 @@ namespace engine
         const glm::mat4& view_matrix() const override; 
         const glm::mat4& view_projection_matrix() const override;
 
+		void set_view_matrix(glm::vec3 position, glm::vec3 look_at);
+
 		void look_at(glm::vec3& target);
 		void face(glm::vec3& direction);
         void move(e_direction direction, timestep ts); 

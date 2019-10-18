@@ -34,7 +34,7 @@ namespace engine
 		
         ///\brief - compares the values of the vertex that is being loaded with min and max values
 		/// if any coordinate is smaller than min or bigger than max, record it as new min/max value
-		void min_max_compare(glm::vec3 point);
+		void min_max_compare(const glm::vec3& point);
 
     private: // fields
         std::string m_directory;

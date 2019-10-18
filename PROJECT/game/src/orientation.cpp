@@ -88,12 +88,16 @@ std::vector<orientation> composite_components(orientation o)
 	switch (o)
 	{	
 	case north_east:
+		return { north, east };
 		break;
 	case south_east:
+		return { south, east };
 		break;
 	case south_west:
+		return { south, west };
 		break;
 	case north_west:
+		return { north, west };
 		break;
 	default:
 		throw std::exception();

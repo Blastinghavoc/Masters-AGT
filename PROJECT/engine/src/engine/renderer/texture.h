@@ -21,7 +21,7 @@ namespace engine
     class texture_2d : public texture
     {
     public:
-        static ref<texture_2d> create(const std::string& path);
+        static ref<texture_2d> create(const std::string& path, const bool& clamp);
 		static ref<texture_2d> create(unsigned char r, unsigned char g, unsigned char b);
     };
 }

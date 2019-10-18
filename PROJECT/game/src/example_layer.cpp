@@ -73,22 +73,31 @@ example_layer::example_layer()
 
 	// Skybox texture from http://www.vwall.it/wp-content/plugins/canvasio3dpro/inc/resource/cubeMaps/
 	m_skybox = engine::skybox::create(50.f,
-		{ engine::texture_2d::create("assets/textures/skybox/SkyboxFront.bmp"),
-		  engine::texture_2d::create("assets/textures/skybox/SkyboxRight.bmp"),
-		  engine::texture_2d::create("assets/textures/skybox/SkyboxBack.bmp"),
-		  engine::texture_2d::create("assets/textures/skybox/SkyboxLeft.bmp"),
-		  engine::texture_2d::create("assets/textures/skybox/SkyboxTop.bmp"),
-		  engine::texture_2d::create("assets/textures/skybox/SkyboxBottom.bmp")
+		{ engine::texture_2d::create("assets/textures/skybox/SkyboxFront.bmp", true),
+		  engine::texture_2d::create("assets/textures/skybox/SkyboxRight.bmp", true),
+		  engine::texture_2d::create("assets/textures/skybox/SkyboxBack.bmp", true),
+		  engine::texture_2d::create("assets/textures/skybox/SkyboxLeft.bmp", true),
+		  engine::texture_2d::create("assets/textures/skybox/SkyboxTop.bmp", true),
+		  engine::texture_2d::create("assets/textures/skybox/SkyboxBottom.bmp", true)
 		});
 
-	m_skinned_mesh = engine::skinned_mesh::create("assets/models/animated/mannequin/free3Dmodel.dae");
+	engine::ref<engine::skinned_mesh> m_skinned_mesh = engine::skinned_mesh::create("assets/models/animated/mannequin/free3Dmodel.dae");
 	m_skinned_mesh->LoadAnimationFile("assets/models/animated/mannequin/walking.dae");
 	m_skinned_mesh->LoadAnimationFile("assets/models/animated/mannequin/idle.dae");
 	m_skinned_mesh->LoadAnimationFile("assets/models/animated/mannequin/jump.dae");
 	m_skinned_mesh->LoadAnimationFile("assets/models/animated/mannequin/standard_run.dae");
+	m_skinned_mesh->switch_root_movement(false);
+
+	engine::game_object_properties mannequin_props;
+	mannequin_props.animated_mesh = m_skinned_mesh;
+	mannequin_props.scale = glm::vec3(1.f/ glm::max(m_skinned_mesh->size().x, glm::max(m_skinned_mesh->size().y, m_skinned_mesh->size().z)));
+	mannequin_props.position = glm::vec3(3.0f, 0.5f, -5.0f);
+	mannequin_props.type = 0;
+	mannequin_props.bounding_shape = m_skinned_mesh->size() / 2.f * mannequin_props.scale.x;
+	m_mannequin = engine::game_object::create(mannequin_props);
 
 	// Load the terrain texture and create a terrain mesh. Create a terrain object. Set its properties
-	std::vector<engine::ref<engine::texture_2d>> terrain_textures = { engine::texture_2d::create("assets/textures/terrain.bmp") };
+	std::vector<engine::ref<engine::texture_2d>> terrain_textures = { engine::texture_2d::create("assets/textures/terrain.bmp", false) };
 	engine::ref<engine::terrain> terrain_shape = engine::terrain::create(100.f, 0.5f, 100.f);
 	engine::game_object_properties terrain_props;
 	terrain_props.meshes = { terrain_shape->mesh() };
@@ -131,12 +140,6 @@ example_layer::example_layer()
 	sphere_props.mass = 0.000001f;
 	m_ball = engine::game_object::create(sphere_props);
 
-	m_transparent_material = engine::material::create(32.0f,
-		glm::vec3(1.0f, 0.5f, 0.0f),
-		glm::vec3(1.0f, 0.5f, 0.0f),
-		glm::vec3(0.5f, 0.5f, 0.5f),
-		0.3f);
-
 	m_game_objects.push_back(m_terrain);
 	m_game_objects.push_back(m_ball);
 	//m_game_objects.push_back(m_cow);
@@ -147,13 +150,6 @@ example_layer::example_layer()
 	m_text_manager = engine::text_manager::create();
 
 	m_skinned_mesh->switch_animation(1);
-
-
-	const aiNodeAnim* nodeAnim = m_skinned_mesh->animations().at(1)->mChannels[0];
-	aiVector3D animStart = nodeAnim->mPositionKeys[0].mValue;
-	aiVector3D animEnd = nodeAnim->mPositionKeys[nodeAnim->mNumPositionKeys - 1].mValue;
-	aiVector3D displacement = animEnd - animStart;
-	m_anim_displacement = glm::vec3(displacement.x, displacement.y, displacement.z);
 }
 
 example_layer::~example_layer() {}
@@ -164,12 +160,7 @@ void example_layer::on_update(const engine::timestep& time_step)
 
 	m_physics_manager->dynamics_world_update(m_game_objects, double(time_step));
 
-	m_running_time += time_step;
-
-	m_skinned_mesh->on_update(m_running_time);
-
-	m_anim_timer += time_step;
-	if (m_anim_timer > (float)m_skinned_mesh->animations().at(1)->mDuration) m_anim_timer -= m_skinned_mesh->animations().at(1)->mDuration;
+	m_mannequin->animated_mesh()->on_update(time_step);
 
 	check_bounce();
 } 
@@ -214,14 +205,13 @@ void example_layer::on_render()
     engine::renderer::end_scene();
 
 	// Set up material shader. (does not render textures, renders materials instead)
-	const auto textured_material_shader = engine::renderer::shaders_library()->get("mesh_material");
-	engine::renderer::begin_scene(m_3d_camera, textured_material_shader);
+	const auto material_shader = engine::renderer::shaders_library()->get("mesh_material");
+	engine::renderer::begin_scene(m_3d_camera, material_shader);
 
-	m_material->submit(textured_material_shader);
-	std::dynamic_pointer_cast<engine::gl_shader>(textured_material_shader)->set_uniform("gEyeWorldPos", m_3d_camera.position());
+	m_material->submit(material_shader);
+	std::dynamic_pointer_cast<engine::gl_shader>(material_shader)->set_uniform("gEyeWorldPos", m_3d_camera.position());
 
-	m_transparent_material->submit(textured_material_shader);
-	engine::renderer::submit(textured_material_shader, m_ball);
+	engine::renderer::submit(material_shader, m_ball);
 
 	engine::renderer::end_scene();
 
@@ -231,14 +221,7 @@ void example_layer::on_render()
 
 	glm::mat4 aniTransform = glm::mat4(1.0f);
 
-	glm::vec3 anim_scale = glm::vec3(0.002);
-	glm::vec3 anim_position = glm::vec3(3.0f, 0.5f, -5.0f);
-	float frame_time = m_anim_timer / (float)m_skinned_mesh->animations().at(1)->mDuration;
-
-	aniTransform = glm::translate(aniTransform, (anim_position - frame_time * m_anim_displacement * anim_scale));
-	aniTransform = glm::scale(aniTransform, anim_scale);
-
-	m_skinned_mesh->on_render(aniTransform, animated_mesh_shader);
+	engine::renderer::submit(animated_mesh_shader, m_mannequin);
 
 	engine::renderer::end_scene();
 
@@ -261,7 +244,7 @@ void example_layer::on_event(engine::event& event)
 
 void example_layer::check_bounce()
 {
-	if (m_prev_sphere_y_vel < 0.f && m_game_objects.at(1)->velocity().y > 0.f)
-		m_audio_manager->play("bounce");
+	//if (m_prev_sphere_y_vel < 0.f && m_game_objects.at(1)->velocity().y > 0.f)
+		//m_audio_manager->play("bounce");
 	m_prev_sphere_y_vel = m_game_objects.at(1)->velocity().y;
 }

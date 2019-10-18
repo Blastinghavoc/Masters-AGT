@@ -146,6 +146,7 @@ btRigidBody*	engine::bullet_manager::local_create_rigid_body(float mass, const b
 void engine::bullet_manager::add_physical_object(engine::ref<engine::game_object> game_object, btDynamicsWorld* dynamics_world)
 {
 	btCollisionShape* shape;
+	bool done = false;
 
 	switch (game_object->type())
 	{
@@ -169,8 +170,8 @@ void engine::bullet_manager::add_physical_object(engine::ref<engine::game_object
 		btConvexHullShape * c_shape = new btConvexHullShape();
 		for (int32_t i = 0; i < game_object->meshes().at(0)->vertices().size(); i++)
 		{
-			engine::mesh::vertex vertex = game_object->meshes().at(0)->vertices().at(i);
-			c_shape->addPoint(btVector3(btScalar(vertex.position.x), btScalar(vertex.position.y), btScalar(vertex.position.z)));
+			glm::vec3 vertex = game_object->meshes().at(0)->vertices().at(i).position;
+			c_shape->addPoint(btVector3(btScalar(vertex.x), btScalar(vertex.y), btScalar(vertex.z)));
 		}
 		shape = c_shape;
 		break;
@@ -178,37 +179,39 @@ void engine::bullet_manager::add_physical_object(engine::ref<engine::game_object
 	}
 	m_collision_shapes.push_back(shape);
 
-	btTransform trans;
-	trans.setIdentity();
-	btVector3 pos(btScalar(game_object->position().x), btScalar(game_object->position().y), btScalar(game_object->position().z));
-	trans.setOrigin(pos);
-	btQuaternion quat;
-	quat.setRotation(to_bt_vector3(game_object->rotation_axis()), btScalar(game_object->rotation_amount()));
-	trans.setRotation(quat);
-
-	btScalar mass;
-	if (!game_object->is_static())
+	if (!done)
 	{
-		mass = btScalar(game_object->mass());
+		btTransform trans;
+		trans.setIdentity();
+		btVector3 pos(btScalar(game_object->position().x), btScalar(game_object->position().y), btScalar(game_object->position().z));
+		trans.setOrigin(pos);
+		btQuaternion quat;
+		quat.setRotation(to_bt_vector3(game_object->rotation_axis()), btScalar(game_object->rotation_amount()));
+		trans.setRotation(quat);
+
+		btScalar mass;
+		if (!game_object->is_static())
+		{
+			mass = btScalar(game_object->mass());
+		}
+		else
+		{
+			mass = 0.0f;
+		}
+
+		btVector3 local_inertia;
+		shape->calculateLocalInertia(mass, local_inertia);
+
+
+
+		btRigidBody* body = local_create_rigid_body(mass, trans, shape, dynamics_world);
+
+		body->setRestitution(game_object->restitution());
+		body->setFriction(game_object->friction());
+		//body->setRestitution(game_object->restitution());
+		physical_object* object = new physical_object(body);
+		physical_objects.push_back(object);
 	}
-	else
-	{
-		mass = 0.0f;
-	}
-
-	btVector3 local_inertia;
-	shape->calculateLocalInertia(mass, local_inertia);
-
-
-
-	btRigidBody * body = local_create_rigid_body(mass, trans, shape, dynamics_world);
-
-	body->setRestitution(game_object->restitution());
-	body->setFriction(game_object->friction());
-
-	//body->setRestitution(game_object->restitution());
-	physical_object * object = new physical_object(body);
-	physical_objects.push_back(object);
 }
 
 //Step the sinulation (update method)
@@ -219,32 +222,34 @@ void engine::bullet_manager::dynamics_world_update(const std::vector<engine::ref
 		int32_t i = 0;
 		for (int32_t i = 0; i < physical_objects.size(); i++)
 		{
-			btTransform trans;
-			engine::ref<engine::game_object> game_object_i = game_objects.at(i);
-			physical_object * physical_object_i = physical_objects.at(i);
+			
+				btTransform trans;
+				engine::ref<engine::game_object> game_object_i = game_objects.at(i);
+				physical_object* physical_object_i = physical_objects.at(i);
 
-			btVector3 pos = to_bt_vector3(game_object_i->position());
-			trans.setOrigin(pos);
-			trans.setRotation(btQuaternion(to_bt_vector3(game_object_i->rotation_axis()), btScalar(game_object_i->rotation_amount())));
-			btDefaultMotionState* myMotionState = new btDefaultMotionState(trans);
+				btVector3 pos = to_bt_vector3(game_object_i->position());
+				trans.setOrigin(pos);
+				trans.setRotation(btQuaternion(to_bt_vector3(game_object_i->rotation_axis()), btScalar(game_object_i->rotation_amount())));
+				btDefaultMotionState* myMotionState = new btDefaultMotionState(trans);
 
-			physical_object_i->get_body()->setMotionState(myMotionState);
-			physical_object_i->get_body()->setLinearVelocity(to_bt_vector3(game_object_i->velocity()));
-			physical_object_i->get_body()->setAngularVelocity(to_bt_vector3(game_object_i->angular_velocity()));
+				physical_object_i->get_body()->setMotionState(myMotionState);
+				physical_object_i->get_body()->setLinearVelocity(to_bt_vector3(game_object_i->velocity()));
+				physical_object_i->get_body()->setAngularVelocity(to_bt_vector3(game_object_i->angular_velocity()));
 
-			//physical_object_i->get_body()->clearForces();
-			if (game_object_i->acceleration() != glm::vec3(0.0f))
-			{
-				physical_object_i->get_body()->applyCentralForce(to_bt_vector3(game_object_i->acceleration()));
-				game_object_i->set_acceleration(glm::vec3(0.0f));
-				physical_object_i->get_body()->setActivationState(ACTIVE_TAG);
-			}
-			if (game_object_i->torque() != glm::vec3(0.0f))
-			{
-				physical_object_i->get_body()->applyTorque(to_bt_vector3(game_object_i->torque()));
-				game_object_i->set_torque(glm::vec3(0.0f));
-				physical_object_i->get_body()->setActivationState(ACTIVE_TAG);
-			}
+				//physical_object_i->get_body()->clearForces();
+				if (game_object_i->acceleration() != glm::vec3(0.0f))
+				{
+					physical_object_i->get_body()->applyCentralForce(to_bt_vector3(game_object_i->acceleration()));
+					game_object_i->set_acceleration(glm::vec3(0.0f));
+					physical_object_i->get_body()->setActivationState(ACTIVE_TAG);
+				}
+				if (game_object_i->torque() != glm::vec3(0.0f))
+				{
+					physical_object_i->get_body()->applyTorque(to_bt_vector3(game_object_i->torque()));
+					game_object_i->set_torque(glm::vec3(0.0f));
+					physical_object_i->get_body()->setActivationState(ACTIVE_TAG);
+				}
+			
 		}
 	}
 	///step the simulation
@@ -254,20 +259,22 @@ void engine::bullet_manager::dynamics_world_update(const std::vector<engine::ref
 	}
 	for (int32_t i = 0; i < game_objects.size(); i++)
 	{
-		engine::ref<engine::game_object> game_object_i = game_objects.at(i);
-		physical_object * physical_object_i = physical_objects.at(i);
+		if (!game_objects.at(i)->is_static())
+		{
+			engine::ref<engine::game_object> game_object_i = game_objects.at(i);
+			physical_object* physical_object_i = physical_objects.at(i);
 
-		game_object_i->set_position(to_vec3(physical_object_i->get_body()->getCenterOfMassPosition()));
-		game_object_i->set_rotation_axis(to_vec3(physical_object_i->get_body()->getCenterOfMassTransform().getRotation().getAxis()));
-		game_object_i->set_rotation_amount(physical_object_i->get_body()->getCenterOfMassTransform().getRotation().getAngle());
+			game_object_i->set_position(to_vec3(physical_object_i->get_body()->getCenterOfMassPosition()));
+			game_object_i->set_rotation_axis(to_vec3(physical_object_i->get_body()->getCenterOfMassTransform().getRotation().getAxis()));
+			game_object_i->set_rotation_amount(physical_object_i->get_body()->getCenterOfMassTransform().getRotation().getAngle());
 
-		game_object_i->set_forward(to_vec3(physical_object_i->get_forward()));
-		game_object_i->set_up(to_vec3(physical_object_i->get_up()));
-		game_object_i->set_right(to_vec3(physical_object_i->get_right()));
+			game_object_i->set_forward(to_vec3(physical_object_i->get_forward()));
+			game_object_i->set_up(to_vec3(physical_object_i->get_up()));
+			game_object_i->set_right(to_vec3(physical_object_i->get_right()));
 
-		game_object_i->set_velocity(to_vec3(physical_object_i->get_body()->getLinearVelocity()));
-		game_object_i->set_angular_velocity(to_vec3(physical_object_i->get_body()->getAngularVelocity()));
-
+			game_object_i->set_velocity(to_vec3(physical_object_i->get_body()->getLinearVelocity()));
+			game_object_i->set_angular_velocity(to_vec3(physical_object_i->get_body()->getAngularVelocity()));
+		}
 	}
 }
 

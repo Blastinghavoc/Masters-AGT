@@ -12,7 +12,7 @@ namespace engine
 
         const ref<vertex_array>& va() const override { return m_va; }
         uint32_t indices_count() const override { return (uint32_t)m_indices.size(); }
-
+		std::vector<uint32_t> indices() const override { return m_indices; }
 		std::vector<vertex> vertices() const override { return m_vertices; }
 
     private:

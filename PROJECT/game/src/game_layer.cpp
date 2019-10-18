@@ -65,16 +65,16 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	std::string skybox_path = "assets/textures/skyboxes/blue/";
 	std::string skybox_extn = ".png";
 	m_skybox = engine::skybox::create(50.f,
-		{ engine::texture_2d::create(skybox_path+"bkg1_front"+skybox_extn),
-		  engine::texture_2d::create(skybox_path + "bkg1_right" + skybox_extn),
-		  engine::texture_2d::create(skybox_path + "bkg1_back" + skybox_extn),
-		  engine::texture_2d::create(skybox_path + "bkg1_left" + skybox_extn),
-		  engine::texture_2d::create(skybox_path + "bkg1_top" + skybox_extn),
-		  engine::texture_2d::create(skybox_path + "bkg1_bot" + skybox_extn)
+		{ engine::texture_2d::create(skybox_path+"bkg1_front"+skybox_extn,true),
+		  engine::texture_2d::create(skybox_path + "bkg1_right" + skybox_extn,true),
+		  engine::texture_2d::create(skybox_path + "bkg1_back" + skybox_extn,true),
+		  engine::texture_2d::create(skybox_path + "bkg1_left" + skybox_extn,true),
+		  engine::texture_2d::create(skybox_path + "bkg1_top" + skybox_extn,true),
+		  engine::texture_2d::create(skybox_path + "bkg1_bot" + skybox_extn,true)
 		});
 
 	// Load the terrain texture and create a terrain mesh. Create a terrain object. Set its properties
-	std::vector<engine::ref<engine::texture_2d>> terrain_textures = { engine::texture_2d::create("assets/textures/terrain_grid.bmp") };
+	std::vector<engine::ref<engine::texture_2d>> terrain_textures = { engine::texture_2d::create("assets/textures/terrain_grid.bmp",false) };
 	engine::ref<engine::terrain> terrain_shape = engine::terrain::create(100.f, 0.5f, 100.f);
 	engine::game_object_properties terrain_props;
 	terrain_props.meshes = { terrain_shape->mesh() };
@@ -134,6 +134,11 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	m_level_grid.remove_block(12, 10);
 	m_level_grid.place_block(10, 9);
 	m_level_grid.place_block(11, 9);
+	m_level_grid.place_block(10, 8);
+	m_level_grid.place_block(11, 8);
+	m_level_grid.place_block(9, 9);
+	m_level_grid.place_block(9, 8);
+	m_level_grid.place_block(9, 10);
 
 	//Initialise intro screen
 	intro_screen::init(m_3d_camera,center);

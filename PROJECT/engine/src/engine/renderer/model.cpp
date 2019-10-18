@@ -150,7 +150,7 @@ std::vector<engine::ref<engine::texture_2d>> engine::model::load_textures(aiMate
         if(!skip)
         {   // if texture hasn't been loaded already, load it
             const std::string full_path = m_directory + std::string(filename.C_Str());
-            ref<texture_2d> texture2d = texture_2d::create(full_path);
+            ref<texture_2d> texture2d = texture_2d::create(full_path, false);
             textures.push_back(texture2d);
             textures_loaded.push_back(texture2d); // add to loaded textures
         }
@@ -160,7 +160,7 @@ std::vector<engine::ref<engine::texture_2d>> engine::model::load_textures(aiMate
 }
 
 // TODO - objects (any object for now, more edge cases will be explained on the way) should be passed as !!! const& !!!
-void engine::model::min_max_compare(glm::vec3 point)
+void engine::model::min_max_compare(const glm::vec3& point)
 {
 	if (point.x < m_min_point.x)
 		m_min_point.x = point.x;

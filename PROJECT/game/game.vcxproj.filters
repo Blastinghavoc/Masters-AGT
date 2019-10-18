@@ -5,14 +5,14 @@
     <ClCompile Include="src\example_layer.cpp">
       <Filter>layers</Filter>
     </ClCompile>
-    <ClCompile Include="src\game_layer.cpp">
-      <Filter>layers</Filter>
-    </ClCompile>
     <ClCompile Include="src\grid\grid.cpp">
       <Filter>grid</Filter>
     </ClCompile>
     <ClCompile Include="src\grid\grid_tile.cpp">
       <Filter>grid</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game_layer.cpp">
+      <Filter>layers</Filter>
     </ClCompile>
     <ClCompile Include="src\intro_screen.cpp" />
     <ClCompile Include="src\orientation.cpp" />
@@ -29,14 +29,14 @@
     <ClInclude Include="src\example_layer.h">
       <Filter>layers</Filter>
     </ClInclude>
-    <ClInclude Include="src\game_layer.h">
-      <Filter>layers</Filter>
-    </ClInclude>
     <ClInclude Include="src\grid\grid.h">
       <Filter>grid</Filter>
     </ClInclude>
     <ClInclude Include="src\grid\grid_tile.h">
       <Filter>grid</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game_layer.h">
+      <Filter>layers</Filter>
     </ClInclude>
     <ClInclude Include="src\intro_screen.h" />
     <ClInclude Include="src\orientation.h" />
