@@ -88,6 +88,7 @@ example_layer::example_layer()
 	m_skinned_mesh->LoadAnimationFile("assets/models/animated/mannequin/standard_run.dae");
 	m_skinned_mesh->switch_root_movement(false);
 
+	//Mannequin model for the player
 	engine::game_object_properties mannequin_props;
 	mannequin_props.animated_mesh = m_skinned_mesh;
 	mannequin_props.scale = glm::vec3(1.f/ glm::max(m_skinned_mesh->size().x, glm::max(m_skinned_mesh->size().y, m_skinned_mesh->size().z)));
@@ -95,6 +96,7 @@ example_layer::example_layer()
 	mannequin_props.type = 0;
 	mannequin_props.bounding_shape = m_skinned_mesh->size() / 2.f * mannequin_props.scale.x;
 	m_mannequin = engine::game_object::create(mannequin_props);
+	m_player.initialise(m_mannequin);
 
 	// Load the terrain texture and create a terrain mesh. Create a terrain object. Set its properties
 	std::vector<engine::ref<engine::texture_2d>> terrain_textures = { engine::texture_2d::create("assets/textures/terrain.bmp", false) };
@@ -184,13 +186,15 @@ example_layer::~example_layer() {}
 
 void example_layer::on_update(const engine::timestep& time_step) 
 {
-    m_3d_camera.on_update(time_step);
+    //m_3d_camera.on_update(time_step);
+
 
 	m_physics_manager->dynamics_world_update(m_game_objects, double(time_step));
-
-	m_mannequin->animated_mesh()->on_update(time_step);
-
+	
 	check_bounce();
+
+	m_player.on_update(time_step);
+	m_player.update_camera(m_3d_camera);
 } 
 
 void example_layer::on_render() 
@@ -259,7 +263,7 @@ void example_layer::on_render()
 
 	glm::mat4 aniTransform = glm::mat4(1.0f);
 
-	engine::renderer::submit(animated_mesh_shader, m_mannequin);
+	engine::renderer::submit(animated_mesh_shader, m_player.object());
 
 	engine::renderer::end_scene();
 

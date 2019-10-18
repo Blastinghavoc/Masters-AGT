@@ -1,5 +1,6 @@
 #pragma once
 #include <engine.h>
+#include "player.h"
 
 class example_layer : public engine::layer
 {
@@ -39,4 +40,6 @@ private:
 	engine::ref<engine::game_object>	m_tetrahedron{};
 
 	engine::ref<engine::game_object> m_jeep{};
+
+	player m_player{};
 };
