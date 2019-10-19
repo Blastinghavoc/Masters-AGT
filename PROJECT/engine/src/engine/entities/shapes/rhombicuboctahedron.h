@@ -12,10 +12,10 @@ namespace engine
 
 		~rhombicuboctahedron();
 
-		ref<engine::mesh> mesh() const { return m_mesh; }
+		std::vector < ref<engine::mesh>> meshes() const { return m_meshes; }
 
 		static ref<rhombicuboctahedron> create(float edge_length = 1.f);
 	private:
-		ref<engine::mesh> m_mesh;
+		std::vector< ref<engine::mesh>> m_meshes{};
 	};
 }

@@ -77,8 +77,8 @@ engine::ref<engine::mesh> engine::model::process_mesh(aiMesh* mesh, const aiScen
 
         // TexCoords
         if(mesh->mTextureCoords[0])
-        {// Does it have any texture coordinates?
-            glm::vec2 tex(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
+        {// Does it have any texture coordinates?            
+			glm::vec2 tex(mesh->mTextureCoords[0][i].x, 1.f - mesh->mTextureCoords[0][i].y);
             vert.tex_coords = tex;
         }
         else
