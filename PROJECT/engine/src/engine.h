@@ -34,6 +34,7 @@
 #include "engine/entities/skybox.h"
 #include "engine/entities/shapes/grid_square.h"
 #include "engine/entities/shapes/rhombicuboctahedron.h"
+#include "engine/entities/shapes/tiled_cuboid.h"
 
 // ---utils---------------------------
 #include "engine/utils/bullet_manager.h"
