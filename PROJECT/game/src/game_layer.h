@@ -1,6 +1,7 @@
 #pragma once
 
 #include <engine.h>
+#include "engine/utils/timer.h"
 #include "grid/grid.h"
 
 class game_layer : public engine::layer
@@ -23,7 +24,7 @@ private:
 
 	engine::DirectionalLight            m_directionalLight;
 
-	std::vector<engine::ref<engine::game_object>>     m_game_objects{};
+	//std::vector<engine::ref<engine::game_object>>     m_game_objects{};
 
 	engine::ref<engine::bullet_manager> m_physics_manager{};
 	engine::ref<engine::audio_manager>  m_audio_manager{};
@@ -36,9 +37,15 @@ private:
 
 	bool m_show_debug{ false };
 
-	float m_fps{0};
+	engine::timer m_fps_timer{};
+	unsigned int m_num_updates{0};
+	unsigned int m_updates_last_second{0};
 
 	glm::vec3 m_camera_start_pos{0.1f,3.f,0.1f};
+
+	engine::ref<engine::game_object> m_rhombi{};
+	float m_rhombi_angle{ 1.f };
+	glm::vec3 m_test{0.f,0.f,0.f};
 };
 
 void generate_all_level_pieces(std::vector<engine::ref<engine::game_object>>& level_segments, const std::string& path, const std::string& extn);
