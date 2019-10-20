@@ -54,7 +54,7 @@ void intro_screen::update(engine::perspective_camera& cam, const engine::timeste
 
 void intro_screen::init(engine::perspective_camera& cam,glm::vec3& center_point)
 {
-	cam.position({ 0,8,0 });
+	cam.position({ -1,18,-1 });
 	center = center_point;
 	s_active = true;
 }

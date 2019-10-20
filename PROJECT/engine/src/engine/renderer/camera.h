@@ -110,7 +110,9 @@ namespace engine
             forward = 0, 
             backward, 
             left, 
-            right 
+            right,
+			up,
+			down
         };
 
     public: 
@@ -142,8 +144,8 @@ namespace engine
 
 		void look_at(glm::vec3& target);
 		void face(glm::vec3& direction);
-        void move(e_direction direction, timestep ts); 
-
+		void update_facing_from_mouse();
+        void move(e_direction direction, timestep ts);
     private: 
         void process_mouse(float mouse_delta_x, float mouse_delta_y, bool constrain_pitch = true);
         void rotate(e_rotation rotation, e_axis rotation_axis, timestep ts);

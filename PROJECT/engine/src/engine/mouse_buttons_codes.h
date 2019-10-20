@@ -5,6 +5,7 @@ namespace  engine
     /// \brief Mouse button codes from glf3.h
     class mouse_button_codes
     {
+	public:
         static constexpr int MOUSE_BUTTON_1         = 0;
         static constexpr int MOUSE_BUTTON_2         = 1;
         static constexpr int MOUSE_BUTTON_3         = 2;

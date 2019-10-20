@@ -3,6 +3,7 @@
 #include <engine.h>
 #include "engine/utils/timer.h"
 #include "grid/grid.h"
+#include "player.h"
 
 class game_layer : public engine::layer
 {
@@ -18,7 +19,7 @@ private:
 
 	engine::ref<engine::skybox>			m_skybox{};
 	engine::ref<engine::game_object>	m_terrain{};
-	engine::ref<engine::game_object>	m_grid_square{};
+	engine::ref<engine::game_object>	m_debug_square{};
 
 	engine::ref<engine::material>		m_material{};
 
@@ -33,7 +34,12 @@ private:
 	engine::orthographic_camera       m_2d_camera;
 	engine::perspective_camera        m_3d_camera;
 
+	glm::vec3 m_camera_start_pos{0.1f,3.f,0.1f};
+	bool m_freecam{ false };
+
 	grid m_level_grid{2.f,0.001f};
+
+	player m_player{glm::vec3(3.f,0.f,0.f)};
 
 	bool m_show_debug{ false };
 
@@ -41,11 +47,10 @@ private:
 	unsigned int m_num_updates{0};
 	unsigned int m_updates_last_second{0};
 
-	glm::vec3 m_camera_start_pos{0.1f,3.f,0.1f};
 
 	engine::ref<engine::game_object> m_rhombi{};
 	float m_rhombi_angle{ 1.f };
-	glm::vec3 m_test{0.f,0.f,0.f};
+	glm::vec3 m_rhombi_trig_vector{0.f,0.f,0.f};
 };
 
 void generate_all_level_pieces(std::vector<engine::ref<engine::game_object>>& level_segments, const std::string& path, const std::string& extn);

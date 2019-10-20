@@ -88,22 +88,34 @@ engine::perspective_camera::perspective_camera(
     LOG_CORE_TRACE("3d cam rotation: [{},{},{}]", m_rotation_angle.x, m_rotation_angle.y, m_rotation_angle.z); 
 }
 
+//Freecam movement
 void engine::perspective_camera::on_update(const timestep& timestep)
 {
-	auto [mouse_delta_x, mouse_delta_y] = input::mouse_position();
-	process_mouse(mouse_delta_x, mouse_delta_y);
+	update_facing_from_mouse();
 
-	update_camera_vectors();
+	float normal_move_speed = s_movement_speed;
+	if (input::key_pressed(engine::key_codes::KEY_LEFT_SHIFT)) {//go faster
+		s_movement_speed *= 1.5f;
+	}
 
     if(input::key_pressed(engine::key_codes::KEY_A)) // left
         move(e_direction::left, timestep);
     else if(input::key_pressed(engine::key_codes::KEY_D)) // right
         move(e_direction::right, timestep);
 
-    if(input::key_pressed(engine::key_codes::KEY_S)) // down
+    if(input::key_pressed(engine::key_codes::KEY_S)) // backward
         move(e_direction::backward, timestep);
-    else if(engine::input::key_pressed(engine::key_codes::KEY_W)) // up
+    else if(engine::input::key_pressed(engine::key_codes::KEY_W)) // forward
         move(e_direction::forward, timestep);
+
+	if (input::key_pressed(engine::key_codes::KEY_SPACE)) {// up
+		move(e_direction::up, timestep);
+	}
+	else if (input::key_pressed(engine::key_codes::KEY_LEFT_CONTROL)) {//down
+		move(e_direction::down, timestep);
+	}
+
+	s_movement_speed = normal_move_speed;
 
     //float delta = input::mouse_scroll();
     //process_mouse_scroll(delta);
@@ -155,6 +167,11 @@ void engine::perspective_camera::move(e_direction direction, timestep ts)
         m_position -= s_movement_speed * ts * m_right_vector;
     else if(direction == right) 
         m_position += s_movement_speed * ts * m_right_vector;
+
+	if (direction == up)
+		m_position += s_movement_speed * ts * m_up_vector;
+	else if (direction == down)
+		m_position -= s_movement_speed * ts * m_up_vector;
 
     //LOG_CORE_TRACE("3d cam position: [{},{},{}]", m_position.x, m_position.y, m_position.z); 
 } 
@@ -254,4 +271,12 @@ void engine::perspective_camera::face(glm::vec3& direction) {
 	auto yaw_radians = acos(m_front_vector.x / cos(pitch_radians));
 	m_yaw = glm::degrees(yaw_radians);
 	m_pitch = glm::degrees(pitch_radians);
+}
+
+//Updates where the camera is facing based on mouse movement.
+void engine::perspective_camera::update_facing_from_mouse() {
+	auto [mouse_delta_x, mouse_delta_y] = input::mouse_position();
+	process_mouse(mouse_delta_x, mouse_delta_y);
+
+	update_camera_vectors();
 }

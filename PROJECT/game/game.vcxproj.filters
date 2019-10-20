@@ -16,6 +16,7 @@
     </ClCompile>
     <ClCompile Include="src\intro_screen.cpp" />
     <ClCompile Include="src\orientation.cpp" />
+    <ClCompile Include="src\player.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="layers">
@@ -40,5 +41,6 @@
     </ClInclude>
     <ClInclude Include="src\intro_screen.h" />
     <ClInclude Include="src\orientation.h" />
+    <ClInclude Include="src\player.h" />
   </ItemGroup>
 </Project>

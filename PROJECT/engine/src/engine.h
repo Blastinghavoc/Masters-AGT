@@ -10,6 +10,7 @@
 
 #include "engine/core/input.h"
 #include "engine/key_codes.h"
+#include "engine/mouse_buttons_codes.h"
 
 // ---renderer------------------------
 #include "engine/renderer/renderer.h"

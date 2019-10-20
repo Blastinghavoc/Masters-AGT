@@ -9,6 +9,7 @@ namespace fs = std::filesystem;
 
 #define _USE_MATH_DEFINES
 #include <math.h>
+
 #include "intro_screen.h"
 
 
@@ -31,11 +32,22 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	auto text_shader = engine::renderer::shaders_library()->get("text_2D");
 	auto mesh_material_shader = engine::renderer::shaders_library()->get("mesh_material");
 	auto mesh_lighting_shader = engine::renderer::shaders_library()->get("mesh_lighting");
+	auto animated_mesh_shader = engine::renderer::shaders_library()->get("animated_mesh");
 
 	m_directionalLight.Color = glm::vec3(1.0f, 1.0f, 1.0f);
 	m_directionalLight.AmbientIntensity = 0.25f;
 	m_directionalLight.DiffuseIntensity = 0.6f;
 	m_directionalLight.Direction = glm::normalize(glm::vec3(1.0f, -1.0f, 0.0f));
+
+	std::dynamic_pointer_cast<engine::gl_shader>(animated_mesh_shader)->bind();
+	std::dynamic_pointer_cast<engine::gl_shader>(animated_mesh_shader)->set_uniform("gColorMap", 0);
+	std::dynamic_pointer_cast<engine::gl_shader>(animated_mesh_shader)->set_uniform("gDirectionalLight.Base.Color", m_directionalLight.Color);
+	std::dynamic_pointer_cast<engine::gl_shader>(animated_mesh_shader)->set_uniform("gDirectionalLight.Base.AmbientIntensity", m_directionalLight.AmbientIntensity);
+	std::dynamic_pointer_cast<engine::gl_shader>(animated_mesh_shader)->set_uniform("gDirectionalLight.Direction", glm::normalize(m_directionalLight.Direction));
+	std::dynamic_pointer_cast<engine::gl_shader>(animated_mesh_shader)->set_uniform("gDirectionalLight.Base.DiffuseIntensity", m_directionalLight.DiffuseIntensity);
+	std::dynamic_pointer_cast<engine::gl_shader>(animated_mesh_shader)->set_uniform("gMatSpecularIntensity", 0.5f);
+	std::dynamic_pointer_cast<engine::gl_shader>(animated_mesh_shader)->set_uniform("gSpecularPower", 5.f);
+	std::dynamic_pointer_cast<engine::gl_shader>(animated_mesh_shader)->set_uniform("transparency", 1.0f);
 
 	std::dynamic_pointer_cast<engine::gl_shader>(mesh_material_shader)->bind();
 	std::dynamic_pointer_cast<engine::gl_shader>(mesh_material_shader)->set_uniform("gDirectionalLight.Base.Color", m_directionalLight.Color);
@@ -149,7 +161,7 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	grid_shape_props.position = { 0.f, 0.8f, 0.f };
 	grid_shape_props.meshes = { grid_shape->mesh() };
 	grid_shape_props.bounding_shape = glm::vec3(1.f);	
-	m_grid_square = engine::game_object::create(grid_shape_props);
+	m_debug_square = engine::game_object::create(grid_shape_props);
 
 	//Primitive shape
 	engine::ref<engine::texture_2d> rhombi_texture_sqr = engine::texture_2d::create("assets/textures/rhombi_face_sqr.png",true);
@@ -179,10 +191,11 @@ void game_layer::on_update(const engine::timestep& time_step)
 	float tmp = m_rhombi_angle;
 	m_rhombi_angle = fmod(m_rhombi_angle + 0.05f, 2 * M_PI);
 	tmp = fmod(tmp + 0.025f, 2 * M_PI);
-	m_test = 1.5f*glm::vec3(sin(m_rhombi_angle),cos(m_rhombi_angle),sin(tmp));
+	m_rhombi_trig_vector = 1.5f*glm::vec3(sin(m_rhombi_angle),cos(m_rhombi_angle),sin(tmp));
 
 	m_num_updates++;
 	//Update the displayed fps counter every second.
+	//REF NOTE: inspired by http://www.opengl-tutorial.org/miscellaneous/an-fps-counter/
 	if (m_fps_timer.total() > 1.f)
 	{
 		m_updates_last_second = m_num_updates;
@@ -195,7 +208,14 @@ void game_layer::on_update(const engine::timestep& time_step)
 		intro_screen::update(m_3d_camera, time_step);
 	}
 	else {
-		m_3d_camera.on_update(time_step);		
+		if (m_freecam)
+		{
+			m_3d_camera.on_update(time_step);
+		}
+		else {
+			m_player.on_update(time_step);
+			m_player.update_camera(m_3d_camera);
+		}
 	}
 }
 
@@ -249,7 +269,7 @@ void game_layer::on_render()
 
 		//rotating around center
 		transform = glm::mat4(1.f);
-		transform = glm::translate(transform, glm::vec3(15.f+m_test.x, 10.f+m_test.y, 15.0f + m_test.z));
+		transform = glm::translate(transform, glm::vec3(15.f+m_rhombi_trig_vector.x, 10.f+m_rhombi_trig_vector.y, 15.0f + m_rhombi_trig_vector.z));
 		transform = glm::rotate(transform, -m_rhombi_angle, glm::vec3(0, 0, 1));
 		transform = glm::rotate(transform, -m_rhombi_angle, glm::vec3(0, 1, 0));
 		transform = glm::rotate(transform, -m_rhombi_angle, glm::vec3(1,0,0));
@@ -258,7 +278,7 @@ void game_layer::on_render()
 
 		//rotating around center
 		transform = glm::mat4(1.f);
-		transform = glm::translate(transform, glm::vec3(15.f + 1.5f*m_test.x, 10.f + 1.5f * m_test.z, 15.0f+ 1.5f * m_test.y));
+		transform = glm::translate(transform, glm::vec3(15.f + 1.5f*m_rhombi_trig_vector.x, 10.f + 1.5f * m_rhombi_trig_vector.z, 15.0f+ 1.5f * m_rhombi_trig_vector.y));
 		transform = glm::rotate(transform, -m_rhombi_angle, glm::vec3(0, 0, 1));
 		transform = glm::rotate(transform, -m_rhombi_angle, glm::vec3(0, 1, 0));
 		transform = glm::rotate(transform, -m_rhombi_angle, glm::vec3(1, 0, 0));
@@ -267,7 +287,7 @@ void game_layer::on_render()
 
 		//rotating around center
 		transform = glm::mat4(1.f);
-		transform = glm::translate(transform, glm::vec3(15.f + -2.f * m_test.z, 10.f + 2.f * m_test.x, 15.0f + 2.f *m_test.y));
+		transform = glm::translate(transform, glm::vec3(15.f + -2.f * m_rhombi_trig_vector.z, 10.f + 2.f * m_rhombi_trig_vector.x, 15.0f + 2.f *m_rhombi_trig_vector.y));
 		transform = glm::rotate(transform, -m_rhombi_angle, glm::vec3(0, 0, 1));
 		transform = glm::rotate(transform, -m_rhombi_angle, glm::vec3(0, 1, 0));
 		transform = glm::rotate(transform, -m_rhombi_angle, glm::vec3(1, 0, 0));
@@ -300,13 +320,22 @@ void game_layer::on_render()
 			transform = glm::translate(transform, offset);
 			transform = glm::rotate(transform, 0.f, {0,1,0});
 			transform = glm::scale(transform, {1,1,1});
-			engine::renderer::submit(textured_material_shader, transform, m_grid_square);
+			engine::renderer::submit(textured_material_shader, transform, m_debug_square);
 		}
 	}*/
 
 
-	// Render text
+	//Render animated meshes
+	const auto animated_mesh_shader = engine::renderer::shaders_library()->get("animated_mesh");
+	engine::renderer::begin_scene(m_3d_camera, animated_mesh_shader);
+	std::dynamic_pointer_cast<engine::gl_shader>(animated_mesh_shader)->set_uniform("gEyeWorldPos", m_3d_camera.position());
 
+	engine::renderer::submit(animated_mesh_shader, m_player.object());
+
+	engine::renderer::end_scene();
+
+
+	// Render text
 	if (intro_screen::active())
 	{
 		intro_screen::render(m_text_manager);
@@ -335,23 +364,34 @@ void game_layer::on_event(engine::event& event)
 		{
 		case engine::key_codes::KEY_TAB:
 			engine::render_command::toggle_wireframe();
+			event.handled = true;
 			break;
 		case engine::key_codes::KEY_F1:
 			m_show_debug = !m_show_debug;
+			event.handled = true;
 			break;
-
+		case engine::key_codes::KEY_F2:
+			m_freecam = !m_freecam;
+			event.handled = true;
+			break;
 		case engine::key_codes::KEY_ENTER:			
 			if (intro_screen::active())
 			{
 				intro_screen::active(false);
 				m_3d_camera.position(m_camera_start_pos);
 				m_3d_camera.face(to_vec(north));
+				event.handled = true;
 			}
 			break;
 		default:
 			break;
 		}
 		
+	}
+
+	if (!event.handled)
+	{
+		m_player.on_event(event);
 	}
 }
 
