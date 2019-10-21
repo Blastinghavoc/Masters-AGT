@@ -2,12 +2,14 @@
 #include "tiled_cuboid.h"
 #include <engine.h>
 
+//Modification of cuboid constructor to support texture tiling.
 engine::tiled_cuboid::tiled_cuboid(glm::vec3 half_extents, bool inwards, glm::vec2 tile_scale) : m_half_extents(half_extents), m_inwards(inwards)
 {
 	float orientation = 1;
 	if (inwards)
 		orientation = -1;
 
+	//Construct vertices the same way as for the basic cuboid
 	std::vector<mesh::vertex> vertices
 	{
 		//front
@@ -48,7 +50,7 @@ engine::tiled_cuboid::tiled_cuboid(glm::vec3 half_extents, bool inwards, glm::ve
 		{ {-1.f * m_half_extents.x, -1.f * m_half_extents.y,  1.f * m_half_extents.z },		{ 0.0f, -1.0f * orientation, 0.0f},		{ 0.f, 1.f } },
 	};
 
-	//Scaling texture coords
+	//Scaling texture coords to support tiling
 	for (size_t i = 0; i < vertices.size(); ++i)
 	{
 		vertices[i].tex_coords *= tile_scale;

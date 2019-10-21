@@ -12,6 +12,7 @@ namespace engine
 
 		~rhombicuboctahedron();
 
+		//This shape has two sets of meshes, square faces and triangular faces, that are textured sepparately.
 		std::vector < ref<engine::mesh>> meshes() const { return m_meshes; }
 
 		static ref<rhombicuboctahedron> create(float edge_length = 1.f);

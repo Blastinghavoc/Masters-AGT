@@ -8,14 +8,14 @@ engine::rhombicuboctahedron::rhombicuboctahedron(float edge_length)
 {
 	if (edge_length <= 0.f)
 	{		
-		edge_length = 1.f;
+		throw std::exception();
 	}
 
 	float half_length = edge_length / 2.f;
 	float tri_side_length = edge_length*cos(M_PI_4);
 	float center_dist = half_length + tri_side_length;
 
-	glm::vec3 norm{ 0,1,0 };
+	//Vertices for square faces
 	std::vector<engine::mesh::vertex> vertices_sqr
 	{
 		//Position		normal		tex
@@ -130,6 +130,7 @@ engine::rhombicuboctahedron::rhombicuboctahedron(float edge_length)
 		{ {-half_length,+half_length,-center_dist},{-.5f,0,-.5f},{0,1} },
 	};
 
+	//vertices for the triangular faces
 	std::vector<engine::mesh::vertex> vertices_tri
 	{		
 		//Triangular corners
@@ -175,6 +176,7 @@ engine::rhombicuboctahedron::rhombicuboctahedron(float edge_length)
 
 	};
 
+	//Indices for the square faces
 	std::vector<uint32_t> indices_sqr
 	{
 		 0,1,2,		0,2,3,//Top
@@ -214,6 +216,7 @@ engine::rhombicuboctahedron::rhombicuboctahedron(float edge_length)
 
 	};
 
+	//Indices for the triangular faces
 	std::vector<uint32_t> indices_tri
 	{
 		//Triangular corners
@@ -238,6 +241,7 @@ engine::rhombicuboctahedron::rhombicuboctahedron(float edge_length)
 
 	};
 
+	//adjusting the triangular indices to start from 0.
 	for (size_t i = 0; i < indices_tri.size(); ++i)
 	{
 		indices_tri[i] -= 72;

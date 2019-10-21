@@ -7,6 +7,8 @@ grid::grid(float cell_size,float y):
 	std::string path = "assets/models/static/dungeon/";
 	std::string extn = ".obj";
 
+	//Set up prefabs
+
 	//Models in the "modified" directory were put together by me from the original pieces.
 	engine::ref <engine::model> model = engine::model::create(path + "modified/wall_straight" + extn);
 	engine::game_object_properties props;
@@ -107,7 +109,7 @@ void grid::set_gateway(const int& x, const int& z, const orientation& relative_h
 	engine::ref<engine::game_object> obj = std::make_shared < engine::game_object>(*m_gateway_prefab);
 
 	//Determine which tile will own the gateway.
-	std::pair<int, int> index = get_corner_index_from_relative_heading(x, z, relative_heading);
+	std::pair<int, int> index = get_corner_index_from_heading(x, z, relative_heading);
 
 	obj->set_position(obj->position() + grid_to_world_coords(index.first, index.second));
 	//Rotate the gateway.
@@ -122,10 +124,12 @@ void grid::set_corner(const int& x, const int& z, const orientation& relative_he
 	/*NOTE: any corner can be expressed as the south_east corner of some tile, since the corner models are rotationally
 	symmetrical. This prevents two tiles trying to render models for the same corner.
 	*/
+
+	//TODO remove use of vector of corner prefabs, since I only need one
 	
 	engine::ref<engine::game_object> corner_obj = std::make_shared < engine::game_object>(*m_corner_prefabs[1]);
 
-	std::pair<int, int> index = get_corner_index_from_relative_heading(x, z, relative_heading);
+	std::pair<int, int> index = get_corner_index_from_heading(x, z, relative_heading);
 
 	corner_obj->set_position(corner_obj->position() + grid_to_world_coords(index.first, index.second));
 	m_tiles[index].set_corner(corner_obj);
@@ -133,11 +137,11 @@ void grid::set_corner(const int& x, const int& z, const orientation& relative_he
 
 bool grid::has_corner(const int& x, const int& z, const orientation& relative_heading)
 {
-	std::pair<int, int> index = get_corner_index_from_relative_heading(x, z, relative_heading);
+	std::pair<int, int> index = get_corner_index_from_heading(x, z, relative_heading);
 	return m_tiles[index].has_corner();
 }
 
-std::pair<int, int> grid::get_corner_index_from_relative_heading(const int& x, const int& z,const orientation& relative_heading) {
+std::pair<int, int> grid::get_corner_index_from_heading(const int& x, const int& z,const orientation& relative_heading) {
 	//If facing is not a corner, exception
 	if (relative_heading <= orientation::west)
 	{
@@ -300,7 +304,7 @@ void grid::remove_block(const int& x, const int& z)
 		//These can occur in the any position except the south-east, as that corner is owned by the block being deleted.
 		for each (const auto& corner_facing in std::vector<orientation>{north_east,north_west,south_west})
 		{
-			auto corner_index = get_corner_index_from_relative_heading(x, z, corner_facing);
+			auto corner_index = get_corner_index_from_heading(x, z, corner_facing);
 			auto& corner_tile = m_tiles[corner_index];
 			//Maze type tiles should keep their corners. Any others get them reset if applicable, or removed
 			if (corner_tile.type != grid_tile::tile_type::maze && corner_tile.has_corner())
@@ -369,7 +373,7 @@ void grid::del_corner(const int& x, const int& z, const orientation& relative_he
 		throw std::exception();
 	}
 
-	std::pair<int, int> index = get_corner_index_from_relative_heading(x, z, relative_heading);
+	std::pair<int, int> index = get_corner_index_from_heading(x, z, relative_heading);
 
 	m_tiles[index].del_corner();
 }
@@ -402,8 +406,4 @@ std::pair<int, int> grid::world_to_grid_coords(glm::vec3 vec)
 	return std::pair<int, int>((int)floor(vec.x/m_cell_size),(int)floor(vec.z/m_cell_size));
 }
 
-const engine::ref<engine::game_object>& grid::get_wall(const orientation& facing) const
-{
-	return m_walls_prefabs[facing];
-}
 
