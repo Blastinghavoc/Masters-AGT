@@ -65,7 +65,7 @@ private:
 
 	//"Prefab" objects to instantiate grid pieces from.
 	std::vector<engine::ref<engine::game_object>> m_walls_prefabs{4};
-	std::vector <engine::ref<engine::game_object>> m_corner_prefabs{4};
+	engine::ref<engine::game_object> m_corner_prefab{};
 	engine::ref<engine::game_object> m_floor_prefab{};
 	engine::ref<engine::game_object> m_ceiling_prefab{};
 	engine::ref<engine::game_object> m_gateway_prefab{};

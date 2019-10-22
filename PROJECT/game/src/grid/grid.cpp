@@ -46,7 +46,7 @@ grid::grid(float cell_size,float y):
 	props.position += glm::vec3{0, m_cell_size * .8, 0};
 	m_ceiling_prefab = engine::game_object::create(props);
 
-	//pillar
+	//pillar/corner
 	model = engine::model::create(path + "modified/pillar" + extn);
 	props = engine::game_object_properties();
 	props.meshes = model->meshes();
@@ -54,15 +54,9 @@ grid::grid(float cell_size,float y):
 	scale = (m_cell_size * 1.f) / glm::max(model->size().x, glm::max(model->size().y, model->size().z));
 	props.scale = glm::vec3(scale);
 	props.bounding_shape = model->size() / 2.f * scale;
-	props.rotation_axis = { 0,1, 0 };
-	props.position = { m_cell_size * 0,0,m_cell_size * 1 };
-	m_corner_prefabs[orientation::north_east-4] = engine::game_object::create(props);
+	props.rotation_axis = { 0,1, 0 };	
 	props.position = { m_cell_size * 0,0,m_cell_size * 0 };
-	m_corner_prefabs[orientation::south_east - 4] = engine::game_object::create(props);
-	props.position = { m_cell_size * 1,0,m_cell_size * 0 };
-	m_corner_prefabs[orientation::south_west - 4] = engine::game_object::create(props);
-	props.position = { m_cell_size * 1,0,m_cell_size * 1 };
-	m_corner_prefabs[orientation::north_west - 4] = engine::game_object::create(props);
+	m_corner_prefab = engine::game_object::create(props);	
 
 	//Gateway
 	model = engine::model::create(path + "modified/gateway_large" + extn);
@@ -82,6 +76,7 @@ grid::~grid()
 {
 }
 
+//Renders all tiles owned by this grid, assuming begin_scene has already been called.
 void grid::render(const engine::ref<engine::shader>& shader)
 {
 	for each (auto pair in m_tiles)
@@ -90,7 +85,7 @@ void grid::render(const engine::ref<engine::shader>& shader)
 	}
 }
 
-//Set the border wall at a particular position and orientation. Care must be taken to ensure these do not overlap.
+//Set the border wall at a particular position and orientation. Care should be taken to ensure these do not overlap.
 void grid::set_border(const int& x, const int& z, const orientation& relative_heading)
 {
 	//If facing is not a cardinal direction, exception
@@ -105,6 +100,7 @@ void grid::set_border(const int& x, const int& z, const orientation& relative_he
 	m_tiles[{x, z}].set_border(wall_obj, relative_heading);
 }
 
+//Sets a gateway piece (half) at the given position, orientation and angle. Angle is required because the gateway piece is not rotationally symmetrical.
 void grid::set_gateway(const int& x, const int& z, const orientation& relative_heading,const float& rotation_angle) {
 	engine::ref<engine::game_object> obj = std::make_shared < engine::game_object>(*m_gateway_prefab);
 
@@ -124,23 +120,27 @@ void grid::set_corner(const int& x, const int& z, const orientation& relative_he
 	/*NOTE: any corner can be expressed as the south_east corner of some tile, since the corner models are rotationally
 	symmetrical. This prevents two tiles trying to render models for the same corner.
 	*/
-
-	//TODO remove use of vector of corner prefabs, since I only need one
 	
-	engine::ref<engine::game_object> corner_obj = std::make_shared < engine::game_object>(*m_corner_prefabs[1]);
+	engine::ref<engine::game_object> corner_obj = std::make_shared < engine::game_object>(*m_corner_prefab);
 
+	//Obtain the grid index that will own the corner.
 	std::pair<int, int> index = get_corner_index_from_heading(x, z, relative_heading);
 
 	corner_obj->set_position(corner_obj->position() + grid_to_world_coords(index.first, index.second));
 	m_tiles[index].set_corner(corner_obj);
 }
 
+//Returns true if a corner exists at the given location and orientation (a gateway counts as a corner)
 bool grid::has_corner(const int& x, const int& z, const orientation& relative_heading)
 {
 	std::pair<int, int> index = get_corner_index_from_heading(x, z, relative_heading);
 	return m_tiles[index].has_corner();
 }
 
+/*Determine the index of the grid_tile that should own the south_east corner such that it is also the
+"relative_heading" corner of the given index. E.g, the north_east corner of (1,2) is actually the south_east
+corner of (1,3).
+*/
 std::pair<int, int> grid::get_corner_index_from_heading(const int& x, const int& z,const orientation& relative_heading) {
 	//If facing is not a corner, exception
 	if (relative_heading <= orientation::west)
@@ -167,6 +167,7 @@ std::pair<int, int> grid::get_corner_index_from_heading(const int& x, const int&
 	return std::make_pair(effective_x, effective_z);
 }
 
+//Sets the floor at the given grid location.
 void grid::set_floor(const int& x, const int& z)
 {
 	//copy from the prefabs
@@ -183,6 +184,12 @@ void grid::set_ceiling(const int& x, const int& z)
 	m_tiles[{x, z}].set_ceiling(obj);
 }
 
+/*Place a whole "block" at the target location.
+This has four walls, a ceiling and four corners.
+Care is taken not place additional walls if they already exist (perhaps owned by adjacent tiles).
+Adjacent "blocks" should have no walls between them, to give the illusion that they merge together.
+Blocks are also know as "maze" tiles, because they are used to construct a maze for enemies.
+*/
 void grid::place_block(const int& x, const int& z)
 {
 	set_ceiling(x, z);
@@ -204,6 +211,7 @@ void grid::place_block(const int& x, const int& z)
 		auto& adjacent_tile = m_tiles[adjacent_index];
 		adjacent_is_maze[facing] = adjacent_tile.type == grid_tile::tile_type::maze;
 
+		//Nothing required if this tile already has a border in this direction.
 		if (!(tile.has_border(facing)))
 		{
 			bool need_to_place_border = true;
@@ -216,6 +224,7 @@ void grid::place_block(const int& x, const int& z)
 				need_to_place_border = false;
 			}
 			else {
+				//If the adjacent tile is not another block, then we do not delete its wall and do not place a new one.
 				if (adjacent_tile.has_border(opposite_facing))
 				{
 					need_to_place_border = false;
@@ -229,13 +238,13 @@ void grid::place_block(const int& x, const int& z)
 		}
 	}
 
-	//Set the SE corner if necessary.
+	//Set the south_east corner if necessary.
 	if (!tile.has_corner())
 	{
 		set_corner(x, z);
 	}	
 
-	//Ensure adjacent tiles don't render extra corners.
+	//Add the other corners if they don't already exist.
 	orientation other_corner_owners[]{ north,west,north_west};
 	for each (const auto& facing in other_corner_owners)
 	{
@@ -269,6 +278,7 @@ void grid::place_block(const int& x, const int& z)
 
 }
 
+//The opposite of place_block. Removes a whole block, reseting the tile state to the baked state if possible.
 void grid::remove_block(const int& x, const int& z)
 {
 	auto index = std::make_pair(x, z);
@@ -326,6 +336,7 @@ void grid::remove_block(const int& x, const int& z)
 
 		//Similar to placing a tile, must smartly update adjacent walls.
 		//Any adjacent maze tiles should have a border in this direction, and a corner.
+		//Corners may be missing, not from the previous step, but if the removed tile was in the middle of other maze tiles (and thus had no corners)
 		for each (const auto& facing in wall_facings)
 		{
 			auto offset = to_vec(facing);
@@ -354,6 +365,7 @@ void grid::remove_block(const int& x, const int& z)
 	}
 }
 
+//Removes the border (wall) associated with a particular grid location and orientation.
 void grid::del_border(const int& x, const int& z, const orientation& relative_heading)
 {
 	//If facing is not a cardinal direction, exception
@@ -365,6 +377,7 @@ void grid::del_border(const int& x, const int& z, const orientation& relative_he
 	m_tiles[{x, z}].del_border(relative_heading);
 }
 
+//Removes the corner associated with a particular grid location and orientation.
 void grid::del_corner(const int& x, const int& z, const orientation& relative_heading)
 {
 	//If facing is not a composite direction, exception
@@ -385,22 +398,26 @@ void grid::bake_tiles()
 	m_tiles_baked.insert(m_tiles.begin(), m_tiles.end());
 }
 
+//Allows addressing single tiles by a 2D vector
 grid_tile& grid::operator[](const glm::vec2& vec)
 {
 	std::pair<int, int> index = std::make_pair((int)floor(vec.x), (int)floor(vec.y));
 	return m_tiles[index];
 }
 
+//Allows addressing single tiles by a pair of ints
 grid_tile& grid::operator[](const std::pair<int, int>& loc)
 {
 	return m_tiles[loc];
 }
 
+//Convert grid indices to world coordinates
 inline glm::vec3 grid::grid_to_world_coords(int x, int z)
 {
 	return glm::vec3(m_cell_size*x,m_y,m_cell_size*z);
 }
 
+//Convert world coordinates to grid indices
 std::pair<int, int> grid::world_to_grid_coords(glm::vec3 vec)
 {
 	return std::pair<int, int>((int)floor(vec.x/m_cell_size),(int)floor(vec.z/m_cell_size));
