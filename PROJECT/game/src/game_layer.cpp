@@ -73,7 +73,7 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 
 	m_material = engine::material::create(32.0f, glm::vec3(1.0f, 0.1f, 0.07f), glm::vec3(1.0f, 0.1f, 0.07f), glm::vec3(0.5f, 0.5f, 0.5f), 1.0f);
 
-	//TODO REF Skybox texture from https://opengameart.org/content/space-skyboxes-0
+	//REF Skybox texture from https://opengameart.org/content/space-skyboxes-0
 	std::string skybox_path = "assets/textures/skyboxes/blue/";
 	std::string skybox_extn = ".png";
 	m_skybox = engine::skybox::create(50.f,
@@ -86,7 +86,8 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 		});
 
 	// Load the terrain texture and create a terrain mesh. Create a terrain object. Set its properties
-	std::vector<engine::ref<engine::texture_2d>> terrain_textures = { engine::texture_2d::create("assets/textures/terrain_grid.bmp",false) };
+	// Using my tiled_cuboid instead of the original terrain shape in order to have tiled textures.
+	std::vector<engine::ref<engine::texture_2d>> terrain_textures = { engine::texture_2d::create("assets/textures/terrain_grid.bmp",false) };//Texture by me
 	engine::ref<engine::tiled_cuboid> terrain_shape = engine::tiled_cuboid::create({ 100.f, 0.5f, 100.f }, false, {100.f,100.f});
 	engine::game_object_properties terrain_props;
 	terrain_props.meshes = { terrain_shape->mesh() };
@@ -104,7 +105,7 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	//Display all dungeon pieces
 	//generate_all_level_pieces(m_level_segments,path,extn);
 
-	//Populate level grid
+	//Populate level grid, and test its functionality.
 	for (int i = 0; i < 15; i++)
 	{
 		m_level_grid.set_border(0,i,orientation::east);
@@ -151,11 +152,15 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	m_level_grid.place_block(9, 9);
 	m_level_grid.place_block(9, 8);
 	m_level_grid.place_block(9, 10);
+	//end of grid testing.
+
 
 	//Initialise intro screen
 	intro_screen::init(m_3d_camera,center);
 
-	//Create grid square for debug
+	/*Create grid square for debug
+	This shape can be used to project a visualisation of a 1x1m grid onto the scene for debug/dev purposes.
+	*/
 	engine::ref<engine::grid_square> grid_shape = engine::grid_square::create(0.05f);
 	engine::game_object_properties grid_shape_props;
 	grid_shape_props.position = { 0.f, 0.8f, 0.f };
@@ -164,7 +169,7 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	m_debug_square = engine::game_object::create(grid_shape_props);
 
 	//Primitive shape
-	engine::ref<engine::texture_2d> rhombi_texture_sqr = engine::texture_2d::create("assets/textures/rhombi_face_sqr.png",true);
+	engine::ref<engine::texture_2d> rhombi_texture_sqr = engine::texture_2d::create("assets/textures/rhombi_face_sqr.png",true);//These textures made by me
 	engine::ref<engine::texture_2d> rhombi_texture_tri = engine::texture_2d::create("assets/textures/rhombi_face_tri.png",true);
 	engine::ref<engine::rhombicuboctahedron> shape = engine::rhombicuboctahedron::create();
 	engine::game_object_properties shape_props;
@@ -193,21 +198,23 @@ void game_layer::on_update(const engine::timestep& time_step)
 	tmp = fmod(tmp + 0.025f, 2 * M_PI);
 	m_rhombi_trig_vector = 1.5f*glm::vec3(sin(m_rhombi_angle),cos(m_rhombi_angle),sin(tmp));
 
-	m_num_updates++;
 	//Update the displayed fps counter every second.
 	//REF NOTE: inspired by http://www.opengl-tutorial.org/miscellaneous/an-fps-counter/
+	m_num_updates++;
 	if (m_fps_timer.total() > 1.f)
 	{
-		m_updates_last_second = m_num_updates;
+		m_updates_last_interval = m_num_updates;
 		m_num_updates = 0;
 		m_fps_timer.reset();
 	}	
 
+	//Most of the update work does not occur during the intro screen
 	if (intro_screen::active())
 	{
 		intro_screen::update(m_3d_camera, time_step);
 	}
 	else {
+		//Freecam or play-based movement
 		if (m_freecam)
 		{
 			m_3d_camera.on_update(time_step);
@@ -241,8 +248,10 @@ void game_layer::on_render()
 	}
 	engine::renderer::submit(textured_lighting_shader, m_skybox, skybox_tranform);
 
+	//Render terrain
 	engine::renderer::submit(textured_lighting_shader, m_terrain);
 
+	//render all children of the level grid
 	m_level_grid.render(textured_lighting_shader);
 
 	//Render multiple transformed, scaled and rotated rhombicuboctahedrons in the scene.
@@ -308,7 +317,7 @@ void game_layer::on_render()
 	std::dynamic_pointer_cast<engine::gl_shader>(textured_material_shader)->set_uniform("gEyeWorldPos", m_3d_camera.position());
 
 	//Shows a 1m debug grid. Not super efficient, and uses lots of magic numbers
-	//TODO maybe improve? Actually highly inefficient! Drops frame-rate significantly.
+	//TODO maybe improve? Actually highly inefficient! Drops frame-rate noticeably.
 	/*if (m_show_debug)
 	{
 		int row_width = 10;
@@ -330,6 +339,7 @@ void game_layer::on_render()
 	engine::renderer::begin_scene(m_3d_camera, animated_mesh_shader);
 	std::dynamic_pointer_cast<engine::gl_shader>(animated_mesh_shader)->set_uniform("gEyeWorldPos", m_3d_camera.position());
 
+	//Render the player object
 	engine::renderer::submit(animated_mesh_shader, m_player.object());
 
 	engine::renderer::end_scene();
@@ -343,11 +353,12 @@ void game_layer::on_render()
 	else {
 		const auto text_shader = engine::renderer::shaders_library()->get("text_2D");
 		m_text_manager->render_text(text_shader, "Placeholder UI", 10.f, (float)engine::application::window().height() - 25.f, 0.5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
+		//Debug ui, including camera position and facing, and FPS
 		if (m_show_debug)
 		{
 			m_text_manager->render_text(text_shader, "Pos:{" + std::to_string(cam_pos.x) + "," + std::to_string(cam_pos.y)
 				+ "," + std::to_string(cam_pos.z) + "}", 10.f, (float)engine::application::window().height() - 50.f, .5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
-			m_text_manager->render_text(text_shader, "FPS:{" + std::to_string(m_updates_last_second) + "}", 10.f, (float)engine::application::window().height() - 75.f, .5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
+			m_text_manager->render_text(text_shader, "FPS:{" + std::to_string(m_updates_last_interval) + "}", 10.f, (float)engine::application::window().height() - 75.f, .5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
 			m_text_manager->render_text(text_shader, "Facing:{" +std::to_string(m_3d_camera.front_vector().x) + "," + std::to_string(m_3d_camera.front_vector().y)
 				+ "," + std::to_string(m_3d_camera.front_vector().z) + "}", 10.f, (float)engine::application::window().height() - 100.f, .5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
 		}
@@ -366,15 +377,15 @@ void game_layer::on_event(engine::event& event)
 			engine::render_command::toggle_wireframe();
 			event.handled = true;
 			break;
-		case engine::key_codes::KEY_F1:
+		case engine::key_codes::KEY_F1://Toggle debug
 			m_show_debug = !m_show_debug;
 			event.handled = true;
 			break;
-		case engine::key_codes::KEY_F2:
+		case engine::key_codes::KEY_F2://Toggle freecam
 			m_freecam = !m_freecam;
 			event.handled = true;
 			break;
-		case engine::key_codes::KEY_ENTER:			
+		case engine::key_codes::KEY_ENTER://Deactivate intro screen if active.	
 			if (intro_screen::active())
 			{
 				intro_screen::active(false);
@@ -389,14 +400,19 @@ void game_layer::on_event(engine::event& event)
 		
 	}
 
+	//If the event's not already handled, pass it on to child objects of this layer.
 	if (!event.handled)
 	{
+		//Currently only player deals with events.
 		m_player.on_event(event);
 	}
 }
 
-void generate_all_level_pieces(std::vector<engine::ref<engine::game_object>>& level_segments,const std::string& path,const std::string& extn) {
-	//Display all dungeon pieces
+/*
+Generate gameobjects for all the models in a directory and arrange them in the scene.
+Only used for debug/dev purposes, to visualise all the models together.
+*/
+void game_layer::generate_all_level_pieces(std::vector<engine::ref<engine::game_object>>& level_segments,const std::string& path,const std::string& extn) {
 	std::vector<std::string> models;	
 	get_all_models_in_directory(models, path, extn);
 	for (int i = 0; i < models.size(); i++)
@@ -416,9 +432,9 @@ void generate_all_level_pieces(std::vector<engine::ref<engine::game_object>>& le
 
 /*
 Populates vec with the names of all files with the given extension in the directory described by path
+REF https://stackoverflow.com/questions/612097/how-can-i-get-the-list-of-files-in-a-directory-using-c-or-c
 */
-void get_all_models_in_directory(std::vector < std::string >& vec,const std::string& path,const std::string& extension) {	
-	//TODO REF https://stackoverflow.com/questions/612097/how-can-i-get-the-list-of-files-in-a-directory-using-c-or-c
+void game_layer::get_all_models_in_directory(std::vector < std::string >& vec,const std::string& path,const std::string& extension) {
 	for (const auto& entry : fs::directory_iterator(path)) {
 		if (extension == entry.path().extension().string())
 		{

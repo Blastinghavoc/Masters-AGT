@@ -5,6 +5,7 @@
 #include "grid/grid.h"
 #include "player.h"
 
+//The main layer for the game.
 class game_layer : public engine::layer
 {
 public:
@@ -25,8 +26,6 @@ private:
 
 	engine::DirectionalLight            m_directionalLight;
 
-	//std::vector<engine::ref<engine::game_object>>     m_game_objects{};
-
 	engine::ref<engine::bullet_manager> m_physics_manager{};
 	engine::ref<engine::audio_manager>  m_audio_manager{};
 	engine::ref<engine::text_manager>	m_text_manager{};
@@ -37,7 +36,8 @@ private:
 	glm::vec3 m_camera_start_pos{0.1f,3.f,0.1f};
 	bool m_freecam{ false };
 
-	grid m_level_grid{2.f,0.001f};
+	//The grib object representing the level.
+	grid m_level_grid{2.f,0.01f};
 
 	player m_player{glm::vec3(3.f,0.f,0.f)};
 
@@ -45,14 +45,16 @@ private:
 
 	engine::timer m_fps_timer{};
 	unsigned int m_num_updates{0};
-	unsigned int m_updates_last_second{0};
+	unsigned int m_updates_last_interval{0};
 
-
+	//Data for the rhombicuboctahedrons being rendered with SoRT.
 	engine::ref<engine::game_object> m_rhombi{};
 	float m_rhombi_angle{ 1.f };
 	glm::vec3 m_rhombi_trig_vector{0.f,0.f,0.f};
+
+	//Currently unused utility functions for displaying all the models in a particular directory.
+	//TODO remove
+	void generate_all_level_pieces(std::vector<engine::ref<engine::game_object>>& level_segments, const std::string& path, const std::string& extn);
+	void get_all_models_in_directory(std::vector<std::string>& vec, const std::string& path, const std::string& extension);
 };
 
-void generate_all_level_pieces(std::vector<engine::ref<engine::game_object>>& level_segments, const std::string& path, const std::string& extn);
-
-void get_all_models_in_directory(std::vector<std::string>& vec, const std::string& path, const std::string& extension);
