@@ -27,14 +27,14 @@ public:
 	void del_border(const orientation& facing);
 	void del_corner();	
 
-	bool has_border(const orientation& facing) const { return (m_borders[facing]) ? true : false; };
+	bool has_border(const orientation& facing) const { return (m_borders.count(facing) > 0); };
 	bool has_corner() const { return (m_corner) ? true : false; };
 
 	//Assumes begin scene has already been called
 	void render(const engine::ref<engine::shader>& shader);
 
 private:
-	std::vector<engine::ref<engine::game_object>> m_borders{ 4 };
+	std::map<orientation,engine::ref<engine::game_object>> m_borders{};
 
 	//The grid tile owns a single corner, the one with the lowest x and z coordinates.
 	engine::ref<engine::game_object> m_corner{};

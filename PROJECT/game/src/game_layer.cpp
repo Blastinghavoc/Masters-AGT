@@ -124,20 +124,20 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 			m_level_grid.set_floor(i, j);
 		}
 	}
-	m_level_grid.set_corner(15, 15,south_east);
+	m_level_grid.set_corner(15, 15, orientation::south_east);
 	glm::vec3 center = m_level_grid.grid_to_world_coords(7,7);
 	m_level_grid.set_corner(7, 7, orientation::north_east);
 	m_level_grid.set_corner(7, 7, orientation::south_east);
 	m_level_grid.set_corner(7, 7, orientation::south_west);
 	m_level_grid.set_corner(7, 7, orientation::north_west);
 
-	m_level_grid.set_gateway(13, 14, north_east);
-	m_level_grid.set_gateway(13, 14, north_west,M_PI);
-	m_level_grid.del_border(13, 14, north);
+	m_level_grid.set_gateway(13, 14, orientation::north_east);
+	m_level_grid.set_gateway(13, 14, orientation::north_west,M_PI);
+	m_level_grid.del_border(13, 14, orientation::north);
 
-	m_level_grid.set_gateway(1, 0, south_east);
-	m_level_grid.set_gateway(1, 0, south_west, M_PI);
-	m_level_grid.del_border(1, 0, south);
+	m_level_grid.set_gateway(1, 0, orientation::south_east);
+	m_level_grid.set_gateway(1, 0, orientation::south_west, M_PI);
+	m_level_grid.del_border(1, 0, orientation::south);
 
 	m_level_grid.bake_tiles();
 
@@ -194,8 +194,8 @@ void game_layer::on_update(const engine::timestep& time_step)
 {
 	//increase rhombi angle
 	float tmp = m_rhombi_angle;
-	m_rhombi_angle = fmod(m_rhombi_angle + 0.05f, 2 * M_PI);
-	tmp = fmod(tmp + 0.025f, 2 * M_PI);
+	m_rhombi_angle = (float) fmod(m_rhombi_angle + 0.05f, 2 * M_PI);
+	tmp = (float) fmod(tmp + 0.025f, 2 * M_PI);
 	m_rhombi_trig_vector = 1.5f*glm::vec3(sin(m_rhombi_angle),cos(m_rhombi_angle),sin(tmp));
 
 	//Update the displayed fps counter every second.
@@ -390,7 +390,7 @@ void game_layer::on_event(engine::event& event)
 			{
 				intro_screen::active(false);
 				m_3d_camera.position(m_camera_start_pos);
-				m_3d_camera.face(to_vec(north));
+				m_3d_camera.face(orientation::north.to_vec());
 				event.handled = true;
 			}
 			break;

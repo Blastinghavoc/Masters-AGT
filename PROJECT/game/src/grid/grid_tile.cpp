@@ -30,7 +30,7 @@ void grid_tile::set_ceiling(const engine::ref<engine::game_object>& obj)
 
 void grid_tile::del_border(const orientation& facing)
 {
-	m_borders[facing] = engine::ref<engine::game_object>();
+	m_borders.erase(facing);
 }
 
 void grid_tile::del_corner()
@@ -46,8 +46,9 @@ void grid_tile::render(const engine::ref<engine::shader>& shader)
 		engine::renderer::submit(shader, m_floor);
 	}
 
-	for each (auto obj in m_borders)
+	for each (auto pair in m_borders)
 	{
+		auto obj = pair.second;
 		if (obj)
 		{
 			engine::renderer::submit(shader, obj);

@@ -1,57 +1,69 @@
 #include "orientation.h"
 
-glm::vec3 to_vec(orientation o)
+//Static initializers
+const orientation orientation::north(orientation::north_val, true);
+const orientation orientation::east(orientation::east_val, true);
+const orientation orientation::south(orientation::south_val, true);
+const orientation orientation::west(orientation::west_val, true);
+const orientation orientation::north_east(orientation::north_east_val, false);
+const orientation orientation::south_east(orientation::south_east_val, false);
+const orientation orientation::south_west(orientation::south_west_val, false);
+const orientation orientation::north_west(orientation::north_west_val, false);
+
+//Convert orientation to vector representation
+glm::vec3 orientation::to_vec() const
 {
-	switch (o)
+	switch (this->m_value)
 	{
-	case north:
+	case north_val:
 		return { 0,0,1 };
-	case south:
+	case south_val:
 		return { 0,0,-1 };
-	case east:
+	case east_val:
 		return { -1,0,0 };
-	case west:
+	case west_val:
 		return { 1,0,0 };
-	case north_east:
-		return to_vec(north) + to_vec(east);
-	case north_west:
-		return to_vec(north) + to_vec(west);
-	case south_east:
-		return to_vec(south) + to_vec(east);
-	case south_west:
-		return to_vec(south) + to_vec(west);
+	case north_east_val:
+		return north.to_vec() + east.to_vec();
+	case north_west_val:
+		return north.to_vec() + west.to_vec();
+	case south_east_val:
+		return south.to_vec() + east.to_vec();
+	case south_west_val:
+		return south.to_vec() + west.to_vec();
 
 	default:
 		throw std::exception();
 	}
 }
 
-orientation invert(orientation o)
+//Invert orientation
+orientation orientation::invert() const
 {
-	switch (o)
+	switch (this->m_value)
 	{
-	case north:
+	case north_val:
 		return south;
 		break;
-	case east:
+	case east_val:
 		return west;
 		break;
-	case south:
+	case south_val:
 		return north;
 		break;
-	case west:
+	case west_val:
 		return east;
 		break;
-	case north_east:
+	case north_east_val:
 		return south_west;
 		break;
-	case south_east:
+	case south_east_val:
 		return north_west;
 		break;
-	case south_west:
+	case south_west_val:
 		return north_east;
 		break;
-	case north_west:
+	case north_west_val:
 		return south_east;
 		break;
 	default:
@@ -61,46 +73,59 @@ orientation invert(orientation o)
 	}
 }
 
-std::vector<orientation> cardinal_to_composite(orientation o)
-{	
-	switch (o)
+//Return the composite components of this cardinal orientation
+std::vector<orientation> orientation::composite_components() const
+{
+	switch (this->m_value)
 	{
-	case north:
+	case north_val:
 		return { north_east,north_west };
 		break;
-	case east:
+	case east_val:
 		return { north_east,south_east };
 		break;
-	case south:
+	case south_val:
 		return { south_east,south_west };
 		break;
-	case west:
+	case west_val:
 		return { north_west,south_west };
-		break;	
+		break;
 	default:
+		//Undefined if this is not a cardinal orientation
+		throw std::exception();
+		break;
+	}	
+}
+
+//Return the cardinal components of this cardinal direction
+std::vector<orientation> orientation::cardinal_components() const
+{
+	switch (this->m_value)
+	{
+	case north_east_val:
+		return { north, east };
+		break;
+	case south_east_val:
+		return { south, east };
+		break;
+	case south_west_val:
+		return { south, west };
+		break;
+	case north_west_val:
+		return { north, west };
+		break;
+	default:
+		//Undefined if this is not a composite orientation
 		throw std::exception();
 		break;
 	}
 }
 
-std::vector<orientation> composite_components(orientation o)
+orientation::orientation(unsigned short val,bool is_card) :m_value{val},
+m_is_cardinal{is_card}
+{	
+}
+
+orientation::~orientation()
 {
-	switch (o)
-	{	
-	case north_east:
-		return { north, east };
-		break;
-	case south_east:
-		return { south, east };
-		break;
-	case south_west:
-		return { south, west };
-		break;
-	case north_west:
-		return { north, west };
-		break;
-	default:
-		throw std::exception();
-		break;
-	}
 }

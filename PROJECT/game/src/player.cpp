@@ -137,7 +137,7 @@ void player::update_camera(engine::perspective_camera& camera)
 void player::jump()
 {
 	switch_animation(m_anim_jump);
-	m_jump_timer = m_object->animated_mesh()->animations().at(m_anim_jump)->mDuration;
+	m_jump_timer = (float)(m_object->animated_mesh()->animations().at(m_anim_jump)->mDuration);
 }
 
 //Utility function to change the currently playing animation

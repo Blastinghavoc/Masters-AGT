@@ -9,7 +9,18 @@ grid::grid(float cell_size,float y):
 
 	//Set up prefabs
 
+	if (m_walls_prefabs.count(orientation::east) < 1)
+	{
+		m_walls_prefabs[orientation::east];
+	}
+
+	if (m_walls_prefabs.count(orientation::east) < 1)
+	{
+		throw std::exception();
+	}
+
 	//Models in the "modified" directory were put together by me from the original pieces.
+	//Walls
 	engine::ref <engine::model> model = engine::model::create(path + "modified/wall_straight" + extn);
 	engine::game_object_properties props;
 	props.meshes = model->meshes();
@@ -79,7 +90,7 @@ grid::~grid()
 //Renders all tiles owned by this grid, assuming begin_scene has already been called.
 void grid::render(const engine::ref<engine::shader>& shader)
 {
-	for each (auto pair in m_tiles)
+	for (auto pair : m_tiles)
 	{
 		pair.second.render(shader);
 	}
@@ -89,7 +100,7 @@ void grid::render(const engine::ref<engine::shader>& shader)
 void grid::set_border(const int& x, const int& z, const orientation& relative_heading)
 {
 	//If facing is not a cardinal direction, exception
-	if (relative_heading > orientation::west)
+	if (!relative_heading.is_cardinal())
 	{
 		throw std::exception();
 	}
@@ -142,28 +153,27 @@ bool grid::has_corner(const int& x, const int& z, const orientation& relative_he
 corner of (1,3).
 */
 std::pair<int, int> grid::get_corner_index_from_heading(const int& x, const int& z,const orientation& relative_heading) {
-	//If facing is not a corner, exception
-	if (relative_heading <= orientation::west)
+	//If facing is not a corner direction, exception
+	if (relative_heading.is_cardinal())
 	{
 		throw std::exception();
 	}
 
 	int effective_x = x, effective_z = z;
-	switch (relative_heading)
+	if (relative_heading == orientation::north_east)
 	{
-	case north_east:
 		effective_z += 1;
-		break;
-	case south_west:
-		effective_x += 1;
-		break;
-	case north_west:
-		effective_x += 1;
-		effective_z += 1;
-		break;
-	default:
-		break;
 	}
+	if (relative_heading == orientation::south_west)
+	{
+		effective_x += 1;
+	}
+	if (relative_heading == orientation::north_west)
+	{
+		effective_x += 1;
+		effective_z += 1;
+	}
+	
 	return std::make_pair(effective_x, effective_z);
 }
 
@@ -193,21 +203,21 @@ Blocks are also know as "maze" tiles, because they are used to construct a maze 
 void grid::place_block(const int& x, const int& z)
 {
 	set_ceiling(x, z);
-	orientation wall_facings[]{north,south,east,west};
+	std::vector<orientation> wall_facings= orientation::get_all_cardinal();
 
 	auto index = std::make_pair(x, z);
 	auto& tile = m_tiles[index];
 
 	tile.type = grid_tile::tile_type::maze;
 
-	std::vector<bool> adjacent_is_maze(4);
+	std::map<orientation,bool> adjacent_is_maze;
 
 	//Must be careful about placing walls so as not to have two adjacent tiles both rendering walls.
-	for each (const auto& facing in wall_facings)
+	for (const auto& facing : wall_facings)
 	{
-		auto offset = to_vec(facing);
-		std::pair<int, int> adjacent_index{ index.first + offset.x,index.second + offset.z };
-		orientation opposite_facing = invert(facing);
+		auto offset = facing.to_vec();
+		std::pair<int, int> adjacent_index{ index.first + (int)offset.x,index.second + (int)offset.z };
+		orientation opposite_facing = facing.invert();
 		auto& adjacent_tile = m_tiles[adjacent_index];
 		adjacent_is_maze[facing] = adjacent_tile.type == grid_tile::tile_type::maze;
 
@@ -245,11 +255,11 @@ void grid::place_block(const int& x, const int& z)
 	}	
 
 	//Add the other corners if they don't already exist.
-	orientation other_corner_owners[]{ north,west,north_west};
-	for each (const auto& facing in other_corner_owners)
+	orientation other_corner_owners[]{ orientation::north,orientation::west,orientation::north_west};
+	for (const auto& facing : other_corner_owners)
 	{
-		auto offset = to_vec(facing);
-		std::pair<int, int> other_index{ index.first + offset.x,index.second + offset.z };
+		auto offset = facing.to_vec();
+		std::pair<int, int> other_index{ index.first + (int)offset.x,index.second + (int)offset.z };
 		auto& other_tile = m_tiles[other_index];		
 
 		if (!other_tile.has_corner())
@@ -260,14 +270,15 @@ void grid::place_block(const int& x, const int& z)
 	}
 
 	//Check if diagonally adjacent tiles are maze tiles
-	for each (const auto & corner_facing in std::vector<orientation>{north_east, north_west, south_west,south_east})
+	for (const auto & corner_facing : orientation::get_all_composite())
 	{
-		auto offset = to_vec(corner_facing);
-		std::pair<int, int> corner_index{ index.first + offset.x,index.second + offset.z };
+		auto offset = corner_facing.to_vec();
+		std::pair<int, int> corner_index{ index.first + (int)offset.x,index.second + (int)offset.z };
 		auto& corner_tile = m_tiles[corner_index];
 		bool corner_is_maze = corner_tile.type == grid_tile::tile_type::maze;
 
-		auto components = composite_components(corner_facing);		
+		//Get the cardinal components of the composite orientation
+		auto components = corner_facing.cardinal_components();		
 		//Delete corner if shared on all sides by maze blocks.
 		if (corner_is_maze && adjacent_is_maze[components[0]] && adjacent_is_maze[components[1]])
 		{
@@ -285,7 +296,7 @@ void grid::remove_block(const int& x, const int& z)
 
 	if (m_tiles.count(index) > 0)
 	{
-		orientation wall_facings[]{ north,south,east,west };
+		auto wall_facings = orientation::get_all_cardinal();
 		auto& old_tile = m_tiles[index];
 
 		old_tile.type = grid_tile::tile_type::empty;
@@ -304,15 +315,15 @@ void grid::remove_block(const int& x, const int& z)
 			{
 				old_tile.del_border(facing);				
 			}
-			del_corner(x, z, north_east);
-			del_corner(x, z, south_east);
-			del_corner(x, z, south_west);
-			del_corner(x, z, north_west);
+			del_corner(x, z, orientation::north_east);
+			del_corner(x, z, orientation::south_east);
+			del_corner(x, z, orientation::south_west);
+			del_corner(x, z, orientation::north_west);
 		}
 
 		//Remove any extraneous corners.
 		//These can occur in the any position except the south-east, as that corner is owned by the block being deleted.
-		for each (const auto& corner_facing in std::vector<orientation>{north_east,north_west,south_west})
+		for each (const auto& corner_facing in std::vector<orientation>{orientation::north_east, orientation::north_west, orientation::south_west})
 		{
 			auto corner_index = get_corner_index_from_heading(x, z, corner_facing);
 			auto& corner_tile = m_tiles[corner_index];
@@ -339,15 +350,15 @@ void grid::remove_block(const int& x, const int& z)
 		//Corners may be missing, not from the previous step, but if the removed tile was in the middle of other maze tiles (and thus had no corners)
 		for each (const auto& facing in wall_facings)
 		{
-			auto offset = to_vec(facing);
-			std::pair<int, int> adjacent_index{ index.first + offset.x,index.second + offset.z };
-			orientation opposite_facing = invert(facing);
+			auto offset = facing.to_vec();
+			std::pair<int, int> adjacent_index{ index.first + (int)offset.x,index.second + (int)offset.z };
+			orientation opposite_facing = facing.invert();
 			auto& adjacent_tile = m_tiles[adjacent_index];
 
 			if (adjacent_tile.type == grid_tile::tile_type::maze)
 			{
 				//Set any missing corners
-				for each (auto corner_facing in cardinal_to_composite(opposite_facing))
+				for each (auto corner_facing in opposite_facing.composite_components())
 				{
 					if (!has_corner(adjacent_index.first, adjacent_index.second, corner_facing))
 					{
@@ -369,7 +380,7 @@ void grid::remove_block(const int& x, const int& z)
 void grid::del_border(const int& x, const int& z, const orientation& relative_heading)
 {
 	//If facing is not a cardinal direction, exception
-	if (relative_heading > orientation::west)
+	if (!relative_heading.is_cardinal())
 	{
 		throw std::exception();
 	}
@@ -381,7 +392,7 @@ void grid::del_border(const int& x, const int& z, const orientation& relative_he
 void grid::del_corner(const int& x, const int& z, const orientation& relative_heading)
 {
 	//If facing is not a composite direction, exception
-	if (relative_heading <= orientation::west)
+	if (relative_heading.is_cardinal())
 	{
 		throw std::exception();
 	}
