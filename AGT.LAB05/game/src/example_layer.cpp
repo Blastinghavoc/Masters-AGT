@@ -44,6 +44,16 @@ example_layer::example_layer()
 	m_pointLight.Attenuation.Linear = .001f;
 	m_pointLight.Attenuation.Exp = .001f;
 
+	m_spotLight.Color = glm::vec3(.5f, .5f, .5f);
+	m_spotLight.AmbientIntensity = 0.25f;
+	m_spotLight.DiffuseIntensity = 0.6f;
+	m_spotLight.Position = glm::vec3(5, 2, 0);
+	m_spotLight.Direction = glm::vec3(0, -1, 1);
+	m_spotLight.Cutoff = 0.1f;
+	m_spotLight.Attenuation.Constant = .100f;
+	m_spotLight.Attenuation.Linear = .1f;
+	m_spotLight.Attenuation.Exp = .01f;
+
 	// set color texture unit
 	std::dynamic_pointer_cast<engine::gl_shader>(animated_mesh_shader)->bind();
 	std::dynamic_pointer_cast<engine::gl_shader>(animated_mesh_shader)->set_uniform("gColorMap", 0);
@@ -73,8 +83,10 @@ example_layer::example_layer()
 	std::dynamic_pointer_cast<engine::gl_shader>(text_shader)->set_uniform("projection",
 		glm::ortho(0.f, (float)engine::application::window().width(), 0.f, (float)engine::application::window().height()));
 
+	//Materials
 	m_material = engine::material::create(1.f, glm::vec3(.10f, .75f, 0.07f), glm::vec3(.05f, 1.f, 0.07f), glm::vec3(0.5f, 0.5f, 0.5f), 1.0f);
 	m_lightsource_material = engine::material::create(1.f,m_pointLight.Color,m_pointLight.Color, glm::vec3(0.5f, 0.5f, 0.5f),1.f);
+	m_ballistic_material = engine::material::create(1.f, { .1f,1.f,1.f }, { .1f,1.f,1.f }, { .5f,.5f,.5f }, 1.f);
 
 	// Skybox texture from http://www.vwall.it/wp-content/plugins/canvasio3dpro/inc/resource/cubeMaps/
 	m_skybox = engine::skybox::create(50.f,
@@ -150,6 +162,9 @@ example_layer::example_layer()
 	sphere_props.mass = 0.000001f;
 	m_ball = engine::game_object::create(sphere_props);
 
+	//Projectile
+	m_ballistic.initialise(engine::game_object::create(sphere_props));
+
 	m_game_objects.push_back(m_terrain);
 	//m_game_objects.push_back(m_ball);
 	//m_game_objects.push_back(m_cow);
@@ -160,6 +175,7 @@ example_layer::example_layer()
 	m_text_manager = engine::text_manager::create();
 
 	//m_skinned_mesh->switch_animation(1);
+
 }
 
 example_layer::~example_layer() {}
@@ -169,6 +185,8 @@ void example_layer::on_update(const engine::timestep& time_step)
     m_3d_camera.on_update(time_step);
 
 	m_physics_manager->dynamics_world_update(m_game_objects, double(time_step));
+
+	m_ballistic.on_update(time_step);
 
 	//m_mannequin->animated_mesh()->on_update(time_step);
 
@@ -223,9 +241,13 @@ void example_layer::on_render()
 	m_material->submit(material_shader);
 	std::dynamic_pointer_cast<engine::gl_shader>(material_shader)->set_uniform("gEyeWorldPos", m_3d_camera.position());
 
-	std::dynamic_pointer_cast<engine::gl_shader>(material_shader)->
+	/*std::dynamic_pointer_cast<engine::gl_shader>(material_shader)->
 		set_uniform("gNumPointLights", (int)num_point_lights);
-	m_pointLight.submit(material_shader, 0);
+	m_pointLight.submit(material_shader, 0);*/
+
+	std::dynamic_pointer_cast<engine::gl_shader>(material_shader)->
+		set_uniform("gNumSpotLights", (int)num_spot_lights);
+	m_spotLight.submit(material_shader, 0);
 
 	int side_length = 10;
 	for (size_t i = 0;  i < 100; i++)
@@ -239,10 +261,15 @@ void example_layer::on_render()
 	std::dynamic_pointer_cast<engine::gl_shader>(material_shader)->set_uniform("lighting_on", false);
 
 	m_lightsource_material->submit(material_shader);
-	engine::renderer::submit(material_shader, m_ball->meshes().at(0), glm::translate(glm::mat4(1.f), m_pointLight.Position));
+	//engine::renderer::submit(material_shader, m_ball->meshes().at(0), glm::translate(glm::mat4(1.f), m_pointLight.Position));
+	engine::renderer::submit(material_shader, m_ball->meshes().at(0), glm::translate(glm::mat4(1.f), m_spotLight.Position));
+
 
 	std::dynamic_pointer_cast<engine::gl_shader>(material_shader)->set_uniform("lighting_on", true);
 
+	//ballistic
+	m_ballistic_material->submit(material_shader);
+	m_ballistic.on_render(material_shader);
 
 
 	engine::renderer::end_scene();
@@ -273,12 +300,17 @@ void example_layer::on_event(engine::event& event)
 
 		if (e.key_code() == engine::key_codes::KEY_3)
 		{
-			m_pointLight.Position += glm::vec3{0, 0.1f, 0};
+			m_spotLight.Position += glm::vec3{0, 0.1f, 0};
 		}
 
 		if (e.key_code() == engine::key_codes::KEY_4)
 		{
-			m_pointLight.Position -= glm::vec3{ 0, 0.1f, 0 };
+			m_spotLight.Position -= glm::vec3{ 0, 0.1f, 0 };
+		}
+
+		if (e.key_code() == engine::key_codes::KEY_5)
+		{
+			m_ballistic.fire(m_3d_camera, 2.f);
 		}
     } 
 }

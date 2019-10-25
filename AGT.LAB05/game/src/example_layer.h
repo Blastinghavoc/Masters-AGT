@@ -1,5 +1,6 @@
 #pragma once
 #include <engine.h>
+#include "ballistic.h"
 
 class example_layer : public engine::layer
 {
@@ -24,6 +25,7 @@ private:
 
 	engine::ref<engine::material>		m_material{};
 	engine::ref<engine::material> m_lightsource_material{};
+	engine::ref<engine::material> m_ballistic_material{};
 
 	engine::ref<engine::grid>			m_grid{};
 
@@ -41,4 +43,9 @@ private:
 
 	engine::PointLight m_pointLight;
 	uint32_t num_point_lights = 1;
+
+	engine::SpotLight m_spotLight;
+	uint32_t    num_spot_lights = 1;
+
+	ballistic m_ballistic{};
 };
