@@ -1,6 +1,9 @@
 #pragma once
 
-
+/*
+Class representing a single hollow square shape, currently only used for debugging purposes.
+May eventually be used as part of the UI to highlight locations that the player can place blocks.
+*/
 namespace engine
 {
 	class mesh;

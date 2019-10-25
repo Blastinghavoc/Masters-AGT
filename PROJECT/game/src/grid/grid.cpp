@@ -9,16 +9,6 @@ grid::grid(float cell_size,float y):
 
 	//Set up prefabs
 
-	if (m_walls_prefabs.count(orientation::east) < 1)
-	{
-		m_walls_prefabs[orientation::east];
-	}
-
-	if (m_walls_prefabs.count(orientation::east) < 1)
-	{
-		throw std::exception();
-	}
-
 	//Models in the "modified" directory were put together by me from the original pieces.
 	//Walls
 	engine::ref <engine::model> model = engine::model::create(path + "modified/wall_straight" + extn);

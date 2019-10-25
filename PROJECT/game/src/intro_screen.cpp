@@ -34,10 +34,12 @@ void intro_screen::render(engine::ref<engine::text_manager>& text_manager)
 	//Not all controls actually functional yet
 	std::vector<std::string> content{
 		"Movement->W,A,S,D",
-		"Jump->Space",
+		"Sprint->L_SHIFT",
+		"Jump->SPACE",
 		"Shoot/Place block->LMB",
 		"Remove block->RMB",		
-		"Switch weapons/blocks->1...9"
+		"Switch weapons/blocks->1...9",
+		"Zoom->L_CTRL + SCROLL"
 	};
 
 	for (auto str : content)
