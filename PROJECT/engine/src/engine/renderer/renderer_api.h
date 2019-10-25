@@ -24,10 +24,13 @@ namespace engine
         static void enable_wireframe();  
         static void disable_wireframe();  
         
-        static void draw_indexed(const ref<vertex_array>& vertex_array);  
+        static void draw_indexed(const ref<vertex_array>& vertex_array);
+		static void draw_indexed_lines(const ref<vertex_array>& vertex_array);
         static void draw_indexed(const ref<mesh>& mesh);  
         static void primitive_type(const e_primitive_type& type);  
-        static e_api_type api() { return s_renderer_api; } 
+        static e_api_type api() { return s_renderer_api; }
+
+		static void line_width(float width);
 
     private:  
         static void enable_alpha();  

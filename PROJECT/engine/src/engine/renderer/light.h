@@ -1,4 +1,6 @@
 #pragma once
+#include "platform/opengl/gl_shader.h"
+
 namespace engine
 {
 
@@ -24,6 +26,8 @@ namespace engine
 		{
 			Direction = glm::vec3(0.0f, 0.0f, 0.0f);
 		}
+
+		void submit(const engine::ref<engine::shader> shader);
 	};
 
 	struct PointLight : public BaseLight
@@ -41,9 +45,11 @@ namespace engine
 		{
 			Position = glm::vec3(0.0f, 0.0f, 0.0f);
 			Attenuation.Constant = 1.0f;
-			Attenuation.Linear = 0.0f;
-			Attenuation.Exp = 0.0f;
+			Attenuation.Linear = 0.001f;
+			Attenuation.Exp = 0.001f;
 		}
+
+		void submit(const engine::ref<engine::shader> shader, uint32_t point_light_index);
 	};
 
 	struct SpotLight : public PointLight
@@ -56,5 +62,7 @@ namespace engine
 			Direction = glm::vec3(0.0f, 0.0f, 0.0f);
 			Cutoff = 0.0f;
 		}
+
+		void submit(const engine::ref<engine::shader> shader, uint32_t spot_light_index);
 	};
 }

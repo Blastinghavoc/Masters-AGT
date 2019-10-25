@@ -226,7 +226,7 @@ void engine::skinned_mesh::InitMesh(uint32_t MeshIndex,
 
 		Positions.push_back(glm::vec3(pPos->x, pPos->y, pPos->z));
 		Normals.push_back(glm::vec3(pNormal->x, pNormal->y, pNormal->z));
-		TexCoords.push_back(glm::vec2(pTexCoord->x, pTexCoord->y));
+		TexCoords.push_back(glm::vec2(pTexCoord->x, 1.f-pTexCoord->y));
 	}
 
 	LoadBones(MeshIndex, paiMesh, Bones);
@@ -299,6 +299,26 @@ bool engine::skinned_mesh::InitMaterials(const aiScene* pScene, const std::strin
 
 			if (pMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &Path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
 				std::string p(Path.data);
+				uint32_t count = 0;
+				while ((count < p.size()) && (p[p.size() - 1 - count] != '/' && p[p.size() - 1 - count] != '\\' || count == 0))
+					count++;
+				if (count == p.size())
+					count = (uint32_t)p.size();
+
+				p = p.substr((int)p.size() - count, count);
+
+				count = 0;
+
+				while (p[p.size() - 1 - count] != '.')
+					count++;
+
+				std::string extension = p.substr((int)p.size() - count, count);
+				if (extension != "jpg" && extension != "png" && extension != "bmp" && extension != "tga" &&
+					extension != "gif" && extension != "hdr" && extension != "psd" && extension != "pic" &&
+					extension != "ppm" && extension != "pgm")
+					p = p.substr(0, (int)p.size() - count) + "png";
+				
+
 
 				if (p.substr(0, 2) == ".\\") {
 					p = p.substr(2, p.size() - 2);

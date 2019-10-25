@@ -540,6 +540,7 @@ IF EXIST ..\engine\external\FMOD\lib\x64\fmod.dll\ (xcopy /Q /E /Y /I ..\engine\
     <ClInclude Include="src\engine\core\window.h" />
     <ClInclude Include="src\engine\entities\character.h" />
     <ClInclude Include="src\engine\entities\game_object.h" />
+    <ClInclude Include="src\engine\entities\grid.h" />
     <ClInclude Include="src\engine\entities\shapes\cuboid.h" />
     <ClInclude Include="src\engine\entities\shapes\grid_square.h" />
     <ClInclude Include="src\engine\entities\shapes\rhombicuboctahedron.h" />
@@ -598,6 +599,7 @@ IF EXIST ..\engine\external\FMOD\lib\x64\fmod.dll\ (xcopy /Q /E /Y /I ..\engine\
     <ClCompile Include="src\engine\core\logger.cpp" />
     <ClCompile Include="src\engine\entities\character.cpp" />
     <ClCompile Include="src\engine\entities\game_object.cpp" />
+    <ClCompile Include="src\engine\entities\grid.cpp" />
     <ClCompile Include="src\engine\entities\shapes\cuboid.cpp" />
     <ClCompile Include="src\engine\entities\shapes\grid_square.cpp" />
     <ClCompile Include="src\engine\entities\shapes\rhombicuboctahedron.cpp" />

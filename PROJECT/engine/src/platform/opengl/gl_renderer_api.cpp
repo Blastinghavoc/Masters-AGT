@@ -55,6 +55,11 @@ void engine::renderer_api::draw_indexed(const ref<vertex_array>& vertex_array)
     glDrawElements(GL_TRIANGLES, vertex_array->index_buffer()->count(), GL_UNSIGNED_INT, nullptr);
 }
 
+void engine::renderer_api::draw_indexed_lines(const ref<vertex_array>& vertex_array)
+{
+	glDrawElements(GL_LINES, vertex_array->index_buffer()->count(), GL_UNSIGNED_INT, nullptr);
+}
+
 void engine::renderer_api::draw_indexed(const ref<mesh>& mesh)
 {
 }
@@ -62,6 +67,11 @@ void engine::renderer_api::draw_indexed(const ref<mesh>& mesh)
 void engine::renderer_api::primitive_type(const e_primitive_type& type)
 {
     s_primitive_type = type; 
+}
+
+void engine::renderer_api::line_width(float width)
+{
+	glLineWidth(width);
 }
 
 //------------------------------------------------------------------------------------------------- 
@@ -77,3 +87,6 @@ void engine::renderer_api::enable_culling()
     glEnable(GL_CULL_FACE); 
     glCullFace(GL_BACK); 
 }
+
+
+

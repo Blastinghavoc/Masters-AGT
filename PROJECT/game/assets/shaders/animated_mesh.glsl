@@ -20,7 +20,8 @@ layout (location = 4) in vec4 Weights;
 
 out vec2 TexCoord0;
 out vec3 Normal0;                                                                   
-out vec3 WorldPos0;                                                                 
+out vec3 WorldPos0;  
+out vec4 v_pos;                                                               
 
 const int MAX_BONES = 100;
 
@@ -42,15 +43,24 @@ void main()
 		BoneTransform     += gBones[BoneIDs[3]] * Weights[3];
 		PosL = BoneTransform * vec4(Position, 1.0);
 		NormalL = BoneTransform * vec4(Normal, 0.0);
+
+		gl_Position  = u_view_projection * u_ModelMatrix * PosL;
+		v_pos = gl_Position;
+		TexCoord0    = TexCoord;
+		Normal0      = (u_ModelMatrix* NormalL).xyz;
+		WorldPos0    = (u_ModelMatrix* PosL).xyz;
 	} else {
-		PosL = vec4(Position, 1.0);
-		NormalL = vec4(Normal, 0.0);
+		gl_Position  = u_view_projection * u_ModelMatrix * vec4(Position, 1.0);
+		v_pos = gl_Position;
+		TexCoord0    = TexCoord;
+		Normal0		 = mat3(transpose(inverse(u_ModelMatrix))) * Normal;
+		WorldPos0    = vec3(u_ModelMatrix * vec4(Position, 1.0));
+		
 	}
 
-    gl_Position  = u_view_projection * u_ModelMatrix * PosL;
-    TexCoord0    = TexCoord;
-    Normal0      = (u_ModelMatrix* NormalL).xyz;
-    WorldPos0    = (u_ModelMatrix* PosL).xyz;
+    
+
+
 }
 
 
@@ -116,6 +126,15 @@ uniform vec3 gEyeWorldPos;
 uniform float gMatSpecularIntensity;                                                        
 uniform float gSpecularPower;
 uniform float transparency;
+uniform bool lighting_on = true;
+uniform bool fog_on = false;
+uniform vec3 fog_colour;
+uniform int fog_factor_type;
+in vec4 v_pos;
+float rho = 0.15f;
+float fog_start = 3.0f;
+float fog_end = 15.0f;
+
 
 
 vec4 CalcLightInternal(BaseLight Light, vec3 LightDirection, VSOutput In)            
@@ -182,18 +201,41 @@ void main()
     In.TexCoord = TexCoord0;
     In.Normal   = normalize(Normal0);
     In.WorldPos = WorldPos0;
-  
-    vec4 TotalLight = CalcDirectionalLight(In);                                         
-                                                                                            
-    for (int i = 0 ; i < gNumPointLights ; i++) {                                           
-        TotalLight += CalcPointLight(gPointLights[i], In);                              
-    }                                                                                       
-                                                                                            
-    for (int i = 0 ; i < gNumSpotLights ; i++) {                                            
-        TotalLight += CalcSpotLight(gSpotLights[i], In);                                
-    }
 
-	TotalLight.w = transparency;
+	if(lighting_on){
+		vec4 TotalLight = CalcDirectionalLight(In);                                         
                                                                                             
-    FragColor = texture(gColorMap, In.TexCoord.xy) * TotalLight;     
+		for (int i = 0 ; i < gNumPointLights ; i++) {                                           
+			TotalLight += CalcPointLight(gPointLights[i], In);                              
+		}                                                                                       
+                                                                                            
+		for (int i = 0 ; i < gNumSpotLights ; i++) {                                            
+			TotalLight += CalcSpotLight(gSpotLights[i], In);                                
+		}
+
+		TotalLight.w = transparency;
+                                                                                            
+		FragColor = texture(gColorMap, In.TexCoord.xy) * TotalLight;  
+	} else {
+		FragColor = texture(gColorMap, In.TexCoord.xy);  
+	}
+
+	if(fog_on)
+	{
+		float d = length(v_pos.xyz);
+		float w;
+		if(fog_factor_type == 0) {
+			if (d < fog_end)
+				w = (fog_end - d) / (fog_end-fog_start);
+			else
+				w = 0;
+		} else if (fog_factor_type == 1) {
+			w = exp(-(rho*d));
+		} else {
+			w = exp(-(rho*d)*(rho*d));
+		}
+		FragColor.rgb = mix(fog_colour, FragColor.rgb, w);
+	}
+
+       
 }

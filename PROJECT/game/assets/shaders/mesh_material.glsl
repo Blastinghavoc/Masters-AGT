@@ -12,12 +12,15 @@ uniform mat4 u_transform;
 
 out vec3 v_position;
 out vec3 v_normal;
+out vec4 v_pos;
 
 void main()  
 {  
 	v_position = vec3(u_transform * vec4(a_position, 1.0));
     v_normal = mat3(transpose(inverse(u_transform))) * a_normal;
-    gl_Position = u_view_projection * u_transform * vec4(a_position, 1.0);  
+	v_pos = u_view_projection * u_transform * vec4(a_position, 1.0); 
+    gl_Position = v_pos;
+  
 }  
 
 #type fragment
@@ -89,6 +92,14 @@ uniform vec3 gEyeWorldPos;
 uniform float gMatSpecularIntensity;                                                        
 uniform float gSpecularPower;
 uniform Material material;
+uniform bool lighting_on = true;
+uniform bool fog_on = false;
+uniform vec3 fog_colour;
+uniform int fog_factor_type;
+in vec4 v_pos;
+float rho = 0.15f;
+float fog_start = 3.0f;
+float fog_end = 15.0f;
 
 
 vec4 CalcLightInternal(BaseLight Light, vec3 LightDirection, VSOutput In)            
@@ -107,7 +118,7 @@ vec4 CalcLightInternal(BaseLight Light, vec3 LightDirection, VSOutput In)
         float SpecularFactor = dot(VertexToEye, LightReflect);                                      
         if (SpecularFactor > 0.0) {                                                         
             SpecularFactor = pow(SpecularFactor, gSpecularPower);
-            SpecularColor = vec4(Light.Color * gMatSpecularIntensity * SpecularFactor * material.specular, 1.0f);
+            SpecularColor = vec4(Light.Color * gMatSpecularIntensity * SpecularFactor * material.specular * material.shininess, 1.0f);
         }                                                                                   
     }                                                                                       
                                                                                             
@@ -152,19 +163,42 @@ void main()
 	VSOutput In;
     In.Normal   = normalize(v_normal);
     In.WorldPos = v_position;
+	if(lighting_on) {
+		vec4 TotalLight = CalcDirectionalLight(In);                                         
+                                                                                            
+		for (int i = 0 ; i < gNumPointLights ; i++) {                                           
+			TotalLight += CalcPointLight(gPointLights[i], In);                              
+		}                                                                                       
+                                                                                            
+		for (int i = 0 ; i < gNumSpotLights ; i++) {                                            
+			TotalLight += CalcSpotLight(gSpotLights[i], In);                                
+		}
 
-	vec4 TotalLight = CalcDirectionalLight(In);                                         
-                                                                                            
-	for (int i = 0 ; i < gNumPointLights ; i++) {                                           
-		TotalLight += CalcPointLight(gPointLights[i], In);                              
-	}                                                                                       
-                                                                                            
-	for (int i = 0 ; i < gNumSpotLights ; i++) {                                            
-		TotalLight += CalcSpotLight(gSpotLights[i], In);                                
+		if(material.transparency<1.0)
+			TotalLight.w = material.transparency;
+	
+	    o_color = TotalLight;
+	}
+	else {
+		o_color = vec4(material.ambient, material.transparency);
 	}
 
-	if(material.transparency<1.0)
-		TotalLight.w = material.transparency;
+	if(fog_on)
+	{
+		float d = length(v_pos.xyz);
+		float w;
+		if(fog_factor_type == 0) {
+			if (d < fog_end)
+				w = (fog_end - d) / (fog_end-fog_start);
+			else
+				w = 0;
+		} else if (fog_factor_type == 1) {
+			w = exp(-(rho*d));
+		} else {
+			w = exp(-(rho*d)*(rho*d));
+		}
+		o_color.rgb = mix(fog_colour, o_color.rgb, w);
+	}
+
 	
-    o_color = TotalLight;
 }

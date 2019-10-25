@@ -13,13 +13,15 @@ uniform mat4 u_transform;
 out vec2 v_tex_coord;
 out vec3 v_position;
 out vec3 v_normal;
+out vec4 v_pos;
 
 void main()  
 {  
     v_tex_coord = a_tex_coord;
 	v_position = vec3(u_transform * vec4(a_position, 1.0));
     v_normal = mat3(transpose(inverse(u_transform))) * a_normal;
-    gl_Position = u_view_projection * u_transform * vec4(a_position, 1.0);  
+	v_pos = u_view_projection * u_transform * vec4(a_position, 1.0); 
+    gl_Position = v_pos;
 }  
 
 #type fragment
@@ -86,7 +88,15 @@ uniform vec3 gEyeWorldPos;
 uniform float gMatSpecularIntensity;                                                        
 uniform float gSpecularPower;
 uniform bool skybox_rendering = false;
+uniform bool lighting_on = true;
 uniform float transparency;
+uniform bool fog_on = false;
+uniform vec3 fog_colour;
+uniform int fog_factor_type;
+in vec4 v_pos;
+float rho = 0.15f;
+float fog_start = 3.0f;
+float fog_end = 15.0f;
 
 
 vec4 CalcLightInternal(BaseLight Light, vec3 LightDirection, VSOutput In)            
@@ -158,7 +168,7 @@ void main()
 
 	vec4 result;
 
-	if(skybox_rendering)
+	if(skybox_rendering || !lighting_on)
 	{
 		result = texture(gColorMap, In.TexCoord.xy);
 
@@ -182,6 +192,22 @@ void main()
 		result.w = transparency;
 	}
 
+	if(fog_on)
+	{
+		float d = length(v_pos.xyz);
+		float w;
+		if(fog_factor_type == 0) {
+			if (d < fog_end)
+				w = (fog_end - d) / (fog_end-fog_start);
+			else
+				w = 0;
+		} else if (fog_factor_type == 1) {
+			w = exp(-(rho*d));
+		} else {
+			w = exp(-(rho*d)*(rho*d));
+		}
+		result.rgb = mix(fog_colour, result.rgb, w);
+	}
 	
     o_color = result;
 }
