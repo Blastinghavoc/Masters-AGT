@@ -4,6 +4,7 @@
 #include "engine/utils/timer.h"
 #include "grid/grid.h"
 #include "player.h"
+#include "pickup.h"
 
 //The main layer for the game.
 class game_layer : public engine::layer
@@ -20,9 +21,10 @@ private:
 
 	engine::ref<engine::skybox>			m_skybox{};
 	engine::ref<engine::game_object>	m_terrain{};
-	engine::ref<engine::game_object>	m_debug_square{};
 
 	engine::ref < engine::game_object > m_test_obj{};
+
+	std::vector<pickup> m_pickups{0};
 
 	engine::ref<engine::material>		m_material{};
 

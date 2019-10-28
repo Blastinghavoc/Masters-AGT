@@ -4,6 +4,7 @@ grid::grid(float cell_size,float y):
 	m_cell_size{cell_size},
 	m_y{y}
 {
+	//Assets from https://opengameart.org/content/modular-dungeon-3d-models . Only included those that are used
 	std::string path = "assets/models/static/dungeon/";
 	std::string extn = ".obj";
 

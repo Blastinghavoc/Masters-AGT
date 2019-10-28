@@ -137,6 +137,7 @@
     <ClInclude Include="src\grid\grid_tile.h" />
     <ClInclude Include="src\intro_screen.h" />
     <ClInclude Include="src\orientation.h" />
+    <ClInclude Include="src\pickup.h" />
     <ClInclude Include="src\player.h" />
   </ItemGroup>
   <ItemGroup>
@@ -147,6 +148,7 @@
     <ClCompile Include="src\grid\grid_tile.cpp" />
     <ClCompile Include="src\intro_screen.cpp" />
     <ClCompile Include="src\orientation.cpp" />
+    <ClCompile Include="src\pickup.cpp" />
     <ClCompile Include="src\player.cpp" />
   </ItemGroup>
   <ItemGroup>

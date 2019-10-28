@@ -95,30 +95,16 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	terrain_props.position = { 0,-.5f,0 };
 	m_terrain = engine::game_object::create(terrain_props);
 
-
-	/*engine::ref<engine::skinned_mesh> m_skinned_mesh = engine::skinned_mesh::create("assets/models/animated/mage.dae");	
-	engine::ref<engine::texture_2d> tst_texture = engine::texture_2d::create("assets/models/animated/mage.png", true);
-	engine::game_object_properties tst_props;
-	tst_props.animated_mesh = m_skinned_mesh;
-	tst_props.textures = { tst_texture };
-	float tst_scale = 1.f / glm::max(m_skinned_mesh->size().x, glm::max(m_skinned_mesh->size().y, m_skinned_mesh->size().z));
-	tst_props.position = { 0.f,8.f, 0.f };
-	tst_props.scale = glm::vec3(tst_scale);
-	tst_props.bounding_shape = m_skinned_mesh->size() / 2.f * tst_scale;
-	m_test_obj = engine::game_object::create(tst_props);*/
-
-	//Testing TODO remove
-	/*engine::ref<engine::model> model = engine::model::create("assets/models/static/wall_brick_1.obj");
-	engine::ref<engine::texture_2d> tst_texture = engine::texture_2d::create("assets/models/static/diffuse.tga", true);
-	engine::game_object_properties tst_props;
-	tst_props.meshes = model->meshes();
-	tst_props.textures = { tst_texture };
-	float tst_scale = 1.f / glm::max(model->size().x, glm::max(model->size().y, model->size().z));
-	tst_props.position = { 0.f,8.f, 0.f };
-	tst_props.scale = glm::vec3(tst_scale);
-	tst_props.bounding_shape = model->size() / 2.f * tst_scale;
-	m_test_obj = engine::game_object::create(tst_props);*/
-
+	//Testing object
+	//engine::ref <engine::model> test_model = engine::model::create("assets/models/static/gold/gold_05_modified.obj");	
+	//engine::game_object_properties test_props;
+	//test_props.meshes = test_model->meshes();
+	//test_props.textures = { engine::texture_2d::create("assets/models/static/gold/g_diffuse.tga",false) };
+	//float test_scale = 1.f / glm::max(test_model->size().x, glm::max(test_model->size().y, test_model->size().z));
+	//test_props.position = { -4.f,0.f, -5.f };
+	//test_props.scale = glm::vec3(test_scale);
+	//test_props.bounding_shape = test_model->size() / 2.f * test_scale;
+	//m_test_obj = engine::game_object::create(test_props);
 
 	std::string path = "assets/models/static/dungeon/";
 	std::string extn = ".obj";
@@ -152,11 +138,11 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	m_level_grid.set_corner(7, 7, orientation::north_west);
 
 	m_level_grid.set_gateway(13, 14, orientation::north_east);
-	m_level_grid.set_gateway(13, 14, orientation::north_west,M_PI);
+	m_level_grid.set_gateway(13, 14, orientation::north_west,(float)M_PI);
 	m_level_grid.del_border(13, 14, orientation::north);
 
 	m_level_grid.set_gateway(1, 0, orientation::south_east);
-	m_level_grid.set_gateway(1, 0, orientation::south_west, M_PI);
+	m_level_grid.set_gateway(1, 0, orientation::south_west,(float)M_PI);
 	m_level_grid.del_border(1, 0, orientation::south);
 
 	m_level_grid.bake_tiles();
@@ -174,19 +160,8 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	m_level_grid.place_block(9, 10);
 	//end of grid testing.
 
-
 	//Initialise intro screen
 	intro_screen::init(m_3d_camera,center);
-
-	/*Create grid square for debug
-	This shape can be used to project a visualisation of a 1x1m grid onto the scene for debug/dev purposes.
-	*/
-	engine::ref<engine::grid_square> grid_shape = engine::grid_square::create(0.05f);
-	engine::game_object_properties grid_shape_props;
-	grid_shape_props.position = { 0.f, 0.8f, 0.f };
-	grid_shape_props.meshes = { grid_shape->mesh() };
-	grid_shape_props.bounding_shape = glm::vec3(1.f);	
-	m_debug_square = engine::game_object::create(grid_shape_props);
 
 	//Primitive shape
 	engine::ref<engine::texture_2d> rhombi_texture_sqr = engine::texture_2d::create("assets/textures/rhombi_face_sqr.png",true);//These textures made by me
@@ -198,6 +173,26 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	shape_props.textures = { rhombi_texture_sqr ,rhombi_texture_tri };
 	shape_props.bounding_shape = glm::vec3(1.f);
 	m_rhombi=engine::game_object::create(shape_props);
+
+	//Create pickups
+	engine::ref <engine::model> pickup_model = engine::model::create("assets/models/static/gold/gold_05_modified.obj");	
+	engine::game_object_properties pickup_props;
+	pickup_props.meshes = pickup_model->meshes();
+	pickup_props.textures = { engine::texture_2d::create("assets/models/static/gold/g_diffuse.tga",false) };
+	float pickup_scale = .5f / glm::max(pickup_model->size().x, glm::max(pickup_model->size().y, pickup_model->size().z));
+	pickup_props.scale = glm::vec3(pickup_scale);
+	pickup_props.bounding_shape = pickup_model->size() / 2.f * pickup_scale;
+	pickup_props.rotation_axis = { 0,1,0 };
+	pickup_props.position = center + glm::vec3(1,0,1);
+	m_pickups.push_back(pickup(engine::game_object::create(pickup_props),1.f));
+	pickup_props.position = center + glm::vec3(2, 0, 1);
+	m_pickups.push_back(pickup(engine::game_object::create(pickup_props), -1.f));
+	pickup_props.position = center + glm::vec3(0, 0, 1);
+	m_pickups.push_back(pickup(engine::game_object::create(pickup_props), -1.f));
+	pickup_props.position = center + glm::vec3(1, 0, 2);
+	m_pickups.push_back(pickup(engine::game_object::create(pickup_props), -1.f));
+	pickup_props.position = center + glm::vec3(1, 0, 0);
+	m_pickups.push_back(pickup(engine::game_object::create(pickup_props), -1.f));
 
 	//Create text manager
 	m_text_manager = engine::text_manager::create();
@@ -226,7 +221,12 @@ void game_layer::on_update(const engine::timestep& time_step)
 		m_updates_last_interval = m_num_updates;
 		m_num_updates = 0;
 		m_fps_timer.reset();
-	}	
+	}
+
+	for (auto& pick: m_pickups)
+	{
+		pick.on_update(time_step);
+	}
 
 	//Most of the update work does not occur during the intro screen
 	if (intro_screen::active())
@@ -270,11 +270,15 @@ void game_layer::on_render()
 
 	//Render terrain
 	engine::renderer::submit(textured_lighting_shader, m_terrain);
-	
-	engine::renderer::submit(textured_lighting_shader, m_test_obj);
 
 	//render all children of the level grid
 	m_level_grid.render(textured_lighting_shader);
+
+	//render all pickups
+	for (auto& pick : m_pickups)
+	{
+		engine::renderer::submit(textured_lighting_shader, pick.object());
+	}
 
 	//Render multiple transformed, scaled and rotated rhombicuboctahedrons in the scene.
 	{
@@ -326,8 +330,9 @@ void game_layer::on_render()
 		engine::renderer::submit(textured_lighting_shader, transform, m_rhombi);
 
 	}
-	
-	
+
+	//Render test object
+	//engine::renderer::submit(textured_lighting_shader,m_test_obj);
 
 	engine::renderer::end_scene();
 
@@ -338,23 +343,6 @@ void game_layer::on_render()
 	m_material->submit(textured_material_shader);
 	std::dynamic_pointer_cast<engine::gl_shader>(textured_material_shader)->set_uniform("gEyeWorldPos", m_3d_camera.position());
 
-	//Shows a 1m debug grid. Not super efficient, and uses lots of magic numbers
-	//TODO maybe improve? Actually highly inefficient! Drops frame-rate noticeably.
-	/*if (m_show_debug)
-	{
-		int row_width = 10;
-		const glm::vec3 base_position{ floor(cam_pos.x)-row_width/2,0.6f,floor(cam_pos.z)-row_width/2 };
-		for (int i = 0; i < row_width*row_width; i++)
-		{
-			auto offset = base_position + glm::vec3(i % row_width, 0.f, i / row_width);
-			glm::mat4 transform(1.0f);
-			transform = glm::translate(transform, offset);
-			transform = glm::rotate(transform, 0.f, {0,1,0});
-			transform = glm::scale(transform, {1,1,1});
-			engine::renderer::submit(textured_material_shader, transform, m_debug_square);
-		}
-	}*/
-
 	//Render animated meshes
 	const auto animated_mesh_shader = engine::renderer::shaders_library()->get("animated_mesh");
 	engine::renderer::begin_scene(m_3d_camera, animated_mesh_shader);
@@ -362,7 +350,6 @@ void game_layer::on_render()
 
 	//Render the player object
 	engine::renderer::submit(animated_mesh_shader, m_player.object());
-
 
 	engine::renderer::end_scene();
 
