@@ -96,6 +96,30 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	m_terrain = engine::game_object::create(terrain_props);
 
 
+	/*engine::ref<engine::skinned_mesh> m_skinned_mesh = engine::skinned_mesh::create("assets/models/animated/mage.dae");	
+	engine::ref<engine::texture_2d> tst_texture = engine::texture_2d::create("assets/models/animated/mage.png", true);
+	engine::game_object_properties tst_props;
+	tst_props.animated_mesh = m_skinned_mesh;
+	tst_props.textures = { tst_texture };
+	float tst_scale = 1.f / glm::max(m_skinned_mesh->size().x, glm::max(m_skinned_mesh->size().y, m_skinned_mesh->size().z));
+	tst_props.position = { 0.f,8.f, 0.f };
+	tst_props.scale = glm::vec3(tst_scale);
+	tst_props.bounding_shape = m_skinned_mesh->size() / 2.f * tst_scale;
+	m_test_obj = engine::game_object::create(tst_props);*/
+
+	//Testing TODO remove
+	/*engine::ref<engine::model> model = engine::model::create("assets/models/static/wall_brick_1.obj");
+	engine::ref<engine::texture_2d> tst_texture = engine::texture_2d::create("assets/models/static/diffuse.tga", true);
+	engine::game_object_properties tst_props;
+	tst_props.meshes = model->meshes();
+	tst_props.textures = { tst_texture };
+	float tst_scale = 1.f / glm::max(model->size().x, glm::max(model->size().y, model->size().z));
+	tst_props.position = { 0.f,8.f, 0.f };
+	tst_props.scale = glm::vec3(tst_scale);
+	tst_props.bounding_shape = model->size() / 2.f * tst_scale;
+	m_test_obj = engine::game_object::create(tst_props);*/
+
+
 	std::string path = "assets/models/static/dungeon/";
 	std::string extn = ".obj";
 	//Display all dungeon pieces
@@ -246,6 +270,8 @@ void game_layer::on_render()
 
 	//Render terrain
 	engine::renderer::submit(textured_lighting_shader, m_terrain);
+	
+	engine::renderer::submit(textured_lighting_shader, m_test_obj);
 
 	//render all children of the level grid
 	m_level_grid.render(textured_lighting_shader);
@@ -329,7 +355,6 @@ void game_layer::on_render()
 		}
 	}*/
 
-
 	//Render animated meshes
 	const auto animated_mesh_shader = engine::renderer::shaders_library()->get("animated_mesh");
 	engine::renderer::begin_scene(m_3d_camera, animated_mesh_shader);
@@ -337,6 +362,7 @@ void game_layer::on_render()
 
 	//Render the player object
 	engine::renderer::submit(animated_mesh_shader, m_player.object());
+
 
 	engine::renderer::end_scene();
 

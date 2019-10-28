@@ -22,6 +22,8 @@ private:
 	engine::ref<engine::game_object>	m_terrain{};
 	engine::ref<engine::game_object>	m_debug_square{};
 
+	engine::ref < engine::game_object > m_test_obj{};
+
 	engine::ref<engine::material>		m_material{};
 
 	engine::DirectionalLight            m_directionalLight;
@@ -36,7 +38,7 @@ private:
 	glm::vec3 m_camera_start_pos{0.1f,3.f,0.1f};
 	bool m_freecam{ false };
 
-	//The grib object representing the level.
+	//The grid object representing the level.
 	grid m_level_grid{2.f,0.01f};
 
 	player m_player{glm::vec3(3.f,0.f,0.f)};
