@@ -42,6 +42,7 @@ public:
 
 	static std::vector<orientation> get_all_cardinal() { return { north,east,south,west }; };
 	static std::vector<orientation> get_all_composite() { return { north_east,south_east,south_west,north_west }; };
+	static std::vector<orientation> get_all() { return { north,east,south,west,north_east,south_east,south_west,north_west }; }
 private:
     //Private constructor to prevent creation of any orientations not specified above
 	orientation(unsigned short val,bool is_card);

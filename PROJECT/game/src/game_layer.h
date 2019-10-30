@@ -56,6 +56,9 @@ private:
 	float m_rhombi_angle{ 1.f };
 	glm::vec3 m_rhombi_trig_vector{0.f,0.f,0.f};
 
+	void mouse1_event_handler();
+	void mouse2_event_handler();
+
 	//Currently unused utility functions for displaying all the models in a particular directory.
 	//TODO remove
 	void generate_all_level_pieces(std::vector<engine::ref<engine::game_object>>& level_segments, const std::string& path, const std::string& extn);

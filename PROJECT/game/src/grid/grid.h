@@ -26,7 +26,7 @@ public:
 	void set_ceiling(const int& x, const int& z);
 
 	//Methods to place and remove whole "blocks" of the grid. A block has 4 walls, 4 corners and a ceiling.
-	void place_block(const int& x, const int& z);
+	void place_block(const int& x, const int& z, bool force = false);
 	void remove_block(const int& x, const int& z);
 
 	//The opposite of the set_ methods. Removes a particular grid element.
@@ -35,6 +35,9 @@ public:
 
 	//Saves a copy of the current state of all tiles that can be restored later. Used to define the "default" state of tiles.
 	void bake_tiles();
+
+	//helper method to determine whether a given index is present in the grid.
+	bool contains(std::pair<int, int> index) { return m_tiles.count(index) > 0; }
 
 	//Allows addressing single tiles in the grid
 	grid_tile& operator[](const glm::vec2& vec);
@@ -47,6 +50,8 @@ public:
 private:
 	//utility functions
 
+	//returns the index adjacent to the given index in the given direction
+	std::pair<int, int> adjacent_to(const std::pair<int, int>& index, const orientation& direction);
 	//Checks whether given grid location has a corner in the given heading.
 	bool has_corner(const int& x, const int& z, const orientation& relative_heading = orientation::south_east);
 	//Obtains the grid index of the corner found at the given heading from the given grid coordinates.

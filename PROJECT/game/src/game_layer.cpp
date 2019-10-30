@@ -1,6 +1,7 @@
 #include "game_layer.h"
 #include "platform/opengl/gl_shader.h"
 #include "engine/events/key_event.h"
+#include "engine/events/mouse_event.h"
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 
 #include <iostream>
@@ -402,11 +403,25 @@ void game_layer::on_event(engine::event& event)
 				m_3d_camera.face(orientation::north.to_vec());
 				event.handled = true;
 			}
+			break;			
+		default:
+			break;
+		}		
+	}
+	else if (!intro_screen::active() && event.event_type() == engine::event_type_e::mouse_button_pressed)
+	{
+		auto& e = dynamic_cast<engine::mouse_button_pressed_event&>(event);
+		switch (e.mouse_button())
+		{
+		case engine::mouse_button_codes::MOUSE_BUTTON_1:
+			mouse1_event_handler();
+			break;
+		case engine::mouse_button_codes::MOUSE_BUTTON_2:
+			mouse2_event_handler();
 			break;
 		default:
 			break;
 		}
-		
 	}
 
 	//If the event's not already handled, pass it on to child objects of this layer.
@@ -415,6 +430,42 @@ void game_layer::on_event(engine::event& event)
 		//Currently only player deals with events.
 		m_player.on_event(event);
 	}
+}
+
+/*
+TODO: Add logic for weapons as well, and switching between build and combat mode.
+Refactor duplicated code.
+*/
+//Remove a block at the targeted position (if possible)
+void game_layer::mouse1_event_handler()
+{
+	auto fv = m_3d_camera.front_vector();
+	if (fv.y > 0)
+	{
+		//Not looking at the ground
+		return;
+	}
+	auto cam_pos = m_3d_camera.position();
+	auto delta_y = m_terrain->position().y - cam_pos.y;
+	auto ground_pos = cam_pos + (delta_y / fv.y) * fv;
+	auto grid_coords = m_level_grid.world_to_grid_coords(ground_pos);
+	m_level_grid.remove_block(grid_coords.first,grid_coords.second);
+}
+
+//Place a block at the targeted position if posible
+void game_layer::mouse2_event_handler()
+{
+	auto fv = m_3d_camera.front_vector();
+	if (fv.y > 0)
+	{
+		//Not looking at the ground
+		return;
+	}
+	auto cam_pos = m_3d_camera.position();
+	auto delta_y = m_terrain->position().y - cam_pos.y;
+	auto ground_pos = cam_pos + (delta_y / fv.y) * fv;
+	auto grid_coords = m_level_grid.world_to_grid_coords(ground_pos);
+	m_level_grid.place_block(grid_coords.first, grid_coords.second);
 }
 
 /*

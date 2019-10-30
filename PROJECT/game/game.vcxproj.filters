@@ -15,12 +15,14 @@
       <Filter>layers</Filter>
     </ClCompile>
     <ClCompile Include="src\intro_screen.cpp" />
-    <ClCompile Include="src\orientation.cpp" />
     <ClCompile Include="src\player.cpp">
       <Filter>actors</Filter>
     </ClCompile>
     <ClCompile Include="src\pickup.cpp">
       <Filter>actors</Filter>
+    </ClCompile>
+    <ClCompile Include="src\orientation.cpp">
+      <Filter>utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -32,6 +34,9 @@
     </Filter>
     <Filter Include="actors">
       <UniqueIdentifier>{649d6fd4-5d5b-4072-bf75-92ee59d21b75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils">
+      <UniqueIdentifier>{ddba7242-28d3-44d5-a453-36b1bc531244}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -48,12 +53,14 @@
       <Filter>layers</Filter>
     </ClInclude>
     <ClInclude Include="src\intro_screen.h" />
-    <ClInclude Include="src\orientation.h" />
     <ClInclude Include="src\player.h">
       <Filter>actors</Filter>
     </ClInclude>
     <ClInclude Include="src\pickup.h">
       <Filter>actors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\orientation.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
