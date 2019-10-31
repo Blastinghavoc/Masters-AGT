@@ -132,6 +132,7 @@ void grid::set_corner(const int& x, const int& z, const orientation& relative_he
 	m_tiles[index].set_corner(corner_obj);
 }
 
+//Calculate the adjacent index from the offest given by the direction.
 std::pair<int, int> grid::adjacent_to(const std::pair<int, int>& index, const orientation& direction)
 {
 	auto offset = direction.to_vec();

@@ -50,7 +50,7 @@ public:
 private:
 	//utility functions
 
-	//returns the index adjacent to the given index in the given direction
+	//returns the index adjacent to the given index in the given direction. E.g, adjacent_to({1,0},north) = (1,1)
 	std::pair<int, int> adjacent_to(const std::pair<int, int>& index, const orientation& direction);
 	//Checks whether given grid location has a corner in the given heading.
 	bool has_corner(const int& x, const int& z, const orientation& relative_heading = orientation::south_east);

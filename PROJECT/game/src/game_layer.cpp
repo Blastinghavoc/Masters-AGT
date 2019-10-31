@@ -409,7 +409,7 @@ void game_layer::on_event(engine::event& event)
 		}		
 	}
 	else if (!intro_screen::active() && event.event_type() == engine::event_type_e::mouse_button_pressed)
-	{
+	{//Mouse button handling when intro screen is not active.
 		auto& e = dynamic_cast<engine::mouse_button_pressed_event&>(event);
 		switch (e.mouse_button())
 		{
