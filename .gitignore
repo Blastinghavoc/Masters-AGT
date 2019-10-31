@@ -337,3 +337,8 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+
+
+
+# don't ignore .obj files in assets
+!assets/**/*.obj
