@@ -342,3 +342,4 @@ ASALocalRun/
 
 # don't ignore .obj files in assets
 !assets/**/*.obj
+!**/assets/**/*.obj
