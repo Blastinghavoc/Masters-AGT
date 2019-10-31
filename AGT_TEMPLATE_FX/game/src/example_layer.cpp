@@ -153,11 +153,12 @@ example_layer::example_layer()
 
 	m_skinned_mesh->switch_animation(1);
 
-	m_cross_fade = cross_fade::create(glm::vec3(1.f, 0.f, 0.f), 2.0f, 1.6f, 0.9f);
+	//m_cross_fade = cross_fade::create(glm::vec3(1.f, 0.f, 0.f), 2.0f, 1.6f, 0.9f);
+	m_cross_fade = cross_fade::create("assets/textures/Red.bmp", 2.0f, 1.6f, 0.9f);
 
 	m_billboard = billboard::create("assets/textures/Explosion.tga", 4, 5, 16);
 
-	m_alpha_sphere = alpha_sphere::create(glm::vec3(1.f, 0.f, 1.0f), glm::vec3(0.f, 0.f, 1.f), true, .1f, 3.0f);
+	m_alpha_sphere = alpha_sphere::create(glm::vec3(1.f, 0.f, 1.0f), glm::vec3(0.f, 0.f, 1.f), true, 0.25f, 3.0f);
 
 	for (uint32_t i = 0; i < 3; i++) {
 		m_lightning_bolts.push_back(lightning_bolt::create(glm::vec3(-4.f, 1.f, -4.85f), glm::vec3(0.f, 0.f, 1.f), 2.0f));
@@ -264,9 +265,12 @@ void example_layer::on_render()
 	m_text_manager->render_text(text_shader, "Orange Text", 10.f, (float)engine::application::window().height()-25.f, 0.5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
 
 	//2d scene using the material shader
-	engine::renderer::begin_scene(m_2d_camera, material_shader);
+	//engine::renderer::begin_scene(m_2d_camera, material_shader);
+	//m_cross_fade->on_render(material_shader);
 
-	m_cross_fade->on_render(material_shader);
+	engine::renderer::begin_scene(m_2d_camera, textured_lighting_shader);
+	m_cross_fade->on_render(textured_lighting_shader);
+
 
 	engine::renderer::end_scene();
 
