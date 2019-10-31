@@ -85,13 +85,14 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	// Load the terrain texture and create a terrain mesh. Create a terrain object. Set its properties
 	// Using my tiled_cuboid instead of the original terrain shape in order to have tiled textures.
 	std::vector<engine::ref<engine::texture_2d>> terrain_textures = { engine::texture_2d::create("assets/textures/terrain_grid.bmp",false) };//Texture by me
-	engine::ref<engine::tiled_cuboid> terrain_shape = engine::tiled_cuboid::create({ 100.f, 0.5f, 100.f }, false, {100.f,100.f});
+	glm::vec3 terrain_dimensions{ 30.f, 0.5f, 30.f };
+	engine::ref<engine::tiled_cuboid> terrain_shape = engine::tiled_cuboid::create(terrain_dimensions, false, {terrain_dimensions.x,terrain_dimensions.z});
 	engine::game_object_properties terrain_props;
 	terrain_props.meshes = { terrain_shape->mesh() };
 	terrain_props.textures = terrain_textures;
 	terrain_props.is_static = true;
 	terrain_props.type = 0;
-	terrain_props.bounding_shape = glm::vec3(100.f, 0.5f, 100.f);
+	terrain_props.bounding_shape = terrain_dimensions;
 	terrain_props.restitution = 0.92f;
 	terrain_props.position = { 0,-.5f,0 };
 	m_terrain = engine::game_object::create(terrain_props);
@@ -100,12 +101,12 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	//engine::ref <engine::model> test_model = engine::model::create("assets/models/static/gold/gold_05_modified.obj");	
 	//engine::game_object_properties test_props;
 	//test_props.meshes = test_model->meshes();
-	//test_props.textures = { engine::texture_2d::create("assets/models/static/gold/g_diffuse.tga",false) };
-	//float test_scale = 1.f / glm::max(test_model->size().x, glm::max(test_model->size().y, test_model->size().z));
-	//test_props.position = { -4.f,0.f, -5.f };
-	//test_props.scale = glm::vec3(test_scale);
-	//test_props.bounding_shape = test_model->size() / 2.f * test_scale;
-	//m_test_obj = engine::game_object::create(test_props);
+	/*test_props.textures = { engine::texture_2d::create("assets/models/static/gold/g_diffuse.tga",false) };
+	float test_scale = 1.f / glm::max(test_model->size().x, glm::max(test_model->size().y, test_model->size().z));
+	test_props.position = { -4.f,0.f, -5.f };
+	test_props.scale = glm::vec3(test_scale);
+	test_props.bounding_shape = test_model->size() / 2.f * test_scale;
+	m_test_obj = engine::game_object::create(test_props);*/
 
 	std::string path = "assets/models/static/dungeon/";
 	std::string extn = ".obj";
@@ -161,19 +162,31 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	m_level_grid.place_block(9, 10);
 	//end of grid testing.
 
+	//re-center terrain.
+	m_terrain->set_position({ center.x,-terrain_dimensions.y,center.z });
+
 	//Initialise intro screen
 	intro_screen::init(m_3d_camera,center);
 
-	//Primitive shape
-	engine::ref<engine::texture_2d> rhombi_texture_sqr = engine::texture_2d::create("assets/textures/rhombi_face_sqr.png",true);//These textures made by me
-	engine::ref<engine::texture_2d> rhombi_texture_tri = engine::texture_2d::create("assets/textures/rhombi_face_tri.png",true);
-	engine::ref<engine::rhombicuboctahedron> shape = engine::rhombicuboctahedron::create();
-	engine::game_object_properties shape_props;
-	shape_props.position = { -10.f, 2.f, -10.f };
-	shape_props.meshes = shape->meshes();
-	shape_props.textures = { rhombi_texture_sqr ,rhombi_texture_tri };
-	shape_props.bounding_shape = glm::vec3(1.f);
-	m_rhombi=engine::game_object::create(shape_props);
+	//Primitive shapes
+	{
+		engine::ref<engine::texture_2d> rhombi_texture_sqr = engine::texture_2d::create("assets/textures/rhombi_face_sqr.png", true);//These textures made by me
+		engine::ref<engine::texture_2d> rhombi_texture_tri = engine::texture_2d::create("assets/textures/rhombi_face_tri.png", true);
+		engine::ref<engine::rhombicuboctahedron> rhombi_shape = engine::rhombicuboctahedron::create();
+		engine::game_object_properties shape_props;
+		shape_props.position = { -10.f, 2.f, -10.f };
+		shape_props.meshes = rhombi_shape->meshes();
+		shape_props.textures = { rhombi_texture_sqr ,rhombi_texture_tri };
+		shape_props.bounding_shape = glm::vec3(1.f);
+		m_rhombi = engine::game_object::create(shape_props);
+
+		engine::ref<engine::texture_2d> pyr_texture = engine::texture_2d::create("assets/textures/pyramid_face.png", true);
+		engine::ref<engine::stepped_pyramid> pyr_shape = engine::stepped_pyramid::create(5.f, 1.f, 5.f, 5);
+		shape_props.meshes = { pyr_shape->mesh() };
+		shape_props.textures = { pyr_texture };
+		shape_props.bounding_shape = glm::vec3(5.f);
+		m_test_obj = engine::game_object::create(shape_props);
+	}
 
 	//Create pickups
 	engine::ref <engine::model> pickup_model = engine::model::create("assets/models/static/gold/gold_05_modified.obj");	
@@ -213,6 +226,9 @@ void game_layer::on_update(const engine::timestep& time_step)
 	m_rhombi_angle = (float) fmod(m_rhombi_angle + 0.05f, 2 * M_PI);
 	tmp = (float) fmod(tmp + 0.025f, 2 * M_PI);
 	m_rhombi_trig_vector = 1.5f*glm::vec3(sin(m_rhombi_angle),cos(m_rhombi_angle),sin(tmp));
+
+	//Crude sun simulation. TODO move into sepparate class to manage day/night cycle and other lights.
+	//m_directionalLight.Direction = glm::rotateZ(m_directionalLight.Direction,(float)(M_PI /60)*time_step);
 
 	//Update the displayed fps counter every second.
 	//REF NOTE: inspired by http://www.opengl-tutorial.org/miscellaneous/an-fps-counter/
@@ -254,11 +270,17 @@ void game_layer::on_render()
 	engine::render_command::clear_color({ 0.2f, 0.3f, 0.3f, 1.0f });
 	engine::render_command::clear();
 
+	//------------
+	// Meshes
+	//------------
 	const auto textured_lighting_shader = engine::renderer::shaders_library()->get("mesh_lighting");
 	engine::renderer::begin_scene(m_3d_camera, textured_lighting_shader);
 
 	// Set up some of the scene's parameters in the shader
 	std::dynamic_pointer_cast<engine::gl_shader>(textured_lighting_shader)->set_uniform("gEyeWorldPos", m_3d_camera.position());
+
+	//update the directional light for this shader
+	m_directionalLight.submit(textured_lighting_shader);
 
 	// Position the skybox centred on the player and render it
 	glm::mat4 skybox_tranform(1.0f);
@@ -333,10 +355,13 @@ void game_layer::on_render()
 	}
 
 	//Render test object
-	//engine::renderer::submit(textured_lighting_shader,m_test_obj);
+	engine::renderer::submit(textured_lighting_shader,m_test_obj);
 
 	engine::renderer::end_scene();
 
+	//------------
+	// Custom materials
+	//------------
 	// Set up material shader. (does not render textures, renders materials instead)
 	const auto textured_material_shader = engine::renderer::shaders_library()->get("mesh_material");
 	engine::renderer::begin_scene(m_3d_camera, textured_material_shader);
@@ -344,10 +369,18 @@ void game_layer::on_render()
 	m_material->submit(textured_material_shader);
 	std::dynamic_pointer_cast<engine::gl_shader>(textured_material_shader)->set_uniform("gEyeWorldPos", m_3d_camera.position());
 
+	//update the directional light for this shader
+	m_directionalLight.submit(textured_material_shader);
+
+	//------------
+	// Animated meshes
+	//------------
 	//Render animated meshes
 	const auto animated_mesh_shader = engine::renderer::shaders_library()->get("animated_mesh");
 	engine::renderer::begin_scene(m_3d_camera, animated_mesh_shader);
 	std::dynamic_pointer_cast<engine::gl_shader>(animated_mesh_shader)->set_uniform("gEyeWorldPos", m_3d_camera.position());
+	//update the directional light for this shader
+	m_directionalLight.submit(animated_mesh_shader);
 
 	//Render the player object
 	engine::renderer::submit(animated_mesh_shader, m_player.object());

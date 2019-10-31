@@ -8,7 +8,7 @@ engine::rhombicuboctahedron::rhombicuboctahedron(float edge_length)
 {
 	if (edge_length <= 0.f)
 	{		
-		throw std::exception();
+		throw std::runtime_error("Cannot create shape with negative dimensions");
 	}
 
 	float half_length = edge_length / 2.f;
