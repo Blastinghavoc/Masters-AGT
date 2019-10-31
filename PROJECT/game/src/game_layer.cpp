@@ -181,8 +181,8 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 		m_rhombi = engine::game_object::create(shape_props);
 
 		engine::ref<engine::texture_2d> pyr_texture = engine::texture_2d::create("assets/textures/pyramid_face.png", true);
-		engine::ref<engine::stepped_pyramid> pyr_shape = engine::stepped_pyramid::create(5.f, 1.f, 5.f, 5);
-		shape_props.meshes = { pyr_shape->mesh() };
+		engine::ref<engine::stepped_pyramid> pyr_shape = engine::stepped_pyramid::create(5.f, 1.f, 5.f, 5,0.1f);
+		shape_props.meshes = pyr_shape->meshes();
 		shape_props.textures = { pyr_texture };
 		shape_props.bounding_shape = glm::vec3(5.f);
 		m_test_obj = engine::game_object::create(shape_props);
