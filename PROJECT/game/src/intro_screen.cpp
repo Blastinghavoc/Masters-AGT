@@ -65,7 +65,7 @@ void intro_screen::update(engine::perspective_camera& cam, const engine::timeste
 //Set up the camera to be some distance from the centerpoint with sufficient elevation to give a good view.
 void intro_screen::init(engine::perspective_camera& cam,glm::vec3& center_point)
 {
-	cam.position({ -1,18,-1 });
+	cam.position({ -20,14,-20 });
 	center = center_point;
 	s_active = true;
 }

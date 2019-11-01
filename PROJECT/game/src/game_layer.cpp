@@ -16,7 +16,7 @@ namespace fs = std::filesystem;
 
 game_layer::game_layer() :
 m_2d_camera(-1.6f, 1.6f, -0.9f, 0.9f),
-m_3d_camera((float)engine::application::window().width(), (float)engine::application::window().height())
+m_3d_camera((float)engine::application::window().width(), (float)engine::application::window().height(),45.f,0.1f,200.f)
 {
 	// Hide the mouse and lock it inside the window
 	//engine::input::anchor_mouse(true);
@@ -73,7 +73,7 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	//REF Skybox texture from https://opengameart.org/content/space-skyboxes-0
 	std::string skybox_path = "assets/textures/skyboxes/blue/";
 	std::string skybox_extn = ".png";
-	m_skybox = engine::skybox::create(50.f,
+	m_skybox = engine::skybox::create(100.f,
 		{ engine::texture_2d::create(skybox_path+"bkg1_front"+skybox_extn,true),
 		  engine::texture_2d::create(skybox_path + "bkg1_right" + skybox_extn,true),
 		  engine::texture_2d::create(skybox_path + "bkg1_back" + skybox_extn,true),
@@ -85,7 +85,7 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	// Load the terrain texture and create a terrain mesh. Create a terrain object. Set its properties
 	// Using my tiled_cuboid instead of the original terrain shape in order to have tiled textures.
 	std::vector<engine::ref<engine::texture_2d>> terrain_textures = { engine::texture_2d::create("assets/textures/terrain_grid.bmp",false) };//Texture by me
-	glm::vec3 terrain_dimensions{ 30.f, 0.5f, 30.f };
+	glm::vec3 terrain_dimensions{ 19.f, 0.5f, 19.f };
 	engine::ref<engine::tiled_cuboid> terrain_shape = engine::tiled_cuboid::create(terrain_dimensions, false, {terrain_dimensions.x,terrain_dimensions.z});
 	engine::game_object_properties terrain_props;
 	terrain_props.meshes = { terrain_shape->mesh() };
@@ -133,7 +133,7 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 		}
 	}
 	m_level_grid.set_corner(15, 15, orientation::south_east);
-	glm::vec3 center = m_level_grid.grid_to_world_coords(7,7);
+	glm::vec3 center = m_level_grid.grid_to_world_coords(7,7) + glm::vec3(m_level_grid.cell_size()/2,0,m_level_grid.cell_size()/2);//The point in the center of the center grid square
 	m_level_grid.set_corner(7, 7, orientation::north_east);
 	m_level_grid.set_corner(7, 7, orientation::south_east);
 	m_level_grid.set_corner(7, 7, orientation::south_west);
@@ -181,11 +181,15 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 		m_rhombi = engine::game_object::create(shape_props);
 
 		engine::ref<engine::texture_2d> pyr_texture = engine::texture_2d::create("assets/textures/pyramid_face.png", true);
-		engine::ref<engine::stepped_pyramid> pyr_shape = engine::stepped_pyramid::create(5.f, 1.f, 5.f, 5,0.1f);
+		engine::ref<engine::texture_2d> pyr_texture_border = engine::texture_2d::create("assets/textures/pyramid_border.png", true);
+		engine::ref<engine::stepped_pyramid> pyr_shape = engine::stepped_pyramid::create(15.f, 1.f, 19.f, 8,0.1f,4);
 		shape_props.meshes = pyr_shape->meshes();
-		shape_props.textures = { pyr_texture };
+		shape_props.textures = { pyr_texture, pyr_texture_border };
 		shape_props.bounding_shape = glm::vec3(5.f);
-		m_test_obj = engine::game_object::create(shape_props);
+		shape_props.position = m_terrain->position() - glm::vec3(0,terrain_dimensions.y,0);
+		shape_props.rotation_axis = { 0,0,1 };
+		shape_props.rotation_amount = (float)M_PI;
+		m_decorational_objects.push_back(engine::game_object::create(shape_props));
 	}
 
 	//Create pickups
@@ -197,15 +201,15 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	pickup_props.scale = glm::vec3(pickup_scale);
 	pickup_props.bounding_shape = pickup_model->size() / 2.f * pickup_scale;
 	pickup_props.rotation_axis = { 0,1,0 };
-	pickup_props.position = center + glm::vec3(1,0,1);
+	pickup_props.position = center;
 	m_pickups.push_back(pickup(engine::game_object::create(pickup_props),1.f));
-	pickup_props.position = center + glm::vec3(2, 0, 1);
+	pickup_props.position = center + glm::vec3(1, 0, 0);
+	m_pickups.push_back(pickup(engine::game_object::create(pickup_props), -1.f));
+	pickup_props.position = center + glm::vec3(-1, 0, 0);
 	m_pickups.push_back(pickup(engine::game_object::create(pickup_props), -1.f));
 	pickup_props.position = center + glm::vec3(0, 0, 1);
 	m_pickups.push_back(pickup(engine::game_object::create(pickup_props), -1.f));
-	pickup_props.position = center + glm::vec3(1, 0, 2);
-	m_pickups.push_back(pickup(engine::game_object::create(pickup_props), -1.f));
-	pickup_props.position = center + glm::vec3(1, 0, 0);
+	pickup_props.position = center + glm::vec3(0, 0, -1);
 	m_pickups.push_back(pickup(engine::game_object::create(pickup_props), -1.f));
 
 	//Create text manager
@@ -355,7 +359,10 @@ void game_layer::on_render()
 	}
 
 	//Render test object
-	engine::renderer::submit(textured_lighting_shader,m_test_obj);
+	/*engine::renderer::submit(textured_lighting_shader,m_test_obj);*/
+	for (auto& obj : m_decorational_objects) {
+		engine::renderer::submit(textured_lighting_shader, obj);
+	}
 
 	engine::renderer::end_scene();
 

@@ -1,13 +1,12 @@
 #include "pch.h"
 #include "stepped_pyramid.h"
-#include <engine.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <glm/gtx/rotate_vector.hpp>
 
-engine::stepped_pyramid::stepped_pyramid(float height, float top_side_length, float bottom_side_length, int num_steps,float border_fraction)
+engine::stepped_pyramid::stepped_pyramid(float height, float top_radius, float bottom_radius, int num_steps,float border_fraction,int num_sides)
 {
-	if (height <= 0.f || top_side_length <= 0.f || bottom_side_length<= 0.f)
+	if (height <= 0.f || top_radius <= 0.f || bottom_radius<= 0.f)
 	{
 		throw std::runtime_error("Cannot create shape with negative dimensions");
 	}
@@ -32,109 +31,203 @@ engine::stepped_pyramid::stepped_pyramid(float height, float top_side_length, fl
 		border_width = step_height * border_fraction;
 	}
 
-	//Change in length for each step
-	const float delta_length = (top_side_length - bottom_side_length) / num_steps;
+	//Change in radius for each step
+	const float delta_radius = (top_radius - bottom_radius) / num_steps;
 
-	float current_side_length = bottom_side_length;
+	float current_radius = bottom_radius;
+	float theta = (float)(M_PI / num_sides);
+	const float two_theta = theta * 2;//Angle to rotate by when changing faces
 	float current_height = 0.f;
 
-	//--Faces
+	const auto axis_of_symmetry = glm::vec3(0, 1, 0);
+
+	//Faces
 	std::vector<engine::mesh::vertex> face_vertices{};
 	std::vector<uint32_t> face_indices{};
-	int index = 0;
+	int face_index = 0;
+
+	//Borders
+	std::vector<engine::mesh::vertex> border_vertices{};
+	std::vector<uint32_t> border_indices{};
+	int border_index = 0;
+
+	float current_half_length = 0.f;
+	float next_radius = 0.f;
+	float next_half_length = 0.f;
+	float next_height = 0.f;
+	float x = 0.f;
+	float z = 0.f;
+	float next_x = 0.f;
+	float next_y = 0.f;	
+	float x_prime = 0.f;
+	glm::vec3 norm{};
+	//Front facing vertices, will be rotated to each required facing
+	engine::mesh::vertex bl{};//bottom left
+	engine::mesh::vertex br{};//bottom right
+	engine::mesh::vertex tr{};//top right
+	engine::mesh::vertex tl{};//top left
+	std::vector<engine::mesh::vertex> tmp_vertices{};
 
 	for (int step = 0; step < num_steps; ++step) {
-		const float half_length = current_side_length / 2;
-		const float next_length = current_side_length + delta_length;
-		const float next_half_length = next_length / 2;
-		const float next_height = current_height + step_height;
+		//Update variables
+		current_half_length = current_radius * tan(theta);
+		next_radius = current_radius + delta_radius;
+		next_half_length = next_radius * tan(theta);
+		next_height = current_height + step_height;
 
-		//---Sides
-		float x = half_length;
-		float next_x = next_half_length;
-		float next_y = next_height;
+		x = current_half_length;
+		z = current_radius;
+		next_x = next_half_length;
+		next_y = next_height;
 		if (make_border)
 		{
 			x -= border_width;
 			next_x -= border_width;
 			next_y -= border_width;
+			z -= border_width;
 		}
+		x_prime = z * tan(theta);
 
-		glm::vec3 norm{ 0,0,1 };
-		//Front facing vertices
-		engine::mesh::vertex bl{ {-x, current_height, half_length}, norm, { 0,0 } };
-		engine::mesh::vertex br{ {x, current_height, half_length}, norm, { 0,1 } };
-		engine::mesh::vertex tr{ {x, next_y, half_length}, norm, { 1,1 } };
-		engine::mesh::vertex tl{ {-x, next_y, half_length}, norm, { 1,0 } };
-		std::vector<engine::mesh::vertex> tmp_face_vertices{ bl,br,tr,tl };
+		//---Sides
 
-		float rotation_amnt = M_PI_2;
-		for (size_t i = 0; i < 4; i++)
-		{
-			float angle = i * rotation_amnt;
-			for (auto& vert : tmp_face_vertices) {
-				vert.position = glm::rotateY(vert.position, angle);
-				vert.normal = glm::rotateY(vert.normal, angle);
+		norm={ 0,0,1 };
+		
+		bl={ {-x, current_height, current_radius}, norm, { 0,0 } };
+		br={ {x, current_height, current_radius}, norm, { 0,1 } };
+		tr={ {x, next_y, current_radius}, norm, { 1,1 } };
+		tl={ {-x, next_y, current_radius}, norm, { 1,0 } };
+		tmp_vertices={ bl,br,tr,tl };
 
-				face_vertices.push_back(vert);
-			}
+		add_quads(num_sides, two_theta, tmp_vertices, face_vertices, face_indices, face_index, axis_of_symmetry);
 
-			face_indices.push_back(index);
-			face_indices.push_back(index + 1);
-			face_indices.push_back(index + 2);
-
-			face_indices.push_back(index);
-			face_indices.push_back(index + 2);
-			face_indices.push_back(index + 3);
-
-			index += 4;
-		}
-
-		//---Top faces
+		//---Top faces (trapezium shaped)	
 
 		norm = { 0,1,0 };//Normal now facing up
-		bl={ {-next_half_length, next_height, x}, norm, { 0,0 } };
-		br={ {next_half_length, next_height, x}, norm, { 0,1 } };
-		tr={ {next_half_length, next_height, next_half_length}, norm, { 1,1 } };
-		tl={ {-next_half_length, next_height, next_half_length}, norm, { 1,0 } };
-		tmp_face_vertices={ bl,br,tr,tl };
-		for (size_t i = 0; i < 4; i++)
+		bl={ {-x_prime, next_height, z}, norm, { 0,0 } };
+		br={ {x_prime, next_height, z}, norm, { 0,1 } };
+		tr={ {next_half_length, next_height, next_radius}, norm, { 1,1 } };
+		tl={ {-next_half_length, next_height, next_radius}, norm, { 1,0 } };
+		tmp_vertices={ bl,br,tr,tl };
+		add_quads(num_sides, two_theta, tmp_vertices, face_vertices, face_indices, face_index, axis_of_symmetry);
+
+		//--Borders
+		/*
+		Each side face has 3 border strips: the right, left and top edges.
+		Each upward face has one border strip, the step edge.
+		*/
+		if (make_border)
 		{
-			float angle = i * rotation_amnt;
-			for (auto& vert : tmp_face_vertices) {
-				vert.position = glm::rotateY(vert.position, angle);
+			//Left strip
+			norm = { 0,0,1 };
+			bl = { {-current_half_length, current_height, current_radius}, norm, { 0,0 } };
+			br = { {-x, current_height, current_radius}, norm, { 0,1 } };
+			tr = { {-x, next_height, current_radius}, norm, { 1,1 } };
+			tl = { {-current_half_length, next_height, current_radius}, norm, { 1,0 } };
+			tmp_vertices = { bl,br,tr,tl };
+			add_quads(num_sides, two_theta, tmp_vertices, border_vertices, border_indices, border_index, axis_of_symmetry);
 
-				face_vertices.push_back(vert);
-			}
+			//Right strip
+			norm = { 0,0,1 };
+			bl = { {x, current_height, current_radius}, norm, { 0,0 } };
+			br = { {current_half_length, current_height, current_radius}, norm, { 0,1 } };
+			tr = { {current_half_length, next_height, current_radius}, norm, { 1,1 } };
+			tl = { {x, next_height, current_radius}, norm, { 1,0 } };
+			tmp_vertices = { bl,br,tr,tl };
+			add_quads(num_sides, two_theta, tmp_vertices, border_vertices, border_indices, border_index, axis_of_symmetry);
 
-			face_indices.push_back(index);
-			face_indices.push_back(index + 1);
-			face_indices.push_back(index + 2);
+			//Top strip
+			norm = { 0,0,1 };
+			bl = { {-x, next_y, current_radius}, norm, { 0,0 } };
+			br = { {x, next_y, current_radius}, norm, { 0,1 } };
+			tr = { {x, next_height, current_radius}, norm, { 1,1 } };
+			tl = { {-x, next_height, current_radius}, norm, { 1,0 } };
+			tmp_vertices = { bl,br,tr,tl };
+			add_quads(num_sides, two_theta, tmp_vertices, border_vertices, border_indices, border_index, axis_of_symmetry);
 
-			face_indices.push_back(index);
-			face_indices.push_back(index + 2);
-			face_indices.push_back(index + 3);
-
-			index += 4;
+			//upward strip (trapezium shape)
+			norm = { 0,1,0 };
+			bl = { {-current_half_length, next_height, current_radius}, norm, { 0,0 } };
+			br = { {current_half_length, next_height, current_radius}, norm, { 0,1 } };
+			tr = { {x_prime, next_height, z}, norm, { 1,1 } };
+			tl = { {-x_prime, next_height, z}, norm, { 1,0 } };
+			tmp_vertices = { bl,br,tr,tl };
+			add_quads(num_sides, two_theta, tmp_vertices, border_vertices, border_indices, border_index, axis_of_symmetry);
 		}
 
-		current_side_length = next_length;
+		current_radius = next_radius;
 		current_height = next_height;
 	}
 
-	//--Borders
-	std::vector<engine::mesh::vertex> border_vertices{};
-	std::vector<uint32_t> border_indices{};
-	index = 0;
+	//The peak upward face of the pyramid, which is an N-gon where N is num_sides
+	norm = { 0,1,0 };
+	bl = { {-x, next_height, z}, norm, { 0,0 } };
+	br = { {x, next_height, z}, norm, { 0,1 } };
+	tr = { {0, next_height, 0}, norm, { .5f,.5f } };
+	tmp_vertices = { bl,br,tr };
+	add_tris(num_sides, two_theta, tmp_vertices, face_vertices, face_indices, face_index, axis_of_symmetry);
+
+	//The bottom face
+	auto bottom_h_len = bottom_radius * tan(theta);
+	norm = { 0,-1,0 };//Inverted normal and opposite winding so that it faces down.
+	bl = { {-bottom_h_len, 0, bottom_radius}, norm, { 0,0 } };
+	br = { {0, 0, 0}, norm, { 0.5f,.5f } };
+	tr = { {bottom_h_len, 0, bottom_radius}, norm, { 0,1 } };
+	tmp_vertices = { bl,br,tr };
+	add_tris(num_sides, two_theta, tmp_vertices, face_vertices, face_indices, face_index, axis_of_symmetry);
 
 	m_meshes.push_back(engine::mesh::create(face_vertices, face_indices));
+	m_meshes.push_back(engine::mesh::create(border_vertices, border_indices));
 }
 
 engine::stepped_pyramid::~stepped_pyramid()
 {
 }
 
-engine::ref<engine::stepped_pyramid> engine::stepped_pyramid::create(float height, float top_side_length, float bottom_side_length, int num_steps,float border_width)
+engine::ref<engine::stepped_pyramid> engine::stepped_pyramid::create(float height, float top_radius, float bottom_radius, int num_steps,float border_width,int num_sides)
 {
-	return  std::make_shared<stepped_pyramid>(height,top_side_length,bottom_side_length,num_steps,border_width);
+	return  std::make_shared<stepped_pyramid>(height, top_radius, bottom_radius,num_steps,border_width,num_sides);
+}
+
+void engine::stepped_pyramid::add_quads(int num_sides,float two_theta, std::vector<engine::mesh::vertex> tmp_vertices, std::vector<engine::mesh::vertex>& vertices, std::vector<uint32_t>& indices,int& index,glm::vec3 rotation_axis)
+{
+	for (size_t i = 0; i < num_sides; ++i)
+	{
+		float angle = i * two_theta;
+		for (auto tmp_vert : tmp_vertices) {
+			tmp_vert.position = glm::rotate(tmp_vert.position, angle, rotation_axis);
+			tmp_vert.normal = glm::rotate(tmp_vert.normal, angle, rotation_axis);			
+
+			vertices.push_back(tmp_vert);
+		}
+
+		indices.push_back(index);
+		indices.push_back(index + 1);
+		indices.push_back(index + 2);
+
+		indices.push_back(index);
+		indices.push_back(index + 2);
+		indices.push_back(index + 3);
+
+		index += 4;
+	}
+}
+
+void engine::stepped_pyramid::add_tris(int num_sides, float two_theta, std::vector<engine::mesh::vertex> tmp_vertices, std::vector<engine::mesh::vertex>& vertices, std::vector<uint32_t>& indices, int& index, glm::vec3 rotation_axis)
+{
+	for (size_t i = 0; i < num_sides; ++i)
+	{
+		float angle = i * two_theta;
+		for (auto tmp_vert : tmp_vertices) {
+			tmp_vert.position = glm::rotate(tmp_vert.position, angle, rotation_axis);
+			tmp_vert.normal = glm::rotate(tmp_vert.normal, angle, rotation_axis);
+
+			vertices.push_back(tmp_vert);
+		}
+
+		indices.push_back(index);
+		indices.push_back(index + 1);
+		indices.push_back(index + 2);
+
+		index += 3;
+	}
 }

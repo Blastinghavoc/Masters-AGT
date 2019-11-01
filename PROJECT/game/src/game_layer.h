@@ -24,6 +24,8 @@ private:
 
 	engine::ref < engine::game_object > m_test_obj{};
 
+	std::vector<engine::ref<engine::game_object>> m_decorational_objects{};
+
 	std::vector<pickup> m_pickups{0};
 
 	engine::ref<engine::material>		m_material{};

@@ -47,6 +47,9 @@ public:
 	glm::vec3 grid_to_world_coords(int x, int z);
 	std::pair<int,int> world_to_grid_coords(glm::vec3 vec);
 
+	//Simple getters
+	const float& cell_size() const { return m_cell_size; };
+
 private:
 	//utility functions
 
