@@ -3,9 +3,11 @@
 //Static initializers
 std::map<int,enemy> enemy_manager::s_minions;
 int enemy_manager::s_next_id = 0;
+engine::ref<grid> enemy_manager::s_level_grid{};
 
-void enemy_manager::init()
+void enemy_manager::init(engine::ref<grid> level_grid)
 {
+	s_level_grid = level_grid;
 }
 
 void enemy_manager::on_update(engine::timestep time_step)
