@@ -131,6 +131,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\animated_actor.h" />
+    <ClInclude Include="src\enemy.h" />
+    <ClInclude Include="src\enemy_manager.h" />
     <ClInclude Include="src\example_layer.h" />
     <ClInclude Include="src\game_layer.h" />
     <ClInclude Include="src\grid\grid.h" />
@@ -141,6 +144,9 @@
     <ClInclude Include="src\player.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\animated_actor.cpp" />
+    <ClCompile Include="src\enemy.cpp" />
+    <ClCompile Include="src\enemy_manager.cpp" />
     <ClCompile Include="src\example_layer.cpp" />
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\game_layer.cpp" />

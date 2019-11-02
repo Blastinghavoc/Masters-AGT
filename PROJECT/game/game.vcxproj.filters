@@ -24,6 +24,15 @@
     <ClCompile Include="src\orientation.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="src\enemy.cpp">
+      <Filter>actors</Filter>
+    </ClCompile>
+    <ClCompile Include="src\animated_actor.cpp">
+      <Filter>actors</Filter>
+    </ClCompile>
+    <ClCompile Include="src\enemy_manager.cpp">
+      <Filter>ai</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="layers">
@@ -37,6 +46,9 @@
     </Filter>
     <Filter Include="utils">
       <UniqueIdentifier>{ddba7242-28d3-44d5-a453-36b1bc531244}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ai">
+      <UniqueIdentifier>{51668b2a-21b3-4f9b-8c28-a6865ed55937}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -61,6 +73,15 @@
     </ClInclude>
     <ClInclude Include="src\orientation.h">
       <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\enemy.h">
+      <Filter>actors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\animated_actor.h">
+      <Filter>actors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\enemy_manager.h">
+      <Filter>ai</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

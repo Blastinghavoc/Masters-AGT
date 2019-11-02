@@ -5,6 +5,7 @@
 #include "grid/grid.h"
 #include "player.h"
 #include "pickup.h"
+#include "enemy_manager.h"
 
 //The main layer for the game.
 class game_layer : public engine::layer

@@ -217,6 +217,12 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 
 	//start fps timer
 	m_fps_timer.start();
+
+	enemy_manager::init();
+	auto& e1 = enemy_manager::spawn_minion(m_level_grid.grid_to_world_coords(13,14));
+	e1.add_waypoint(m_level_grid.grid_to_world_coords(13,1));
+	e1.add_waypoint(m_level_grid.grid_to_world_coords(1, 1));
+
 }
 
 game_layer::~game_layer()
@@ -255,6 +261,8 @@ void game_layer::on_update(const engine::timestep& time_step)
 		intro_screen::update(m_3d_camera, time_step);
 	}
 	else {
+		enemy_manager::on_update(time_step);
+
 		//Freecam or play-based movement
 		if (m_freecam)
 		{
@@ -391,6 +399,9 @@ void game_layer::on_render()
 
 	//Render the player object
 	engine::renderer::submit(animated_mesh_shader, m_player.object());
+
+	//Render enemies
+	enemy_manager::render(animated_mesh_shader);
 
 	engine::renderer::end_scene();
 
