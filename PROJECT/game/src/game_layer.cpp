@@ -192,8 +192,8 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 		m_decorational_objects.push_back(engine::game_object::create(shape_props));
 
 		//Testing hollow cuboid
-		engine::ref<engine::texture_2d> tst_texture = engine::texture_2d::create("assets/textures/pale_brick.png", false);
-		engine::ref<engine::hollow_cuboid> tst_shape = engine::hollow_cuboid::create({1,2,3},0.5f,1);
+		engine::ref<engine::texture_2d> tst_texture = engine::texture_2d::create("assets/textures/funky_cube.png", false);
+		engine::ref<engine::hollow_cuboid> tst_shape = engine::hollow_cuboid::create({1,1,1},0.5f,2);
 		shape_props.meshes = tst_shape->meshes();
 		shape_props.textures = { tst_texture };
 		shape_props.bounding_shape = glm::vec3(5.f);

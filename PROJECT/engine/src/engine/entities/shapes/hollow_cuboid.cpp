@@ -38,6 +38,7 @@ engine::hollow_cuboid::hollow_cuboid(glm::vec3 half_extents, float border_width,
 
 	//Texture coords for width, height and border for current face 
 	float ftexw, ftexh, ftexb;
+	ftexb = border_width / tex_size;//Border width constant for all faces
 
 	auto make_axis_sides = [&]() {
 		//Top strip
@@ -74,34 +75,34 @@ engine::hollow_cuboid::hollow_cuboid(glm::vec3 half_extents, float border_width,
 
 		//Inners
 		//Inner top		
-		bl = { fiitl, fdnorm, { 0,0 } };
-		br = { fiitr, fdnorm, { 0,1 } };
-		tr = { fitr, fdnorm, { 1,1 } };
-		tl = { fitl, fdnorm, { 1,0 } };
+		bl = { fiitl, fdnorm, { ftexh - 2*ftexb,ftexb } };
+		br = { fiitr, fdnorm, { ftexh - 2*ftexb,ftexw - ftexb } };
+		tr = { fitr, fdnorm, { ftexh - ftexb,ftexw - ftexb } };
+		tl = { fitl, fdnorm, { ftexh - ftexb,ftexb } };
 		tmp_vertices = { bl,br,tr,tl };
 		shape_utils::add_quads(2, angle, tmp_vertices, vertices, indices, index, rotation_axis);
 
 		//Inner Bottom
-		bl = { fiibr, funorm, { 0,0 } };
-		br = { fiibl, funorm, { 0,1 } };
-		tr = { fibl, funorm, { 1,1 } };
-		tl = { fibr, funorm, { 1,0 } };
+		bl = { fiibr, funorm, { 2*ftexb,ftexw - ftexb } };
+		br = { fiibl, funorm, { 2*ftexb,ftexb } };
+		tr = { fibl, funorm, { ftexb,ftexb } };
+		tl = { fibr, funorm, { ftexb,ftexw - ftexb } };
 		tmp_vertices = { bl,br,tr,tl };
 		shape_utils::add_quads(2, angle, tmp_vertices, vertices, indices, index, rotation_axis);
 
 		//Inner Left
-		bl = { fiibl, frnorm, { 0,0 } };
-		br = { fiitl, frnorm, { 0,1 } };
-		tr = { fitl, frnorm, { 1,1 } };
-		tl = { fibl, frnorm, { 1,0 } };
+		bl = { fiibl, frnorm, { ftexb,2*ftexb } };
+		br = { fiitl, frnorm, {ftexh - ftexb,2*ftexb } };
+		tr = { fitl, frnorm, { ftexh - ftexb,ftexb } };
+		tl = { fibl, frnorm, { ftexb,ftexb } };
 		tmp_vertices = { bl,br,tr,tl };
 		shape_utils::add_quads(2, angle, tmp_vertices, vertices, indices, index, rotation_axis);
 
 		//Inner Right
-		bl = { fiitr, flnorm, { 0,0 } };
-		br = { fiibr, flnorm, { 0,1 } };
-		tr = { fibr, flnorm, { 1,1 } };
-		tl = { fitr, flnorm, { 1,0 } };
+		bl = { fiitr, flnorm, { ftexh - ftexb,ftexw - 2*ftexb } };
+		br = { fiibr, flnorm, { ftexb,ftexw - 2*ftexb } };
+		tr = { fibr, flnorm, { ftexb,ftexw - ftexb } };
+		tl = { fitr, flnorm, { ftexh - ftexb,ftexw - ftexb } };
 		tmp_vertices = { bl,br,tr,tl };
 		shape_utils::add_quads(2, angle, tmp_vertices, vertices, indices, index, rotation_axis);
 	};
@@ -127,9 +128,9 @@ engine::hollow_cuboid::hollow_cuboid(glm::vec3 half_extents, float border_width,
 		fiibr = { x_prime,-y_prime,z_prime };
 		fiitr = { x_prime,y_prime,z_prime };
 		fiitl = { -x_prime,y_prime,z_prime };
+
 		ftexw = tex_x;
-		ftexh = tex_y;
-		ftexb = border_width/tex_size;
+		ftexh = tex_y;		
 
 		make_axis_sides();
 	}
@@ -154,6 +155,9 @@ engine::hollow_cuboid::hollow_cuboid(glm::vec3 half_extents, float border_width,
 		fiibr = { x_prime,-y_prime,-z_prime };
 		fiitr = { x_prime,y_prime,-z_prime };
 		fiitl = { x_prime,y_prime,z_prime };
+
+		ftexw = tex_z;
+		ftexh = tex_y;
 
 		make_axis_sides();
 	}
@@ -180,7 +184,16 @@ engine::hollow_cuboid::hollow_cuboid(glm::vec3 half_extents, float border_width,
 		fiitl = { -x_prime,y_prime,-z_prime };
 		rotation_axis = { 0,0,1 };
 
+		ftexw = tex_x;
+		ftexh = tex_z;
+		
 		make_axis_sides();
+	}
+
+	//Flipping texture coords, because I specified them all the wrong way round...
+	for (auto& vertex:vertices)
+	{
+		vertex.tex_coords = { vertex.tex_coords.y,vertex.tex_coords.x };
 	}
 	
 	m_meshes.push_back(engine::mesh::create(vertices, indices));
