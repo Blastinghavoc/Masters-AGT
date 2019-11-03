@@ -85,8 +85,8 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	// Load the terrain texture and create a terrain mesh. Create a terrain object. Set its properties
 	// Using my tiled_cuboid instead of the original terrain shape in order to have tiled textures.
 	std::vector<engine::ref<engine::texture_2d>> terrain_textures = { engine::texture_2d::create("assets/textures/terrain_grid.bmp",false) };//Texture by me
-	glm::vec3 terrain_dimensions{ 19.f, 0.5f, 19.f };
-	engine::ref<engine::tiled_cuboid> terrain_shape = engine::tiled_cuboid::create(terrain_dimensions, false, {terrain_dimensions.x,terrain_dimensions.z});
+	glm::vec3 terrain_dimensions{ 19.f, 1.f, 19.f };
+	engine::ref<engine::tiled_cuboid> terrain_shape = engine::tiled_cuboid::create(terrain_dimensions, false, m_level_grid.cell_size());
 	engine::game_object_properties terrain_props;
 	terrain_props.meshes = { terrain_shape->mesh() };
 	terrain_props.textures = terrain_textures;
@@ -94,7 +94,7 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	terrain_props.type = 0;
 	terrain_props.bounding_shape = terrain_dimensions;
 	terrain_props.restitution = 0.92f;
-	terrain_props.position = { 0,-.5f,0 };
+	terrain_props.position = { 0,-terrain_dimensions.y,0 };
 	m_terrain = engine::game_object::create(terrain_props);
 
 	//Testing object
@@ -189,6 +189,16 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 		shape_props.position = m_terrain->position() - glm::vec3(0,terrain_dimensions.y,0);
 		shape_props.rotation_axis = { 0,0,1 };
 		shape_props.rotation_amount = (float)M_PI;
+		m_decorational_objects.push_back(engine::game_object::create(shape_props));
+
+		//Testing hollow cuboid
+		engine::ref<engine::texture_2d> tst_texture = engine::texture_2d::create("assets/textures/pale_brick.png", false);
+		engine::ref<engine::hollow_cuboid> tst_shape = engine::hollow_cuboid::create({1,2,3},0.5f,1);
+		shape_props.meshes = tst_shape->meshes();
+		shape_props.textures = { tst_texture };
+		shape_props.bounding_shape = glm::vec3(5.f);
+		shape_props.position = {-3,5,-3};
+		shape_props.rotation_amount = 0;
 		m_decorational_objects.push_back(engine::game_object::create(shape_props));
 	}
 

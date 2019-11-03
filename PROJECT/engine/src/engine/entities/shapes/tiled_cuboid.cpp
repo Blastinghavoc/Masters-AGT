@@ -3,58 +3,57 @@
 #include <engine.h>
 
 //Modification of cuboid constructor to support texture tiling.
-engine::tiled_cuboid::tiled_cuboid(glm::vec3 half_extents, bool inwards, glm::vec2 tile_scale) : m_half_extents(half_extents), m_inwards(inwards)
+engine::tiled_cuboid::tiled_cuboid(glm::vec3 half_extents, bool inwards, float tex_size) : m_half_extents(half_extents), m_inwards(inwards)
 {
 	float orientation = 1;
 	if (inwards)
 		orientation = -1;
 
-	//Construct vertices the same way as for the basic cuboid
+	auto tex_x = (2 * half_extents.x) / tex_size;
+	auto tex_y = (2 * half_extents.y) / tex_size;
+	auto tex_z = (2 * half_extents.z) / tex_size;
+
+
+	//Construct vertices the same way as for the basic cuboid, but with corrected texture coords
 	std::vector<mesh::vertex> vertices
 	{
 		//front
 		//                                 position														 normal					      tex coord       
 		{ {-1.f * m_half_extents.x, -1.f * m_half_extents.y,  1.f * m_half_extents.z },		{ 0.0f, 0.0f,  1.0f * orientation},		{ 0.f, 0.f } },
-		{ { 1.f * m_half_extents.x, -1.f * m_half_extents.y,  1.f * m_half_extents.z },		{ 0.0f, 0.0f,  1.0f * orientation},		{ 1.f, 0.f } },
-		{ { 1.f * m_half_extents.x,  1.f * m_half_extents.y,  1.f * m_half_extents.z },		{ 0.0f, 0.0f,  1.0f * orientation},		{ 1.f, 1.f } },
-		{ {-1.f * m_half_extents.x,  1.f * m_half_extents.y,  1.f * m_half_extents.z },		{ 0.0f, 0.0f,  1.0f * orientation},		{ 0.f, 1.f } },
+		{ { 1.f * m_half_extents.x, -1.f * m_half_extents.y,  1.f * m_half_extents.z },		{ 0.0f, 0.0f,  1.0f * orientation},		{ tex_x, 0.f } },
+		{ { 1.f * m_half_extents.x,  1.f * m_half_extents.y,  1.f * m_half_extents.z },		{ 0.0f, 0.0f,  1.0f * orientation},		{ tex_x, tex_y } },
+		{ {-1.f * m_half_extents.x,  1.f * m_half_extents.y,  1.f * m_half_extents.z },		{ 0.0f, 0.0f,  1.0f * orientation},		{ 0.f, tex_y} },
 
 		//right
 		{ { 1.f * m_half_extents.x, -1.f * m_half_extents.y,  1.f * m_half_extents.z },		{ 1.0f * orientation, 0.0f, 0.0f},		{ 0.f, 0.f } },
-		{ { 1.f * m_half_extents.x, -1.f * m_half_extents.y, -1.f * m_half_extents.z },		{ 1.0f * orientation, 0.0f, 0.0f},		{ 1.f, 0.f } },
-		{ { 1.f * m_half_extents.x,  1.f * m_half_extents.y, -1.f * m_half_extents.z },		{ 1.0f * orientation, 0.0f, 0.0f},		{ 1.f, 1.f } },
-		{ { 1.f * m_half_extents.x,  1.f * m_half_extents.y,  1.f * m_half_extents.z },		{ 1.0f * orientation, 0.0f, 0.0f},		{ 0.f, 1.f } },
+		{ { 1.f * m_half_extents.x, -1.f * m_half_extents.y, -1.f * m_half_extents.z },		{ 1.0f * orientation, 0.0f, 0.0f},		{ tex_z, 0.f } },
+		{ { 1.f * m_half_extents.x,  1.f * m_half_extents.y, -1.f * m_half_extents.z },		{ 1.0f * orientation, 0.0f, 0.0f},		{ tex_z, tex_y } },
+		{ { 1.f * m_half_extents.x,  1.f * m_half_extents.y,  1.f * m_half_extents.z },		{ 1.0f * orientation, 0.0f, 0.0f},		{ 0.f, tex_y } },
 
 		//back
 		{ { 1.f * m_half_extents.x, -1.f * m_half_extents.y, -1.f * m_half_extents.z },		{ 0.0f, 0.0f, -1.0f * orientation},		{ 0.f, 0.f } },
-		{ {-1.f * m_half_extents.x, -1.f * m_half_extents.y, -1.f * m_half_extents.z },		{ 0.0f, 0.0f, -1.0f * orientation},		{ 1.f, 0.f } },
-		{ {-1.f * m_half_extents.x,  1.f * m_half_extents.y, -1.f * m_half_extents.z },		{ 0.0f, 0.0f, -1.0f * orientation},		{ 1.f, 1.f } },
-		{ { 1.f * m_half_extents.x,  1.f * m_half_extents.y, -1.f * m_half_extents.z },		{ 0.0f, 0.0f, -1.0f * orientation},		{ 0.f, 1.f } },
+		{ {-1.f * m_half_extents.x, -1.f * m_half_extents.y, -1.f * m_half_extents.z },		{ 0.0f, 0.0f, -1.0f * orientation},		{ tex_x, 0.f } },
+		{ {-1.f * m_half_extents.x,  1.f * m_half_extents.y, -1.f * m_half_extents.z },		{ 0.0f, 0.0f, -1.0f * orientation},		{ tex_x, tex_y } },
+		{ { 1.f * m_half_extents.x,  1.f * m_half_extents.y, -1.f * m_half_extents.z },		{ 0.0f, 0.0f, -1.0f * orientation},		{ 0.f, tex_y } },
 
 		//left
 		{ {-1.f * m_half_extents.x, -1.f * m_half_extents.y, -1.f * m_half_extents.z },		{-1.0f * orientation, 0.0f, 0.0f},		{ 0.f, 0.f } },
-		{ {-1.f * m_half_extents.x, -1.f * m_half_extents.y,  1.f * m_half_extents.z },		{-1.0f * orientation, 0.0f, 0.0f},		{ 1.f, 0.f } },
-		{ {-1.f * m_half_extents.x,  1.f * m_half_extents.y,  1.f * m_half_extents.z },		{-1.0f * orientation, 0.0f, 0.0f},		{ 1.f, 1.f } },
-		{ {-1.f * m_half_extents.x,  1.f * m_half_extents.y, -1.f * m_half_extents.z },		{-1.0f * orientation, 0.0f, 0.0f},		{ 0.f, 1.f } },
+		{ {-1.f * m_half_extents.x, -1.f * m_half_extents.y,  1.f * m_half_extents.z },		{-1.0f * orientation, 0.0f, 0.0f},		{ tex_z, 0.f } },
+		{ {-1.f * m_half_extents.x,  1.f * m_half_extents.y,  1.f * m_half_extents.z },		{-1.0f * orientation, 0.0f, 0.0f},		{ tex_z, tex_y } },
+		{ {-1.f * m_half_extents.x,  1.f * m_half_extents.y, -1.f * m_half_extents.z },		{-1.0f * orientation, 0.0f, 0.0f},		{ 0.f, tex_y } },
 
 		//top
 		{ {-1.f * m_half_extents.x,  1.f * m_half_extents.y,  1.f * m_half_extents.z },		{ 0.0f,  1.0f * orientation, 0.0f},		{ 0.f, 0.f } },
-		{ { 1.f * m_half_extents.x,  1.f * m_half_extents.y,  1.f * m_half_extents.z },		{ 0.0f,  1.0f * orientation, 0.0f},		{ 1.f, 0.f } },
-		{ { 1.f * m_half_extents.x,  1.f * m_half_extents.y, -1.f * m_half_extents.z },		{ 0.0f,  1.0f * orientation, 0.0f},		{ 1.f, 1.f } },
-		{ {-1.f * m_half_extents.x,  1.f * m_half_extents.y, -1.f * m_half_extents.z },		{ 0.0f,  1.0f * orientation, 0.0f},		{ 0.f, 1.f } },
+		{ { 1.f * m_half_extents.x,  1.f * m_half_extents.y,  1.f * m_half_extents.z },		{ 0.0f,  1.0f * orientation, 0.0f},		{ tex_x, 0.f } },
+		{ { 1.f * m_half_extents.x,  1.f * m_half_extents.y, -1.f * m_half_extents.z },		{ 0.0f,  1.0f * orientation, 0.0f},		{ tex_x, tex_z } },
+		{ {-1.f * m_half_extents.x,  1.f * m_half_extents.y, -1.f * m_half_extents.z },		{ 0.0f,  1.0f * orientation, 0.0f},		{ 0.f, tex_z } },
 
 		//bottom
 		{ {-1.f * m_half_extents.x, -1.f * m_half_extents.y, -1.f * m_half_extents.z },		{ 0.0f, -1.0f * orientation, 0.0f},		{ 0.f, 0.f } },
-		{ { 1.f * m_half_extents.x, -1.f * m_half_extents.y, -1.f * m_half_extents.z },		{ 0.0f, -1.0f * orientation, 0.0f},		{ 1.f, 0.f } },
-		{ { 1.f * m_half_extents.x, -1.f * m_half_extents.y,  1.f * m_half_extents.z },		{ 0.0f, -1.0f * orientation, 0.0f},		{ 1.f, 1.f } },
-		{ {-1.f * m_half_extents.x, -1.f * m_half_extents.y,  1.f * m_half_extents.z },		{ 0.0f, -1.0f * orientation, 0.0f},		{ 0.f, 1.f } },
+		{ { 1.f * m_half_extents.x, -1.f * m_half_extents.y, -1.f * m_half_extents.z },		{ 0.0f, -1.0f * orientation, 0.0f},		{ tex_x, 0.f } },
+		{ { 1.f * m_half_extents.x, -1.f * m_half_extents.y,  1.f * m_half_extents.z },		{ 0.0f, -1.0f * orientation, 0.0f},		{ tex_x, tex_z } },
+		{ {-1.f * m_half_extents.x, -1.f * m_half_extents.y,  1.f * m_half_extents.z },		{ 0.0f, -1.0f * orientation, 0.0f},		{ 0.f, tex_z } },
 	};
-
-	//Scaling texture coords to support tiling
-	for (size_t i = 0; i < vertices.size(); ++i)
-	{
-		vertices[i].tex_coords *= tile_scale;
-	}
 
 	const std::vector<uint32_t> indices
 	{
@@ -71,7 +70,7 @@ engine::tiled_cuboid::tiled_cuboid(glm::vec3 half_extents, bool inwards, glm::ve
 
 engine::tiled_cuboid::~tiled_cuboid() {}
 
-engine::ref<engine::tiled_cuboid> engine::tiled_cuboid::create(glm::vec3 half_extents, bool inwards, glm::vec2 tile_scale)
+engine::ref<engine::tiled_cuboid> engine::tiled_cuboid::create(glm::vec3 half_extents, bool inwards, float tex_size)
 {
-	return std::make_shared<engine::tiled_cuboid>(half_extents, inwards,tile_scale);
+	return std::make_shared<engine::tiled_cuboid>(half_extents, inwards, tex_size);
 }

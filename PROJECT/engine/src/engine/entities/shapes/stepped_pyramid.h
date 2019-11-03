@@ -23,7 +23,6 @@ namespace engine
 	private:
 		std::vector< ref<engine::mesh>> m_meshes{};
 
-		void add_quads(int num_sides, float two_theta, std::vector<engine::mesh::vertex> tmp_vertices, std::vector<engine::mesh::vertex>& vertices, std::vector<uint32_t>& indices, int& index, glm::vec3 rotation_axis);
-		void add_tris(int num_sides, float two_theta, std::vector<engine::mesh::vertex> tmp_vertices, std::vector<engine::mesh::vertex>& vertices, std::vector<uint32_t>& indices, int& index, glm::vec3 rotation_axis);
+
 	};
 }

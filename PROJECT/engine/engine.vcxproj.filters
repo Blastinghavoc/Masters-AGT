@@ -1374,6 +1374,12 @@
     <ClInclude Include="src\engine\entities\shapes\stepped_pyramid.h">
       <Filter>src\engine\entities\shapes</Filter>
     </ClInclude>
+    <ClInclude Include="src\engine\entities\shapes\hollow_cuboid.h">
+      <Filter>src\engine\entities\shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\engine\entities\shapes\shape_utils.h">
+      <Filter>src\engine\entities\shapes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\engine\core\application.cpp">
@@ -1509,6 +1515,12 @@
       <Filter>src\engine\entities</Filter>
     </ClCompile>
     <ClCompile Include="src\engine\entities\shapes\stepped_pyramid.cpp">
+      <Filter>src\engine\entities\shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\entities\shapes\hollow_cuboid.cpp">
+      <Filter>src\engine\entities\shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\entities\shapes\shape_utils.cpp">
       <Filter>src\engine\entities\shapes</Filter>
     </ClCompile>
   </ItemGroup>

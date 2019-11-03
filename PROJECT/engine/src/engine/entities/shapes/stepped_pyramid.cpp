@@ -2,7 +2,6 @@
 #include "stepped_pyramid.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include <glm/gtx/rotate_vector.hpp>
 
 engine::stepped_pyramid::stepped_pyramid(float height, float top_radius, float bottom_radius, int num_steps,float border_fraction,int num_sides)
 {
@@ -14,6 +13,11 @@ engine::stepped_pyramid::stepped_pyramid(float height, float top_radius, float b
 	if (num_steps < 1)
 	{
 		throw std::runtime_error("Cannot create stepped pyramid with less than one step");
+	}
+
+	if (num_sides < 3)
+	{
+		throw std::runtime_error("Cannot create stepped pyramid with less than 3 sides");
 	}
 
 	const float step_height = height / num_steps;
@@ -44,12 +48,12 @@ engine::stepped_pyramid::stepped_pyramid(float height, float top_radius, float b
 	//Faces
 	std::vector<engine::mesh::vertex> face_vertices{};
 	std::vector<uint32_t> face_indices{};
-	int face_index = 0;
+	uint32_t face_index = 0;
 
 	//Borders
 	std::vector<engine::mesh::vertex> border_vertices{};
 	std::vector<uint32_t> border_indices{};
-	int border_index = 0;
+	uint32_t border_index = 0;
 
 	float current_half_length = 0.f;
 	float next_radius = 0.f;
@@ -98,7 +102,7 @@ engine::stepped_pyramid::stepped_pyramid(float height, float top_radius, float b
 		tl={ {-x, next_y, current_radius}, norm, { 1,0 } };
 		tmp_vertices={ bl,br,tr,tl };
 
-		add_quads(num_sides, two_theta, tmp_vertices, face_vertices, face_indices, face_index, axis_of_symmetry);
+		shape_utils::add_quads(num_sides, two_theta, tmp_vertices, face_vertices, face_indices, face_index, axis_of_symmetry);
 
 		//---Top faces (trapezium shaped)	
 
@@ -108,7 +112,7 @@ engine::stepped_pyramid::stepped_pyramid(float height, float top_radius, float b
 		tr={ {next_half_length, next_height, next_radius}, norm, { 1,1 } };
 		tl={ {-next_half_length, next_height, next_radius}, norm, { 1,0 } };
 		tmp_vertices={ bl,br,tr,tl };
-		add_quads(num_sides, two_theta, tmp_vertices, face_vertices, face_indices, face_index, axis_of_symmetry);
+		shape_utils::add_quads(num_sides, two_theta, tmp_vertices, face_vertices, face_indices, face_index, axis_of_symmetry);
 
 		//--Borders
 		/*
@@ -124,7 +128,7 @@ engine::stepped_pyramid::stepped_pyramid(float height, float top_radius, float b
 			tr = { {-x, next_height, current_radius}, norm, { 1,1 } };
 			tl = { {-current_half_length, next_height, current_radius}, norm, { 1,0 } };
 			tmp_vertices = { bl,br,tr,tl };
-			add_quads(num_sides, two_theta, tmp_vertices, border_vertices, border_indices, border_index, axis_of_symmetry);
+			shape_utils::add_quads(num_sides, two_theta, tmp_vertices, border_vertices, border_indices, border_index, axis_of_symmetry);
 
 			//Right strip
 			norm = { 0,0,1 };
@@ -133,7 +137,7 @@ engine::stepped_pyramid::stepped_pyramid(float height, float top_radius, float b
 			tr = { {current_half_length, next_height, current_radius}, norm, { 1,1 } };
 			tl = { {x, next_height, current_radius}, norm, { 1,0 } };
 			tmp_vertices = { bl,br,tr,tl };
-			add_quads(num_sides, two_theta, tmp_vertices, border_vertices, border_indices, border_index, axis_of_symmetry);
+			shape_utils::add_quads(num_sides, two_theta, tmp_vertices, border_vertices, border_indices, border_index, axis_of_symmetry);
 
 			//Top strip
 			norm = { 0,0,1 };
@@ -142,7 +146,7 @@ engine::stepped_pyramid::stepped_pyramid(float height, float top_radius, float b
 			tr = { {x, next_height, current_radius}, norm, { 1,1 } };
 			tl = { {-x, next_height, current_radius}, norm, { 1,0 } };
 			tmp_vertices = { bl,br,tr,tl };
-			add_quads(num_sides, two_theta, tmp_vertices, border_vertices, border_indices, border_index, axis_of_symmetry);
+			shape_utils::add_quads(num_sides, two_theta, tmp_vertices, border_vertices, border_indices, border_index, axis_of_symmetry);
 
 			//upward strip (trapezium shape)
 			norm = { 0,1,0 };
@@ -151,7 +155,7 @@ engine::stepped_pyramid::stepped_pyramid(float height, float top_radius, float b
 			tr = { {x_prime, next_height, z}, norm, { 1,1 } };
 			tl = { {-x_prime, next_height, z}, norm, { 1,0 } };
 			tmp_vertices = { bl,br,tr,tl };
-			add_quads(num_sides, two_theta, tmp_vertices, border_vertices, border_indices, border_index, axis_of_symmetry);
+			shape_utils::add_quads(num_sides, two_theta, tmp_vertices, border_vertices, border_indices, border_index, axis_of_symmetry);
 		}
 
 		current_radius = next_radius;
@@ -164,7 +168,7 @@ engine::stepped_pyramid::stepped_pyramid(float height, float top_radius, float b
 	br = { {x, next_height, z}, norm, { 0,1 } };
 	tr = { {0, next_height, 0}, norm, { .5f,.5f } };
 	tmp_vertices = { bl,br,tr };
-	add_tris(num_sides, two_theta, tmp_vertices, face_vertices, face_indices, face_index, axis_of_symmetry);
+	shape_utils::add_tris(num_sides, two_theta, tmp_vertices, face_vertices, face_indices, face_index, axis_of_symmetry);
 
 	//The bottom face
 	auto bottom_h_len = bottom_radius * tan(theta);
@@ -173,7 +177,7 @@ engine::stepped_pyramid::stepped_pyramid(float height, float top_radius, float b
 	br = { {0, 0, 0}, norm, { 0.5f,.5f } };
 	tr = { {bottom_h_len, 0, bottom_radius}, norm, { 0,1 } };
 	tmp_vertices = { bl,br,tr };
-	add_tris(num_sides, two_theta, tmp_vertices, face_vertices, face_indices, face_index, axis_of_symmetry);
+	shape_utils::add_tris(num_sides, two_theta, tmp_vertices, face_vertices, face_indices, face_index, axis_of_symmetry);
 
 	m_meshes.push_back(engine::mesh::create(face_vertices, face_indices));
 	m_meshes.push_back(engine::mesh::create(border_vertices, border_indices));
@@ -186,48 +190,4 @@ engine::stepped_pyramid::~stepped_pyramid()
 engine::ref<engine::stepped_pyramid> engine::stepped_pyramid::create(float height, float top_radius, float bottom_radius, int num_steps,float border_width,int num_sides)
 {
 	return  std::make_shared<stepped_pyramid>(height, top_radius, bottom_radius,num_steps,border_width,num_sides);
-}
-
-void engine::stepped_pyramid::add_quads(int num_sides,float two_theta, std::vector<engine::mesh::vertex> tmp_vertices, std::vector<engine::mesh::vertex>& vertices, std::vector<uint32_t>& indices,int& index,glm::vec3 rotation_axis)
-{
-	for (size_t i = 0; i < num_sides; ++i)
-	{
-		float angle = i * two_theta;
-		for (auto tmp_vert : tmp_vertices) {
-			tmp_vert.position = glm::rotate(tmp_vert.position, angle, rotation_axis);
-			tmp_vert.normal = glm::rotate(tmp_vert.normal, angle, rotation_axis);			
-
-			vertices.push_back(tmp_vert);
-		}
-
-		indices.push_back(index);
-		indices.push_back(index + 1);
-		indices.push_back(index + 2);
-
-		indices.push_back(index);
-		indices.push_back(index + 2);
-		indices.push_back(index + 3);
-
-		index += 4;
-	}
-}
-
-void engine::stepped_pyramid::add_tris(int num_sides, float two_theta, std::vector<engine::mesh::vertex> tmp_vertices, std::vector<engine::mesh::vertex>& vertices, std::vector<uint32_t>& indices, int& index, glm::vec3 rotation_axis)
-{
-	for (size_t i = 0; i < num_sides; ++i)
-	{
-		float angle = i * two_theta;
-		for (auto tmp_vert : tmp_vertices) {
-			tmp_vert.position = glm::rotate(tmp_vert.position, angle, rotation_axis);
-			tmp_vert.normal = glm::rotate(tmp_vert.normal, angle, rotation_axis);
-
-			vertices.push_back(tmp_vert);
-		}
-
-		indices.push_back(index);
-		indices.push_back(index + 1);
-		indices.push_back(index + 2);
-
-		index += 3;
-	}
 }

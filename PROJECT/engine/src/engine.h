@@ -37,6 +37,8 @@
 #include "engine/entities/shapes/rhombicuboctahedron.h"
 #include "engine/entities/shapes/tiled_cuboid.h"
 #include "engine/entities/shapes/stepped_pyramid.h"
+#include "engine/entities/shapes/hollow_cuboid.h"
+#include "engine/entities/shapes/shape_utils.h"
 
 // ---utils---------------------------
 #include "engine/utils/bullet_manager.h"

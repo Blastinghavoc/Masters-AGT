@@ -9,7 +9,7 @@ namespace engine
 	{
 	public:
 
-		tiled_cuboid(glm::vec3 half_extents, bool inwards, glm::vec2 tile_scale);
+		tiled_cuboid(glm::vec3 half_extents, bool inwards, float tex_size = 1);
 
 		~tiled_cuboid();
 
@@ -17,7 +17,7 @@ namespace engine
 		bool inwards() const { return m_inwards; }
 		ref<engine::mesh> mesh() const { return m_mesh; }
 
-		static ref<tiled_cuboid> create(glm::vec3 half_extents, bool inwards, glm::vec2 tile_scale);
+		static ref<tiled_cuboid> create(glm::vec3 half_extents, bool inwards, float tex_size = 1);
 	private:
 
 		glm::vec3 m_half_extents;
