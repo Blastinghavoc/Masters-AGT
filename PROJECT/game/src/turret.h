@@ -20,4 +20,6 @@ private:
 	engine::ref<engine::game_object> m_swivel;
 	engine::ref<engine::game_object> m_barrel;
 
+	glm::mat4 m_barrel_transform{};
+
 };

@@ -1,4 +1,5 @@
 #include "turret.h"
+#include <glm/gtx/rotate_vector.hpp>
 
 turret::turret(glm::vec3 position)
 {
@@ -43,26 +44,27 @@ void turret::render(const engine::ref<engine::shader>& shader)
 {
 	engine::renderer::submit(shader, m_base);
 	engine::renderer::submit(shader, m_swivel);
-	engine::renderer::submit(shader, m_barrel);
+	engine::renderer::submit(shader, m_barrel_transform, m_barrel);
 }
 
 void turret::face(glm::vec3 target)
 {
-	auto dir = target - m_barrel_position;
+	auto dir = glm::normalize(target - m_barrel_position);
 
-	float y_angle = atan2(dir.x, dir.z);
+	float yaw = atan2(dir.x, dir.z);
 
 	//TODO REF: https://stackoverflow.com/questions/26555040/yaw-pitch-and-roll-to-glmrotate
 	float projectionLength = std::sqrt(dir.x * dir.x + dir.z * dir.z);
 	float pitch = std::atan2(dir.y, projectionLength);
 
+	//Rotate the base.
 	m_swivel->set_rotation_axis({0,1,0});
-	m_swivel->set_rotation_amount(y_angle);
+	m_swivel->set_rotation_amount(yaw);
 
-	//Doesn't quite work as intended
-	m_barrel->turn_towards(dir);
-
-	/*cow_transform = glm::rotate(cow_transform, y_angle, glm::vec3(0, 1, 0));
-	cow_transform = glm::rotate(cow_transform, -pitch, glm::vec3(1, 0, 0));*/
+	//Custom transformation of the barrel to rotate it on two axes
+	glm::mat4 barrel_transform(1.f);	
+	barrel_transform = glm::inverse(glm::lookAt(m_barrel_position, m_barrel_position - dir, { 0,1,0 }));
+	barrel_transform = glm::scale(barrel_transform, m_barrel->scale());
+	m_barrel_transform = barrel_transform;
 
 }

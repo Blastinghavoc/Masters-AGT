@@ -327,7 +327,7 @@ void game_layer::on_render()
 	//render all turrets
 	for (auto& t:m_turrets)
 	{
-		t.face(m_player.object()->position());
+		t.face(m_player.object()->position()+glm::vec3(0,0.5f,0));
 		t.render(textured_lighting_shader);
 	}
 
