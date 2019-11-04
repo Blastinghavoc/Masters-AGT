@@ -33,6 +33,9 @@
     <ClCompile Include="src\enemy_manager.cpp">
       <Filter>ai</Filter>
     </ClCompile>
+    <ClCompile Include="src\turret.cpp">
+      <Filter>actors</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="layers">
@@ -82,6 +85,9 @@
     </ClInclude>
     <ClInclude Include="src\enemy_manager.h">
       <Filter>ai</Filter>
+    </ClInclude>
+    <ClInclude Include="src\turret.h">
+      <Filter>actors</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

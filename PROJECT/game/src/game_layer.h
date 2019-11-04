@@ -6,6 +6,7 @@
 #include "player.h"
 #include "pickup.h"
 #include "enemy_manager.h"
+#include "turret.h"
 
 //The main layer for the game.
 class game_layer : public engine::layer
@@ -26,6 +27,7 @@ private:
 	engine::ref < engine::game_object > m_test_obj{};
 
 	std::vector<engine::ref<engine::game_object>> m_decorational_objects{};
+	std::vector<turret> m_turrets{};
 
 	std::vector<pickup> m_pickups{0};
 

@@ -97,19 +97,20 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	terrain_props.position = { 0,-terrain_dimensions.y,0 };
 	m_terrain = engine::game_object::create(terrain_props);
 
-	//Testing object
-	//engine::ref <engine::model> test_model = engine::model::create("assets/models/static/gold/gold_05_modified.obj");	
-	//engine::game_object_properties test_props;
-	//test_props.meshes = test_model->meshes();
-	/*test_props.textures = { engine::texture_2d::create("assets/models/static/gold/g_diffuse.tga",false) };
+	//Testing
+	/*engine::ref <engine::model> test_model = engine::model::create("assets/models/static/turrets/modified/base.obj");	
+	engine::game_object_properties test_props;
+	test_props.meshes = test_model->meshes();
+	test_props.textures = test_model->textures();
 	float test_scale = 1.f / glm::max(test_model->size().x, glm::max(test_model->size().y, test_model->size().z));
 	test_props.position = { -4.f,0.f, -5.f };
 	test_props.scale = glm::vec3(test_scale);
 	test_props.bounding_shape = test_model->size() / 2.f * test_scale;
-	m_test_obj = engine::game_object::create(test_props);*/
+	m_decorational_objects.push_back( engine::game_object::create(test_props));*/
 
-	std::string path = "assets/models/static/dungeon/";
-	std::string extn = ".obj";
+
+	/*std::string path = "assets/models/static/dungeon/";
+	std::string extn = ".obj";*/
 	//Display all dungeon pieces
 	//generate_all_level_pieces(m_level_segments,path,extn);
 
@@ -222,6 +223,10 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	pickup_props.position = center + glm::vec3(0, 0, -1);
 	m_pickups.push_back(pickup(engine::game_object::create(pickup_props), -1.f));
 
+	//Create a few turrets for testing
+	m_turrets.push_back(turret(glm::vec3(10, 0, 10)));
+	m_turrets.push_back(turret(glm::vec3(8, 0, 8)));
+
 	//Create text manager
 	m_text_manager = engine::text_manager::create();
 
@@ -319,6 +324,13 @@ void game_layer::on_render()
 	//render all children of the level grid
 	m_level_grid.render(textured_lighting_shader);
 
+	//render all turrets
+	for (auto& t:m_turrets)
+	{
+		t.face(m_player.object()->position());
+		t.render(textured_lighting_shader);
+	}
+
 	//render all pickups
 	for (auto& pick : m_pickups)
 	{
@@ -378,7 +390,7 @@ void game_layer::on_render()
 
 	//Render test object
 	/*engine::renderer::submit(textured_lighting_shader,m_test_obj);*/
-	for (auto& obj : m_decorational_objects) {
+	for (auto& obj : m_decorational_objects) {		
 		engine::renderer::submit(textured_lighting_shader, obj);
 	}
 
