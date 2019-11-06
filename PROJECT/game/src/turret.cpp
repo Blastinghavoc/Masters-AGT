@@ -51,17 +51,14 @@ void turret::face(glm::vec3 target)
 {
 	auto dir = glm::normalize(target - m_barrel_position);
 
-	float yaw = atan2(dir.x, dir.z);
-
-	//TODO REF: https://stackoverflow.com/questions/26555040/yaw-pitch-and-roll-to-glmrotate
-	float projectionLength = std::sqrt(dir.x * dir.x + dir.z * dir.z);
-	float pitch = std::atan2(dir.y, projectionLength);
+	float yaw = atan2(dir.x, dir.z);	
 
 	//Rotate the base.
 	m_swivel->set_rotation_axis({0,1,0});
 	m_swivel->set_rotation_amount(yaw);
 
 	//Custom transformation of the barrel to rotate it on two axes
+	//REF: https://gamedev.stackexchange.com/questions/150120/rotate-an-object-to-face-a-point-with-glmlookat
 	glm::mat4 barrel_transform(1.f);	
 	barrel_transform = glm::inverse(glm::lookAt(m_barrel_position, m_barrel_position - dir, { 0,1,0 }));
 	barrel_transform = glm::scale(barrel_transform, m_barrel->scale());

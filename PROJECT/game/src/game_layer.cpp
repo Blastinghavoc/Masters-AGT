@@ -238,6 +238,10 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	e1.add_waypoint(m_level_grid.grid_to_world_coords(13,1));
 	e1.add_waypoint(m_level_grid.grid_to_world_coords(1, 1));
 
+	auto time_display = std::make_shared<text_hud_element>(m_text_manager, "Time Remaining: ", glm::vec2{ 0.4f,0.95f });
+	time_display->set_text_size(0.5f);
+	hud_manager::add_element(time_display);
+
 }
 
 game_layer::~game_layer()
@@ -427,15 +431,18 @@ void game_layer::on_render()
 
 	engine::renderer::end_scene();
 
-
+	//----------
 	// Render text
+	//----------
 	if (intro_screen::active())
 	{
 		intro_screen::render(m_text_manager);
 	}
 	else {
 		const auto text_shader = engine::renderer::shaders_library()->get("text_2D");
-		m_text_manager->render_text(text_shader, "Placeholder UI", 10.f, (float)engine::application::window().height() - 25.f, 0.5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
+
+		hud_manager::render(textured_lighting_shader);
+
 		//Debug ui, including camera position and facing, and FPS
 		if (m_show_debug)
 		{

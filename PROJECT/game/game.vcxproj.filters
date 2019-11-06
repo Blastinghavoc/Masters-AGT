@@ -36,6 +36,15 @@
     <ClCompile Include="src\turret.cpp">
       <Filter>actors</Filter>
     </ClCompile>
+    <ClCompile Include="src\gui\hud_manager.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\hud_element.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\text_hud_element.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="layers">
@@ -52,6 +61,9 @@
     </Filter>
     <Filter Include="ai">
       <UniqueIdentifier>{51668b2a-21b3-4f9b-8c28-a6865ed55937}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui">
+      <UniqueIdentifier>{93512f35-d7ae-4bb5-b4f2-bad779b6be5a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -88,6 +100,15 @@
     </ClInclude>
     <ClInclude Include="src\turret.h">
       <Filter>actors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\hud_manager.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\hud_element.h">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\text_hud_element.h">
+      <Filter>gui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

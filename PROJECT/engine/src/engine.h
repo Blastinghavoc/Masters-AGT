@@ -38,6 +38,7 @@
 #include "engine/entities/shapes/tiled_cuboid.h"
 #include "engine/entities/shapes/stepped_pyramid.h"
 #include "engine/entities/shapes/hollow_cuboid.h"
+#include "engine/entities/shapes/quad.h"
 #include "engine/entities/shapes/shape_utils.h"
 
 // ---utils---------------------------
