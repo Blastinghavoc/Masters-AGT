@@ -138,6 +138,7 @@
     <ClInclude Include="src\game_layer.h" />
     <ClInclude Include="src\grid\grid.h" />
     <ClInclude Include="src\grid\grid_tile.h" />
+    <ClInclude Include="src\gui\abstract_hud_element.h" />
     <ClInclude Include="src\gui\hud_element.h" />
     <ClInclude Include="src\gui\hud_manager.h" />
     <ClInclude Include="src\gui\text_hud_element.h" />

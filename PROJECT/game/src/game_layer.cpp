@@ -15,7 +15,8 @@ namespace fs = std::filesystem;
 
 
 game_layer::game_layer() :
-m_2d_camera(-1.6f, 1.6f, -0.9f, 0.9f),
+//m_2d_camera(-1.6f, 1.6f, -0.9f, 0.9f),
+m_2d_camera(0, (float)engine::application::window().width(), 0, (float)engine::application::window().height()),
 m_3d_camera((float)engine::application::window().width(), (float)engine::application::window().height(),45.f,0.1f,200.f)
 {
 	// Hide the mouse and lock it inside the window
@@ -238,10 +239,23 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	e1.add_waypoint(m_level_grid.grid_to_world_coords(13,1));
 	e1.add_waypoint(m_level_grid.grid_to_world_coords(1, 1));
 
-	auto time_display = std::make_shared<text_hud_element>(m_text_manager, "Time Remaining: ", glm::vec2{ 0.4f,0.95f });
+
+	//NOTE: Currently can't render texture with transparency, so crosshair is very ugly.
+	/*auto y_scale =  (float)engine::application::window().width() / (float)engine::application::window().height();
+	auto crosshair = hud_element::create(glm::vec2(.5f,.5f),
+		{0.05f,0.05f*y_scale},
+		engine::texture_2d::create("assets/textures/crosshair.png", true));
+	hud_manager::add_element(crosshair);*/
+
+	//Workaround
+	auto crosshair = text_hud_element::create(m_text_manager, "+", glm::vec2{ 0.5f,0.5f });
+	crosshair->set_text_size(1.f);
+	crosshair->set_colour({.5f, 1.f, 0.5f, 1.f});
+	hud_manager::add_element(crosshair);
+	
+	auto time_display = text_hud_element::create(m_text_manager, "Time Remaining: ", glm::vec2{ 0.4f,0.95f });
 	time_display->set_text_size(0.5f);
 	hud_manager::add_element(time_display);
-
 }
 
 game_layer::~game_layer()
@@ -441,7 +455,7 @@ void game_layer::on_render()
 	else {
 		const auto text_shader = engine::renderer::shaders_library()->get("text_2D");
 
-		hud_manager::render(textured_lighting_shader);
+		hud_manager::render(m_2d_camera,textured_lighting_shader);
 
 		//Debug ui, including camera position and facing, and FPS
 		if (m_show_debug)

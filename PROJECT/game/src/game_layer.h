@@ -9,6 +9,7 @@
 #include "turret.h"
 #include "gui/hud_manager.h"
 #include "gui/text_hud_element.h"
+#include "gui/hud_element.h"
 
 //The main layer for the game.
 class game_layer : public engine::layer

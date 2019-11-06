@@ -1,14 +1,10 @@
 #include "hud_element.h"
 
-hud_element::hud_element(glm::vec2 position, engine::ref<engine::quad> quad, engine::ref<engine::texture_2d> texture) :
-	m_position(position),
-	m_quad(quad),
+hud_element::hud_element(glm::vec2 position, glm::vec2 relative_scale, engine::ref<engine::texture_2d> texture) :
 	m_texture(texture)	
 {
-}
-
-hud_element::~hud_element()
-{
+	m_relative_position = position;
+	m_quad = engine::quad::create(screen_position(relative_scale));
 }
 
 void hud_element::render(engine::ref<engine::shader> shader)
@@ -18,8 +14,10 @@ void hud_element::render(engine::ref<engine::shader> shader)
 
 	if (m_quad && m_texture)
 	{
+		auto screen_pos = screen_position();
+
 		glm::mat4 transform(1.0f);
-		transform = glm::translate(transform, glm::vec3(m_position.x, m_position.y, 0.1f));
+		transform = glm::translate(transform, glm::vec3(screen_pos.x, screen_pos.y, 0.1f));
 
 		m_texture->bind();
 		engine::renderer::submit(shader, m_quad->mesh(), transform);

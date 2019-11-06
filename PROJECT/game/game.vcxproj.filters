@@ -110,5 +110,8 @@
     <ClInclude Include="src\gui\text_hud_element.h">
       <Filter>gui</Filter>
     </ClInclude>
+    <ClInclude Include="src\gui\abstract_hud_element.h">
+      <Filter>gui</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
