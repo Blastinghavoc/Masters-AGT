@@ -15,9 +15,11 @@ public:
 		return std::make_shared<text_hud_element>(text_manager, text, relative_text_position);
 	};
 
+	static glm::vec4 default_colour;
+
 private:
 	engine::ref<engine::text_manager> m_text_manager;
 	std::string m_text;
 	float m_text_size{1.f};
-	glm::vec4 m_text_colour{ 1.f, 0.5f, 0.f, 1.f };
+	glm::vec4 m_text_colour{};
 };

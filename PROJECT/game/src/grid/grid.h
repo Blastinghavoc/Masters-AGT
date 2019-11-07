@@ -49,6 +49,7 @@ public:
 
 	//Simple getters
 	const float& cell_size() const { return m_cell_size; };
+	const float& floor_level() const { return m_y; };
 
 private:
 	//utility functions

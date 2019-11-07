@@ -239,23 +239,29 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	e1.add_waypoint(m_level_grid.grid_to_world_coords(13,1));
 	e1.add_waypoint(m_level_grid.grid_to_world_coords(1, 1));
 
-
-	//NOTE: Currently can't render texture with transparency, so crosshair is very ugly.
-	/*auto y_scale =  (float)engine::application::window().width() / (float)engine::application::window().height();
+	auto y_scale =  (float)engine::application::window().width() / (float)engine::application::window().height();
 	auto crosshair = hud_element::create(glm::vec2(.5f,.5f),
-		{0.05f,0.05f*y_scale},
+		{0.025f,0.025f*y_scale},
 		engine::texture_2d::create("assets/textures/crosshair.png", true));
-	hud_manager::add_element(crosshair);*/
-
-	//Workaround
-	auto crosshair = text_hud_element::create(m_text_manager, "+", glm::vec2{ 0.5f,0.5f });
-	crosshair->set_text_size(1.f);
-	crosshair->set_colour({.5f, 1.f, 0.5f, 1.f});
 	hud_manager::add_element(crosshair);
-	
+
+	text_hud_element::default_colour = { .5f, 1.f, 0.5f, 1.f };
+		
 	auto time_display = text_hud_element::create(m_text_manager, "Time Remaining: ", glm::vec2{ 0.4f,0.95f });
 	time_display->set_text_size(0.5f);
 	hud_manager::add_element(time_display);
+
+	auto score_display = text_hud_element::create(m_text_manager, "Score: ", glm::vec2{ 0.025f,0.95f });
+	score_display->set_text_size(0.5f);
+	hud_manager::add_element(score_display);
+
+	auto money_display = text_hud_element::create(m_text_manager, "Money: ", glm::vec2{ 0.025f,0.9f });
+	money_display->set_text_size(0.5f);
+	hud_manager::add_element(money_display);
+
+	auto life_display = text_hud_element::create(m_text_manager, "Health: 100%", glm::vec2{ 0.85f,0.95f });
+	life_display->set_text_size(0.5f);
+	hud_manager::add_element(life_display);
 }
 
 game_layer::~game_layer()
@@ -540,7 +546,7 @@ void game_layer::mouse1_event_handler()
 		return;
 	}
 	auto cam_pos = m_3d_camera.position();
-	auto delta_y = m_terrain->position().y - cam_pos.y;
+	auto delta_y = m_level_grid.floor_level() - cam_pos.y;
 	auto ground_pos = cam_pos + (delta_y / fv.y) * fv;
 	auto grid_coords = m_level_grid.world_to_grid_coords(ground_pos);
 	m_level_grid.remove_block(grid_coords.first,grid_coords.second);
@@ -556,7 +562,7 @@ void game_layer::mouse2_event_handler()
 		return;
 	}
 	auto cam_pos = m_3d_camera.position();
-	auto delta_y = m_terrain->position().y - cam_pos.y;
+	auto delta_y = m_level_grid.floor_level() - cam_pos.y;
 	auto ground_pos = cam_pos + (delta_y / fv.y) * fv;
 	auto grid_coords = m_level_grid.world_to_grid_coords(ground_pos);
 	m_level_grid.place_block(grid_coords.first, grid_coords.second);

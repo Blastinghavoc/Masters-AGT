@@ -20,7 +20,10 @@ public:
 		return std::make_shared<hud_element>(relative_position, relative_scale,texture);
 	};
 
+	void set_transparency(float trans) { m_transparency = trans; };
+	const float& get_transparency() { return m_transparency; };
 private:
 	engine::ref<engine::quad> m_quad{};
 	engine::ref<engine::texture_2d> m_texture{};
+	float m_transparency{};
 };
