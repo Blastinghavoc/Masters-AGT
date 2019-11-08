@@ -1383,6 +1383,9 @@
     <ClInclude Include="src\engine\entities\shapes\quad.h">
       <Filter>src\engine\entities\shapes</Filter>
     </ClInclude>
+    <ClInclude Include="src\engine\utils\physical_object.h">
+      <Filter>src\engine\utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\engine\core\application.cpp">
@@ -1528,6 +1531,9 @@
     </ClCompile>
     <ClCompile Include="src\engine\entities\shapes\quad.cpp">
       <Filter>src\engine\entities\shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\utils\physical_object.cpp">
+      <Filter>src\engine\utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

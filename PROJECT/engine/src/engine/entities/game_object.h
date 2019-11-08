@@ -1,5 +1,5 @@
 #pragma once
-
+#include "engine/utils/physical_object.h"
 
 namespace engine
 {
@@ -102,6 +102,9 @@ namespace engine
 		// bind the object's textures if there are any
 		void bind_textures();
 
+		engine::physical_object*& physics_obj() { return m_physics_obj; };
+
+
     public:
         static ref<game_object> create(const game_object_properties& props);
 
@@ -130,6 +133,7 @@ namespace engine
 		glm::vec3		m_angular_velocity{ 0.0f };
 		// object's torque vector
 		glm::vec3		m_torque{ 0.0f };
+		// object's inertia
 
 		// object's meshes
 		std::vector<ref<mesh>> m_meshes;
@@ -156,5 +160,7 @@ namespace engine
 		glm::vec3		m_bounding_shape{ 0.f };
 		//object's offset from the local origin
 		glm::vec3 m_offset{ 0.f };
+
+		engine::physical_object* m_physics_obj{};
     };
 }

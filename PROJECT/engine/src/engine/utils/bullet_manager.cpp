@@ -23,34 +23,34 @@
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
 
-engine::physical_object::physical_object(btRigidBody* body) : body(body) {}
-
-//returns the forward vector of the physical object
-btVector3 engine::physical_object::get_forward()
-{
-	btVector3 body_forward_vector;
-	btTransform trans = body->getWorldTransform();
-	body_forward_vector = (trans * forward_vector - trans.getOrigin());
-	return body_forward_vector;
-}
-
-//Returns the up vector of the physical object
-btVector3 engine::physical_object::get_up()
-{
-	btVector3 body_up_vector;
-	btTransform trans = body->getWorldTransform();
-	body_up_vector = (trans * up_vector - trans.getOrigin());
-	return body_up_vector;
-}
-
-//Returns the right vector of the physical object
-btVector3 engine::physical_object::get_right()
-{
-	btVector3 body_right_vector;
-	btTransform trans = body->getWorldTransform();
-	body_right_vector = (trans * right_vector - trans.getOrigin());
-	return body_right_vector;
-}
+//engine::physical_object::physical_object(btRigidBody* body) : body(body) {}
+//
+////returns the forward vector of the physical object
+//btVector3 engine::physical_object::get_forward()
+//{
+//	btVector3 body_forward_vector;
+//	btTransform trans = body->getWorldTransform();
+//	body_forward_vector = (trans * forward_vector - trans.getOrigin());
+//	return body_forward_vector;
+//}
+//
+////Returns the up vector of the physical object
+//btVector3 engine::physical_object::get_up()
+//{
+//	btVector3 body_up_vector;
+//	btTransform trans = body->getWorldTransform();
+//	body_up_vector = (trans * up_vector - trans.getOrigin());
+//	return body_up_vector;
+//}
+//
+////Returns the right vector of the physical object
+//btVector3 engine::physical_object::get_right()
+//{
+//	btVector3 body_right_vector;
+//	btTransform trans = body->getWorldTransform();
+//	body_right_vector = (trans * right_vector - trans.getOrigin());
+//	return body_right_vector;
+//}
 
 //Constructor passing the game object vector
 engine::bullet_manager::bullet_manager(const std::vector<engine::ref<engine::game_object>>& game_objects)
@@ -211,6 +211,7 @@ void engine::bullet_manager::add_physical_object(engine::ref<engine::game_object
 		//body->setRestitution(game_object->restitution());
 		physical_object* object = new physical_object(body);
 		physical_objects.push_back(object);
+		game_object->physics_obj() = object;
 	}
 }
 

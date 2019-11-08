@@ -30,6 +30,7 @@ private:
 	engine::ref < engine::game_object > m_test_obj{};
 
 	std::vector<engine::ref<engine::game_object>> m_decorational_objects{};
+	std::vector<engine::ref<engine::game_object>> m_physical_gameobjects{};
 	std::vector<turret> m_turrets{};
 
 	std::vector<pickup> m_pickups{0};
@@ -51,7 +52,7 @@ private:
 	//The grid object representing the level.
 	grid m_level_grid{2.f,0.01f};
 
-	player m_player{glm::vec3(3.f,0.f,0.f)};
+	player m_player{glm::vec3(3.f,2.f,0.f)};
 
 	bool m_show_debug{ false };
 

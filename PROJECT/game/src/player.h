@@ -15,6 +15,8 @@ public:
 	//Update the player based on user input and delta-time
 	void on_update(const engine::timestep& time_step) override;
 
+	void move_physics(const glm::vec3& direction, const float& speed, const engine::timestep& time_step);
+
 	//Update the camera to provide a 3rd person perspective of the player.
 	void update_camera(engine::perspective_camera& camera);
 
@@ -32,5 +34,5 @@ private:
 
 	//camera details (distance behind the player to put the camera)
 	const float camera_backoff_distance_default{1.f};
-	float m_camera_backoff_distance;
+	float m_camera_backoff_distance;	
 };

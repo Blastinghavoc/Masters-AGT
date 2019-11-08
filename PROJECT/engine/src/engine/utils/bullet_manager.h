@@ -7,6 +7,7 @@
 #include "LinearMath/btAlignedObjectArray.h"
 
 #include "engine/entities/game_object.h"
+#include "engine/utils/physical_object.h"
 
 class btBroadphaseInterface;
 class btOverlappingPairCache;
@@ -22,21 +23,21 @@ class	btTypedConstraint;
 
 namespace engine
 {
-	/// \brief Class defining the physical objects in he bullet Dynamics World simulation. 
-	class physical_object
-	{
-		btRigidBody* body;	//boid's rigidBody
+	///// \brief Class defining the physical objects in he bullet Dynamics World simulation. 
+	//class physical_object
+	//{
+	//	btRigidBody* body;	//boid's rigidBody
 
-	public:
-		physical_object(btRigidBody* body);
+	//public:
+	//	physical_object(btRigidBody* body);
 
-		btRigidBody* get_body() const { return body; };	//returns object's rigidBody
-		btVector3 get_forward();	//returns object's  forward direction vector
-		btVector3 get_up();			//returns object's up vector
-		btVector3 get_right();		//returns object's right direction vector
+	//	btRigidBody* get_body() const { return body; };	//returns object's rigidBody
+	//	btVector3 get_forward();	//returns object's  forward direction vector
+	//	btVector3 get_up();			//returns object's up vector
+	//	btVector3 get_right();		//returns object's right direction vector
 
-		void apply_forces();		//aplies drag, thrust, lift, gravity, etc.
-	};
+	//	void apply_forces();		//aplies drag, thrust, lift, gravity, etc.
+	//};
 
 	//vectors
 	const btVector3 right_vector(-1, 0, 0);

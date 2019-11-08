@@ -19,7 +19,11 @@ player::player(glm::vec3 position):
 	props.animated_mesh = skinned_mesh;
 	props.scale = glm::vec3(1.f / glm::max(skinned_mesh->size().x, glm::max(skinned_mesh->size().y, skinned_mesh->size().z)));
 	props.type = 0;
+	props.is_static = false;
 	props.position = position;
+	props.restitution = 0.9f;
+	props.mass = 55;
+	props.type = 0;
 	props.bounding_shape = skinned_mesh->size() / 2.f * props.scale.x;
 
 	m_animations["walk"] = 1;
@@ -92,6 +96,7 @@ void player::on_update(const engine::timestep& time_step)
 	if (glm::length(movement_direction) > 0.0f)
 	{
 		move(movement_direction, speed, time_step);
+		//move_physics(movement_direction, speed, time_step);
 
 		//Play the movement animation if we aren't already (and we're not jumping)
 		if (!jumping && m_current_animation != movement_animation)
@@ -108,6 +113,24 @@ void player::on_update(const engine::timestep& time_step)
 
 	//Increment animation
 	m_object->animated_mesh()->on_update(time_step);
+}
+
+void player::move_physics(const glm::vec3& direction, const float& speed, const engine::timestep& time_step)
+{
+	//Increment position
+	auto distance_travelled = speed * (float)time_step;
+
+	auto tst = direction * speed;// *time_step.seconds();
+
+	//m_object->set_position(m_object->position() + direction * distance_travelled);
+	//m_object->set_velocity({0,0,1});
+
+	//m_object->set_angular_velocity({0,0,0});
+
+	//orient in direction of travel	
+	/*m_object->set_rotation_axis({ 0,1,0 });
+	m_object->set_rotation_amount(atan2(direction.x, direction.z));*/
+	m_object->animated_mesh()->switch_root_movement(false);
 }
 
 

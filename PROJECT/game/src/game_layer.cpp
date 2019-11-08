@@ -13,6 +13,8 @@ namespace fs = std::filesystem;
 
 #include "intro_screen.h"
 
+#include "btBulletDynamicsCommon.h"//For bt rigid body?
+
 
 game_layer::game_layer() :
 //m_2d_camera(-1.6f, 1.6f, -0.9f, 0.9f),
@@ -234,6 +236,15 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	//start fps timer
 	m_fps_timer.start();
 
+	//m_physical_gameobjects.push_back(m_player.object());
+	//m_physical_gameobjects.push_back(m_terrain);
+	//m_physics_manager = engine::bullet_manager::create(m_physical_gameobjects);
+	//auto player_body = m_player.object()->physics_obj()->get_body();
+	//player_body->setAngularFactor(btVector3(0, 0, 0));	
+	//////player_body->setInvInertiaDiagLocal({ 1,1,1 });
+	////player_body->setDamping(player_body->getLinearDamping(), 100.f);
+	
+
 	enemy_manager::init(std::make_shared<grid>(m_level_grid));
 	auto& e1 = enemy_manager::spawn_minion(m_level_grid.grid_to_world_coords(13,14));
 	e1.add_waypoint(m_level_grid.grid_to_world_coords(13,1));
@@ -311,6 +322,8 @@ void game_layer::on_update(const engine::timestep& time_step)
 			m_player.on_update(time_step);
 			m_player.update_camera(m_3d_camera);
 		}
+
+		//m_physics_manager->dynamics_world_update(m_physical_gameobjects,time_step);
 	}
 }
 
@@ -467,10 +480,10 @@ void game_layer::on_render()
 		if (m_show_debug)
 		{
 			m_text_manager->render_text(text_shader, "Pos:{" + std::to_string(cam_pos.x) + "," + std::to_string(cam_pos.y)
-				+ "," + std::to_string(cam_pos.z) + "}", 10.f, (float)engine::application::window().height() - 50.f, .5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
-			m_text_manager->render_text(text_shader, "FPS:{" + std::to_string(m_updates_last_interval) + "}", 10.f, (float)engine::application::window().height() - 75.f, .5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
+				+ "," + std::to_string(cam_pos.z) + "}", 10.f, (float)engine::application::window().height() - 200.f, .5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
+			m_text_manager->render_text(text_shader, "FPS:{" + std::to_string(m_updates_last_interval) + "}", 10.f, (float)engine::application::window().height() - 225.f, .5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
 			m_text_manager->render_text(text_shader, "Facing:{" +std::to_string(m_3d_camera.front_vector().x) + "," + std::to_string(m_3d_camera.front_vector().y)
-				+ "," + std::to_string(m_3d_camera.front_vector().z) + "}", 10.f, (float)engine::application::window().height() - 100.f, .5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
+				+ "," + std::to_string(m_3d_camera.front_vector().z) + "}", 10.f, (float)engine::application::window().height() - 250.f, .5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
 		}
 	}
 }
