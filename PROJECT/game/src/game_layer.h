@@ -8,8 +8,6 @@
 #include "enemy_manager.h"
 #include "turret.h"
 #include "gui/hud_manager.h"
-#include "gui/text_hud_element.h"
-#include "gui/hud_element.h"
 #include "lighting/light_manager.h"
 #include "gameplay/gameplay_manager.h"
 

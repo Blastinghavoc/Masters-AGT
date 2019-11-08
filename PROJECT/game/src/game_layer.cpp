@@ -252,29 +252,7 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	e1.add_waypoint(m_level_grid.grid_to_world_coords(max_grid_dimension-2,1));
 	e1.add_waypoint(m_level_grid.grid_to_world_coords(1, 1));
 
-	auto y_scale =  (float)engine::application::window().width() / (float)engine::application::window().height();
-	auto crosshair = hud_element::create(glm::vec2(.5f,.5f),
-		{0.025f,0.025f*y_scale},
-		engine::texture_2d::create("assets/textures/crosshair.png", true));
-	hud_manager::add_element(crosshair);
-
-	text_hud_element::default_colour = { .5f, 1.f, 0.5f, 1.f };
-		
-	auto time_display = text_hud_element::create(m_text_manager, "Time Remaining: ", glm::vec2{ 0.4f,0.95f });
-	time_display->set_text_size(0.5f);
-	hud_manager::add_element(time_display);
-
-	auto score_display = text_hud_element::create(m_text_manager, "Score: ", glm::vec2{ 0.025f,0.95f });
-	score_display->set_text_size(0.5f);
-	hud_manager::add_element(score_display);
-
-	auto money_display = text_hud_element::create(m_text_manager, "Money: ", glm::vec2{ 0.025f,0.9f });
-	money_display->set_text_size(0.5f);
-	hud_manager::add_element(money_display);
-
-	auto life_display = text_hud_element::create(m_text_manager, "Health: 100%", glm::vec2{ 0.85f,0.95f });
-	life_display->set_text_size(0.5f);
-	hud_manager::add_element(life_display);
+	
 
 	//------
 	//Extra Lights
@@ -300,7 +278,7 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	light_manager::point_lights.push_back(point_light_3);
 
 
-	gameplay_manager::init(&m_player);
+	gameplay_manager::init(&m_player,m_text_manager);
 
 	m_grid_center = center;
 }
@@ -351,6 +329,8 @@ void game_layer::on_update(const engine::timestep& time_step)
 			m_player.on_update(time_step);
 			m_player.update_camera(m_3d_camera);
 		}
+
+		gameplay_manager::update(time_step);
 
 		//m_physics_manager->dynamics_world_update(m_physical_gameobjects,time_step);
 	}
@@ -457,6 +437,8 @@ void game_layer::on_render()
 
 	//Render test object
 	/*engine::renderer::submit(textured_lighting_shader,m_test_obj);*/
+
+	//Render decorational objects
 	for (auto& obj : m_decorational_objects) {		
 		engine::renderer::submit(textured_lighting_shader, obj);
 	}
