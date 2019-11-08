@@ -11,6 +11,7 @@
 #include "gui/text_hud_element.h"
 #include "gui/hud_element.h"
 #include "lighting/light_manager.h"
+#include "gameplay/gameplay_manager.h"
 
 //The main layer for the game.
 class game_layer : public engine::layer

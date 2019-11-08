@@ -300,6 +300,7 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	light_manager::point_lights.push_back(point_light_3);
 
 
+	gameplay_manager::init(&m_player);
 
 	m_grid_center = center;
 }
