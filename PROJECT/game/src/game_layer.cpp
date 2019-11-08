@@ -43,6 +43,9 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	m_directionalLight.DiffuseIntensity = 0.6f;
 	m_directionalLight.Direction = glm::normalize(glm::vec3(1.0f, -1.0f, 0.0f));
 
+	light_manager::init(&m_directionalLight);
+	light_manager::day_duration = 60.f;
+
 	std::dynamic_pointer_cast<engine::gl_shader>(animated_mesh_shader)->bind();
 	std::dynamic_pointer_cast<engine::gl_shader>(animated_mesh_shader)->set_uniform("gColorMap", 0);
 	std::dynamic_pointer_cast<engine::gl_shader>(animated_mesh_shader)->set_uniform("lighting_on", true);
@@ -85,10 +88,13 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 		  engine::texture_2d::create(skybox_path + "bkg1_bot" + skybox_extn,true)
 		});
 
+	int max_grid_dimension = 11;
+	auto cell_size = m_level_grid.cell_size();
+
 	// Load the terrain texture and create a terrain mesh. Create a terrain object. Set its properties
 	// Using my tiled_cuboid instead of the original terrain shape in order to have tiled textures.
 	std::vector<engine::ref<engine::texture_2d>> terrain_textures = { engine::texture_2d::create("assets/textures/terrain_grid.bmp",false) };//Texture by me
-	glm::vec3 terrain_dimensions{ 19.f, 1.f, 19.f };
+	glm::vec3 terrain_dimensions{ max_grid_dimension + 2* cell_size, 1.f, max_grid_dimension + 2 * cell_size };
 	engine::ref<engine::tiled_cuboid> terrain_shape = engine::tiled_cuboid::create(terrain_dimensions, false, m_level_grid.cell_size());
 	engine::game_object_properties terrain_props;
 	terrain_props.meshes = { terrain_shape->mesh() };
@@ -112,40 +118,34 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	m_decorational_objects.push_back( engine::game_object::create(test_props));*/
 
 
-	/*std::string path = "assets/models/static/dungeon/";
-	std::string extn = ".obj";*/
-	//Display all dungeon pieces
-	//generate_all_level_pieces(m_level_segments,path,extn);
-
 	//Populate level grid, and test its functionality.
-	for (int i = 0; i < 15; i++)
+	for (int i = 0; i < max_grid_dimension; i++)
 	{
 		m_level_grid.set_border(0,i,orientation::east);
-		m_level_grid.set_border(14, i, orientation::west);
+		m_level_grid.set_border(max_grid_dimension-1, i, orientation::west);
 		m_level_grid.set_border(i, 0, orientation::south);
-		m_level_grid.set_border(i, 14, orientation::north);
+		m_level_grid.set_border(i, max_grid_dimension-1, orientation::north);
 
 		m_level_grid.set_corner(0, i, orientation::south_east);
-		m_level_grid.set_corner(14, i, orientation::south_west);		
+		m_level_grid.set_corner(max_grid_dimension-1, i, orientation::south_west);
 		m_level_grid.set_corner(i, 0, orientation::south_east);
-		m_level_grid.set_corner(i, 14, orientation::north_east);
+		m_level_grid.set_corner(i, max_grid_dimension-1, orientation::north_east);
 		
-
-		for (int j = 0; j < 15; j++)
+		for (int j = 0; j < max_grid_dimension; j++)
 		{
 			m_level_grid.set_floor(i, j);
 		}
 	}
-	m_level_grid.set_corner(15, 15, orientation::south_east);
-	glm::vec3 center = m_level_grid.grid_to_world_coords(7,7) + glm::vec3(m_level_grid.cell_size()/2,0,m_level_grid.cell_size()/2);//The point in the center of the center grid square
-	m_level_grid.set_corner(7, 7, orientation::north_east);
+	m_level_grid.set_corner(max_grid_dimension, max_grid_dimension, orientation::south_east);
+	glm::vec3 center = m_level_grid.grid_to_world_coords(max_grid_dimension/2, max_grid_dimension/2) + glm::vec3(cell_size/2,0,cell_size/2);//The point in the center of the center grid square
+	/*m_level_grid.set_corner(7, 7, orientation::north_east);
 	m_level_grid.set_corner(7, 7, orientation::south_east);
 	m_level_grid.set_corner(7, 7, orientation::south_west);
-	m_level_grid.set_corner(7, 7, orientation::north_west);
+	m_level_grid.set_corner(7, 7, orientation::north_west);*/
 
-	m_level_grid.set_gateway(13, 14, orientation::north_east);
-	m_level_grid.set_gateway(13, 14, orientation::north_west,(float)M_PI);
-	m_level_grid.del_border(13, 14, orientation::north);
+	m_level_grid.set_gateway(max_grid_dimension-2, max_grid_dimension-1, orientation::north_east);
+	m_level_grid.set_gateway(max_grid_dimension-2, max_grid_dimension-1, orientation::north_west,(float)M_PI);
+	m_level_grid.del_border(max_grid_dimension-2, max_grid_dimension-1, orientation::north);
 
 	m_level_grid.set_gateway(1, 0, orientation::south_east);
 	m_level_grid.set_gateway(1, 0, orientation::south_west,(float)M_PI);
@@ -153,17 +153,17 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 
 	m_level_grid.bake_tiles();
 
-	m_level_grid.place_block(10, 10);
-	m_level_grid.place_block(11, 10);
-	m_level_grid.place_block(12, 10);
-	m_level_grid.remove_block(12, 10);
-	m_level_grid.place_block(10, 9);
-	m_level_grid.place_block(11, 9);
-	m_level_grid.place_block(10, 8);
-	m_level_grid.place_block(11, 8);
-	m_level_grid.place_block(9, 9);
-	m_level_grid.place_block(9, 8);
-	m_level_grid.place_block(9, 10);
+	bool place = false;
+	for (size_t i = 0; i < max_grid_dimension; ++i)
+	{
+		for (size_t j = 0; j < max_grid_dimension; ++j) {
+			if (place)
+			{
+				m_level_grid.place_block(i, j);
+			}
+			place = !place;
+		}
+	}
 	//end of grid testing.
 
 	//re-center terrain.
@@ -186,7 +186,7 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 
 		engine::ref<engine::texture_2d> pyr_texture = engine::texture_2d::create("assets/textures/pyramid_face.png", true);
 		engine::ref<engine::texture_2d> pyr_texture_border = engine::texture_2d::create("assets/textures/pyramid_border.png", true);
-		engine::ref<engine::stepped_pyramid> pyr_shape = engine::stepped_pyramid::create(15.f, 1.f, 19.f, 8,0.1f,4);
+		engine::ref<engine::stepped_pyramid> pyr_shape = engine::stepped_pyramid::create(15.f, 1.f, terrain_dimensions.x, 8,0.1f,8);
 		shape_props.meshes = pyr_shape->meshes();
 		shape_props.textures = { pyr_texture, pyr_texture_border };
 		shape_props.bounding_shape = glm::vec3(5.f);
@@ -197,17 +197,19 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 
 		//Testing hollow cuboid
 		engine::ref<engine::texture_2d> tst_texture = engine::texture_2d::create("assets/textures/funky_cube.png", false);
-		engine::ref<engine::hollow_cuboid> tst_shape = engine::hollow_cuboid::create({1,1,1},0.5f,2);
+		float size = 1.1f;
+		engine::ref<engine::hollow_cuboid> tst_shape = engine::hollow_cuboid::create({ size,size,size },size/2,2*size);
 		shape_props.meshes = tst_shape->meshes();
 		shape_props.textures = { tst_texture };
 		shape_props.bounding_shape = glm::vec3(5.f);
-		shape_props.position = {-3,5,-3};
-		shape_props.rotation_amount = 0;
+		shape_props.position = center + glm::vec3(0, m_big_decor_height,0);
+		shape_props.rotation_amount = M_PI;
+		shape_props.rotation_axis = { 1,1,1 };
 		m_decorational_objects.push_back(engine::game_object::create(shape_props));
 	}
 
 	//Create pickups
-	engine::ref <engine::model> pickup_model = engine::model::create("assets/models/static/gold/gold_05_modified.obj");	
+	/*engine::ref <engine::model> pickup_model = engine::model::create("assets/models/static/gold/gold_05_modified.obj");	
 	engine::game_object_properties pickup_props;
 	pickup_props.meshes = pickup_model->meshes();
 	pickup_props.textures = { engine::texture_2d::create("assets/models/static/gold/g_diffuse.tga",false) };
@@ -224,7 +226,7 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	pickup_props.position = center + glm::vec3(0, 0, 1);
 	m_pickups.push_back(pickup(engine::game_object::create(pickup_props), -1.f));
 	pickup_props.position = center + glm::vec3(0, 0, -1);
-	m_pickups.push_back(pickup(engine::game_object::create(pickup_props), -1.f));
+	m_pickups.push_back(pickup(engine::game_object::create(pickup_props), -1.f));*/
 
 	//Create a few turrets for testing
 	m_turrets.push_back(turret(glm::vec3(10, 0, 10)));
@@ -246,8 +248,8 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	
 
 	enemy_manager::init(std::make_shared<grid>(m_level_grid));
-	auto& e1 = enemy_manager::spawn_minion(m_level_grid.grid_to_world_coords(13,14));
-	e1.add_waypoint(m_level_grid.grid_to_world_coords(13,1));
+	auto& e1 = enemy_manager::spawn_minion(m_level_grid.grid_to_world_coords(max_grid_dimension-2,max_grid_dimension-1));
+	e1.add_waypoint(m_level_grid.grid_to_world_coords(max_grid_dimension-2,1));
 	e1.add_waypoint(m_level_grid.grid_to_world_coords(1, 1));
 
 	auto y_scale =  (float)engine::application::window().width() / (float)engine::application::window().height();
@@ -273,6 +275,33 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	auto life_display = text_hud_element::create(m_text_manager, "Health: 100%", glm::vec2{ 0.85f,0.95f });
 	life_display->set_text_size(0.5f);
 	hud_manager::add_element(life_display);
+
+	//------
+	//Extra Lights
+	//------
+	engine::PointLight point_light_1;
+	point_light_1.Color = glm::vec3(.25f, .75f, .5f);
+	point_light_1.AmbientIntensity = 0.25f;
+	point_light_1.DiffuseIntensity = 0.4f;
+	point_light_1.Position = glm::vec3(cell_size * 1.5f, 5, 0);
+	point_light_1.Attenuation.Constant = .001f;
+	point_light_1.Attenuation.Linear = .1f;
+	point_light_1.Attenuation.Exp = .01f;
+
+	engine::PointLight point_light_2 = point_light_1;
+	point_light_2.Position = glm::vec3(cell_size * max_grid_dimension - cell_size * 1.5f, 5, cell_size * max_grid_dimension);
+
+	engine::PointLight point_light_3 = point_light_1;
+	point_light_3.Position = center + glm::vec3(0, m_big_decor_height, 0);
+	point_light_3.Attenuation.Constant = 0.01f;
+
+	light_manager::point_lights.push_back(point_light_1);
+	light_manager::point_lights.push_back(point_light_2);
+	light_manager::point_lights.push_back(point_light_3);
+
+
+
+	m_grid_center = center;
 }
 
 game_layer::~game_layer()
@@ -285,10 +314,9 @@ void game_layer::on_update(const engine::timestep& time_step)
 	float tmp = m_rhombi_angle;
 	m_rhombi_angle = (float) fmod(m_rhombi_angle + 0.05f, 2 * M_PI);
 	tmp = (float) fmod(tmp + 0.025f, 2 * M_PI);
-	m_rhombi_trig_vector = 1.5f*glm::vec3(sin(m_rhombi_angle),cos(m_rhombi_angle),sin(tmp));
+	m_rhombi_trig_vector = 2.f*glm::vec3(sin(m_rhombi_angle),cos(m_rhombi_angle),sin(tmp));
 
-	//Crude sun simulation. TODO move into sepparate class to manage day/night cycle and other lights.
-	//m_directionalLight.Direction = glm::rotateZ(m_directionalLight.Direction,(float)(M_PI /60)*time_step);
+	light_manager::on_update(time_step);
 
 	//Update the displayed fps counter every second.
 	//REF NOTE: inspired by http://www.opengl-tutorial.org/miscellaneous/an-fps-counter/
@@ -343,8 +371,8 @@ void game_layer::on_render()
 	// Set up some of the scene's parameters in the shader
 	std::dynamic_pointer_cast<engine::gl_shader>(textured_lighting_shader)->set_uniform("gEyeWorldPos", m_3d_camera.position());
 
-	//update the directional light for this shader
-	m_directionalLight.submit(textured_lighting_shader);
+	//update the lighting for this shader
+	light_manager::submit(textured_lighting_shader);
 
 	// Position the skybox centred on the player and render it
 	glm::mat4 skybox_tranform(1.0f);
@@ -378,27 +406,28 @@ void game_layer::on_render()
 	{
 		//over door 1
 		glm::mat4 transform(1.0f);
-		transform = glm::translate(transform, glm::vec3(3.f,5.f , 0.0f));
+		transform = glm::translate(transform, light_manager::point_lights[0].Position);
 		transform = glm::rotate(transform,m_rhombi_angle, glm::vec3(1,0,0) );
 		transform = glm::scale(transform,0.5f * glm::vec3(1.f));
 		engine::renderer::submit(textured_lighting_shader, transform, m_rhombi);
 
 		//over door 2
 		transform = glm::mat4(1.f);
-		transform = glm::translate(transform, glm::vec3(27.f, 5.f, 30.0f));
+		transform = glm::translate(transform, light_manager::point_lights[1].Position);
 		transform = glm::rotate(transform, -m_rhombi_angle, glm::vec3(1, 0, 0));
 		transform = glm::scale(transform, 0.5f * glm::vec3(1.f));
 		engine::renderer::submit(textured_lighting_shader, transform, m_rhombi);
 
+		auto big_center_position = light_manager::point_lights[2].Position;
 		//Large, centered
 		transform = glm::mat4(1.f);
-		transform = glm::translate(transform, glm::vec3(15.f, 10.f, 15.0f));		
-		transform = glm::scale(transform, glm::vec3(1.f));
+		transform = glm::translate(transform, big_center_position);
+		transform = glm::scale(transform, glm::vec3(.5f));
 		engine::renderer::submit(textured_lighting_shader, transform, m_rhombi);
 
 		//rotating around center
 		transform = glm::mat4(1.f);
-		transform = glm::translate(transform, glm::vec3(15.f+m_rhombi_trig_vector.x, 10.f+m_rhombi_trig_vector.y, 15.0f + m_rhombi_trig_vector.z));
+		transform = glm::translate(transform, big_center_position+glm::vec3(m_rhombi_trig_vector.x, m_rhombi_trig_vector.y,m_rhombi_trig_vector.z));
 		transform = glm::rotate(transform, -m_rhombi_angle, glm::vec3(0, 0, 1));
 		transform = glm::rotate(transform, -m_rhombi_angle, glm::vec3(0, 1, 0));
 		transform = glm::rotate(transform, -m_rhombi_angle, glm::vec3(1,0,0));
@@ -407,7 +436,7 @@ void game_layer::on_render()
 
 		//rotating around center
 		transform = glm::mat4(1.f);
-		transform = glm::translate(transform, glm::vec3(15.f + 1.5f*m_rhombi_trig_vector.x, 10.f + 1.5f * m_rhombi_trig_vector.z, 15.0f+ 1.5f * m_rhombi_trig_vector.y));
+		transform = glm::translate(transform, big_center_position+glm::vec3(1.5f*m_rhombi_trig_vector.x,1.5f * m_rhombi_trig_vector.z, 1.5f * m_rhombi_trig_vector.y));
 		transform = glm::rotate(transform, -m_rhombi_angle, glm::vec3(0, 0, 1));
 		transform = glm::rotate(transform, -m_rhombi_angle, glm::vec3(0, 1, 0));
 		transform = glm::rotate(transform, -m_rhombi_angle, glm::vec3(1, 0, 0));
@@ -416,7 +445,7 @@ void game_layer::on_render()
 
 		//rotating around center
 		transform = glm::mat4(1.f);
-		transform = glm::translate(transform, glm::vec3(15.f + -2.f * m_rhombi_trig_vector.z, 10.f + 2.f * m_rhombi_trig_vector.x, 15.0f + 2.f *m_rhombi_trig_vector.y));
+		transform = glm::translate(transform, big_center_position+glm::vec3(-2.f * m_rhombi_trig_vector.z,2.f * m_rhombi_trig_vector.x, 2.f *m_rhombi_trig_vector.y));
 		transform = glm::rotate(transform, -m_rhombi_angle, glm::vec3(0, 0, 1));
 		transform = glm::rotate(transform, -m_rhombi_angle, glm::vec3(0, 1, 0));
 		transform = glm::rotate(transform, -m_rhombi_angle, glm::vec3(1, 0, 0));
@@ -443,8 +472,15 @@ void game_layer::on_render()
 	m_material->submit(textured_material_shader);
 	std::dynamic_pointer_cast<engine::gl_shader>(textured_material_shader)->set_uniform("gEyeWorldPos", m_3d_camera.position());
 
-	//update the directional light for this shader
-	m_directionalLight.submit(textured_material_shader);
+
+	auto cube = engine::cuboid::create({ .1f,.1f,.1f }, false);
+	for (auto& pl : light_manager::point_lights)
+	{
+		engine::renderer::submit(textured_material_shader, cube->mesh(), glm::translate(glm::mat4(1.f), pl.Position));
+	}
+
+	//update the lighting for this shader
+	light_manager::submit(textured_lighting_shader);
 
 	//------------
 	// Animated meshes
@@ -453,8 +489,9 @@ void game_layer::on_render()
 	const auto animated_mesh_shader = engine::renderer::shaders_library()->get("animated_mesh");
 	engine::renderer::begin_scene(m_3d_camera, animated_mesh_shader);
 	std::dynamic_pointer_cast<engine::gl_shader>(animated_mesh_shader)->set_uniform("gEyeWorldPos", m_3d_camera.position());
-	//update the directional light for this shader
-	m_directionalLight.submit(animated_mesh_shader);
+
+	//update the lighting for this shader
+	light_manager::submit(textured_lighting_shader);
 
 	//Render the player object
 	engine::renderer::submit(animated_mesh_shader, m_player.object());

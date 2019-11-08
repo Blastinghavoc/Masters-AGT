@@ -45,6 +45,9 @@
     <ClCompile Include="src\gui\text_hud_element.cpp">
       <Filter>gui</Filter>
     </ClCompile>
+    <ClCompile Include="src\lighting\light_manager.cpp">
+      <Filter>lighting</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="layers">
@@ -64,6 +67,9 @@
     </Filter>
     <Filter Include="gui">
       <UniqueIdentifier>{93512f35-d7ae-4bb5-b4f2-bad779b6be5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lighting">
+      <UniqueIdentifier>{3844fef9-bb51-460e-8636-5a8cfdd12fdd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -112,6 +118,9 @@
     </ClInclude>
     <ClInclude Include="src\gui\abstract_hud_element.h">
       <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lighting\light_manager.h">
+      <Filter>lighting</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

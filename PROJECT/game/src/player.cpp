@@ -96,7 +96,7 @@ void player::on_update(const engine::timestep& time_step)
 	if (glm::length(movement_direction) > 0.0f)
 	{
 		move(movement_direction, speed, time_step);
-		//move_physics(movement_direction, speed, time_step);
+		//move_physics(movement_direction, day_duration, time_step);
 
 		//Play the movement animation if we aren't already (and we're not jumping)
 		if (!jumping && m_current_animation != movement_animation)

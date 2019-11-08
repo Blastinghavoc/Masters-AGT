@@ -10,6 +10,7 @@
 #include "gui/hud_manager.h"
 #include "gui/text_hud_element.h"
 #include "gui/hud_element.h"
+#include "lighting/light_manager.h"
 
 //The main layer for the game.
 class game_layer : public engine::layer
@@ -51,8 +52,9 @@ private:
 
 	//The grid object representing the level.
 	grid m_level_grid{2.f,0.01f};
+	glm::vec3 m_grid_center{};
 
-	player m_player{glm::vec3(3.f,2.f,0.f)};
+	player m_player{glm::vec3(3.f,.5f,0.f)};
 
 	bool m_show_debug{ false };
 
@@ -64,6 +66,7 @@ private:
 	engine::ref<engine::game_object> m_rhombi{};
 	float m_rhombi_angle{ 1.f };
 	glm::vec3 m_rhombi_trig_vector{0.f,0.f,0.f};
+	float m_big_decor_height{ 12.f };
 
 	void mouse1_event_handler();
 	void mouse2_event_handler();

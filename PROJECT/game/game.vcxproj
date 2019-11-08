@@ -143,6 +143,7 @@
     <ClInclude Include="src\gui\hud_manager.h" />
     <ClInclude Include="src\gui\text_hud_element.h" />
     <ClInclude Include="src\intro_screen.h" />
+    <ClInclude Include="src\lighting\light_manager.h" />
     <ClInclude Include="src\orientation.h" />
     <ClInclude Include="src\pickup.h" />
     <ClInclude Include="src\player.h" />
@@ -161,6 +162,7 @@
     <ClCompile Include="src\gui\hud_manager.cpp" />
     <ClCompile Include="src\gui\text_hud_element.cpp" />
     <ClCompile Include="src\intro_screen.cpp" />
+    <ClCompile Include="src\lighting\light_manager.cpp" />
     <ClCompile Include="src\orientation.cpp" />
     <ClCompile Include="src\pickup.cpp" />
     <ClCompile Include="src\player.cpp" />

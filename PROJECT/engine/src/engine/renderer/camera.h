@@ -87,9 +87,9 @@ namespace engine
         glm::vec3   m_position{0};
         float       m_rotation{0};
 
-        /// \bief Movement speed in units per second
+        /// \bief Movement day_duration in units per second
         inline static float s_movement_speed = 1.0f;
-        /// \brief Rotation speed in degrees per second
+        /// \brief Rotation day_duration in degrees per second
         inline static float s_rotation_speed = 180.0f;
     };
 

@@ -67,7 +67,7 @@ void main()
 #type fragment
 #version 430 core
 
-const int MAX_POINT_LIGHTS = 2;
+const int MAX_POINT_LIGHTS = 3;
 const int MAX_SPOT_LIGHTS = 2;
 
 in vec2 TexCoord0;
