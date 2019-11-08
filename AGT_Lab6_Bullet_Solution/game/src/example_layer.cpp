@@ -84,10 +84,13 @@ example_layer::example_layer()
 	engine::game_object_properties mannequin_props;
 	mannequin_props.animated_mesh = m_skinned_mesh;
 	mannequin_props.scale = glm::vec3(1.f/ glm::max(m_skinned_mesh->size().x, glm::max(m_skinned_mesh->size().y, m_skinned_mesh->size().z)));
-	mannequin_props.position = glm::vec3(3.0f, 0.5f, -5.0f);
+	mannequin_props.position = glm::vec3(3.0f, 1.5f, -5.0f);
 	mannequin_props.type = 0;
-	mannequin_props.bounding_shape = m_skinned_mesh->size() / 2.f * mannequin_props.scale.x;
+	mannequin_props.mass = 55.f;
+	mannequin_props.is_static = false;
+	mannequin_props.bounding_shape = (glm::vec3(2.f,m_skinned_mesh->size().y,2.f) / 2.f);// *mannequin_props.scale.x;
 	m_mannequin = engine::game_object::create(mannequin_props);
+	m_mannequin->set_offset({0,m_skinned_mesh->size().y/2,0});
 
 	// Load the terrain texture and create a terrain mesh. Create a terrain object. Set its properties
 	std::vector<engine::ref<engine::texture_2d>> terrain_textures = { engine::texture_2d::create("assets/textures/terrain.bmp", false) };
@@ -138,6 +141,7 @@ example_layer::example_layer()
 
 	m_game_objects.push_back(m_terrain);
 	m_game_objects.push_back(m_ball);
+	m_game_objects.push_back(m_mannequin);
 	//m_game_objects.push_back(m_cow);
 	//m_game_objects.push_back(m_tree);
 	//m_game_objects.push_back(m_pickup);
@@ -145,7 +149,7 @@ example_layer::example_layer()
 
 	m_text_manager = engine::text_manager::create();
 
-	m_skinned_mesh->switch_animation(1);
+	//m_skinned_mesh->switch_animation(1);
 
 	m_post.initialise(3.0f, 4.f, 0.5f, -5.f, -5.f, 0.1f);
 	m_football.initialise(m_ball);
@@ -217,6 +221,11 @@ void example_layer::on_render()
 	std::dynamic_pointer_cast<engine::gl_shader>(material_shader)->set_uniform("gEyeWorldPos", m_3d_camera.position());
 
 	//engine::renderer::submit(material_shader, m_ball);
+	glm::mat4 trans = glm::mat4(1.0f);
+	trans = glm::translate(trans, m_mannequin->position());
+	trans = glm::rotate(trans, m_mannequin->rotation_amount(), m_mannequin->rotation_axis());
+	trans = glm::scale(trans, m_mannequin->scale());
+	engine::renderer::submit(material_shader, engine::cuboid::create(m_mannequin->bounding_shape(),false)->mesh(),trans);
 
 	m_post.on_render(material_shader);
 
@@ -228,7 +237,7 @@ void example_layer::on_render()
 
 	glm::mat4 aniTransform = glm::mat4(1.0f);
 
-	//engine::renderer::submit(animated_mesh_shader, m_mannequin);
+	engine::renderer::submit(animated_mesh_shader, m_mannequin);
 
 	engine::renderer::end_scene();
 
@@ -249,6 +258,15 @@ void example_layer::on_event(engine::event& event)
 		if (e.key_code() == engine::key_codes::KEY_1)
 		{
 			m_football.kick(m_3d_camera, 270.0f);
+		}
+		if (e.key_code() == engine::key_codes::KEY_8) {
+			m_mannequin->set_acceleration({ 1000,0,0 });
+		}
+		if (e.key_code() == engine::key_codes::KEY_2) {
+			m_mannequin->set_acceleration({ -1000,0,0 });
+		}
+		if (e.key_code() == engine::key_codes::KEY_5) {
+			m_mannequin->set_acceleration({ -0,1000,0 });
 		}
     } 
 }
