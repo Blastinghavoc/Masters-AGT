@@ -193,6 +193,16 @@ void grid::set_ceiling(const int& x, const int& z)
 	m_tiles[{x, z}].set_ceiling(obj);
 }
 
+//Should be used sparingly to setup start and end positions, and borders
+void grid::set_state(const int& x, const int& z, grid_tile::tile_state state, bool force)
+{
+	auto index = std::pair(x, z);
+	if (contains(index) || force)
+	{
+		m_tiles[index].state = state;
+	}	
+}
+
 /*Place a whole "block" at the target location.
 This has four walls, a ceiling and four corners.
 Care is taken not place additional walls if they already exist (perhaps owned by adjacent tiles).
@@ -221,7 +231,7 @@ void grid::place_block(const int& x, const int& z,bool force)
 	set_ceiling(x, z);
 	std::vector<orientation> wall_facings= orientation::get_all_cardinal();
 
-	tile.type = grid_tile::tile_type::maze;
+	tile.state = grid_tile::tile_state::maze;
 
 	std::map<orientation,bool> adjacent_is_maze;
 
@@ -235,7 +245,7 @@ void grid::place_block(const int& x, const int& z,bool force)
 		if (contains(adjacent_index))//Check the adjacent tile if it exists
 		{
 			auto& adjacent_tile = m_tiles[adjacent_index];
-			adjacent_is_maze[facing] = adjacent_tile.type == grid_tile::tile_type::maze;
+			adjacent_is_maze[facing] = adjacent_tile.state == grid_tile::tile_state::maze;
 
 			//Nothing required if this tile already has a border in this direction.
 			if (!(tile.has_border(facing)))
@@ -306,7 +316,7 @@ void grid::place_block(const int& x, const int& z,bool force)
 		if (contains(corner_index))
 		{
 			auto& corner_tile = m_tiles[corner_index];
-			corner_is_maze = corner_tile.type == grid_tile::tile_type::maze;
+			corner_is_maze = corner_tile.state == grid_tile::tile_state::maze;
 		}
 
 		//Get the cardinal components of the composite orientation
@@ -329,14 +339,14 @@ void grid::remove_block(const int& x, const int& z)
 	if (contains(index))
 	{
 		auto& old_tile = m_tiles[index];
-		if (old_tile.type != grid_tile::tile_type::maze)
+		if (old_tile.state != grid_tile::tile_state::maze)
 		{
 			//Can't remove a block if there isn't one.
 			return;
 		}
 
 		auto wall_facings = orientation::get_all_cardinal();
-		old_tile.type = grid_tile::tile_type::empty;
+		old_tile.state = grid_tile::tile_state::empty;
 
 		if (m_tiles_baked.count(index) > 0)
 		{
@@ -364,7 +374,7 @@ void grid::remove_block(const int& x, const int& z)
 			auto adjacent_index = adjacent_to(index,facing);
 			if (contains(adjacent_index))
 			{
-				adjacent_is_maze[facing] = m_tiles[adjacent_index].type == grid_tile::tile_type::maze;
+				adjacent_is_maze[facing] = m_tiles[adjacent_index].state == grid_tile::tile_state::maze;
 			}
 			else
 			{
@@ -469,13 +479,13 @@ grid_tile& grid::operator[](const std::pair<int, int>& loc)
 }
 
 //Convert grid indices to world coordinates
-inline glm::vec3 grid::grid_to_world_coords(int x, int z)
+inline glm::vec3 grid::grid_to_world_coords(int x, int z) const
 {
 	return glm::vec3(m_cell_size*x,m_y,m_cell_size*z);
 }
 
 //Convert world coordinates to grid indices
-std::pair<int, int> grid::world_to_grid_coords(glm::vec3 vec)
+std::pair<int, int> grid::world_to_grid_coords(glm::vec3 vec) const
 {
 	return std::pair<int, int>((int)floor(vec.x/m_cell_size),(int)floor(vec.z/m_cell_size));
 }

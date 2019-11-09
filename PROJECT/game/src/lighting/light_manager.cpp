@@ -21,7 +21,7 @@ void light_manager::init(engine::DirectionalLight* sun)
 
 void light_manager::on_update(const engine::timestep& ts)
 {
-	m_sun_angle = fmod(m_sun_angle + (float)(M_PI / day_duration) * ts,2* M_PI);
+	m_sun_angle = fmod(m_sun_angle + (float)(M_PI / day_duration) * ts,2* (float)M_PI);
 	m_sun_underground = m_sun_angle > M_PI;
 	float adjusted_angle = /*(m_sun_angle > M_PI) ? (float)M_PI :*/ m_sun_angle;
 	m_sun_ptr->Direction = glm::rotateZ(glm::vec3(1,0,0), -adjusted_angle);

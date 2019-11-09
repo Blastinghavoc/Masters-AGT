@@ -25,6 +25,27 @@ public:
 	void set_floor(const int& x, const int& z);
 	void set_ceiling(const int& x, const int& z);
 
+	void set_state(const int& x, const int& z, grid_tile::tile_state state,bool force= false);
+	void set_start(const int& x, const int& z) {
+		set_state(x, z, grid_tile::tile_state::start, true);
+		m_start_index = std::pair(x, z);
+	};
+	void set_end(const int& x, const int& z) {
+		set_state(x, z, grid_tile::tile_state::end, true);
+		m_end_index = std::pair(x, z);
+	};
+	std::pair<int,int> get_start() const { return m_start_index; };
+	std::pair<int, int> get_end() const { return m_end_index; };
+	bool is_walkable(std::pair<int, int> index) const {
+		if (contains(index))
+		{
+			auto tile_state = m_tiles.at(index).state;
+			return (tile_state == grid_tile::tile_state::empty) || (tile_state == grid_tile::tile_state::start) ||
+				(tile_state == grid_tile::tile_state::end);
+		}
+		return false;		
+	};
+
 	//Methods to place and remove whole "blocks" of the grid. A block has 4 walls, 4 corners and a ceiling.
 	void place_block(const int& x, const int& z, bool force = false);
 	void remove_block(const int& x, const int& z);
@@ -37,15 +58,16 @@ public:
 	void bake_tiles();
 
 	//helper method to determine whether a given index is present in the grid.
-	bool contains(std::pair<int, int> index) { return m_tiles.count(index) > 0; }
+	bool contains(std::pair<int, int> index) const { return m_tiles.count(index) > 0; }
+	bool contains(const int& x,const int& z) const { return m_tiles.count(std::pair(x,z)) > 0; }
 
 	//Allows addressing single tiles in the grid
 	grid_tile& operator[](const glm::vec2& vec);
 	grid_tile& operator[](const std::pair<int,int>& loc);
 
 	//Conversions between grid indices and world coordinates.
-	glm::vec3 grid_to_world_coords(int x, int z);
-	std::pair<int,int> world_to_grid_coords(glm::vec3 vec);
+	glm::vec3 grid_to_world_coords(int x, int z) const;
+	std::pair<int,int> world_to_grid_coords(glm::vec3 vec) const;
 
 	//Simple getters
 	const float& cell_size() const { return m_cell_size; };
@@ -78,4 +100,8 @@ private:
 	engine::ref<engine::game_object> m_floor_prefab{};
 	engine::ref<engine::game_object> m_ceiling_prefab{};
 	engine::ref<engine::game_object> m_gateway_prefab{};
+
+	//Indices of start and end of the maze defined by the grid.
+	std::pair<int, int> m_start_index{};
+	std::pair<int, int> m_end_index{};
 };

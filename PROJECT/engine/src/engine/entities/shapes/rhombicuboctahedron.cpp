@@ -12,7 +12,7 @@ engine::rhombicuboctahedron::rhombicuboctahedron(float edge_length)
 	}
 
 	float half_length = edge_length / 2.f;
-	float tri_side_length = edge_length*cos(M_PI_4);
+	float tri_side_length = edge_length*(float)cos(M_PI_4);
 	float center_dist = half_length + tri_side_length;
 
 	//Vertices for square faces

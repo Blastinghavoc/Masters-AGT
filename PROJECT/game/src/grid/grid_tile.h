@@ -8,14 +8,17 @@ public:
 	grid_tile();
 	~grid_tile();
 
-	//The "type" of tile
-	enum class tile_type {
+	//The state of a tile
+	enum class tile_state {
 		maze, //Indicates tile is part of the player-built maze
-		empty //Indicates tile can be pathed through in some way
+		empty, //Indicates tile can be pathed through in some way
+		start, //The start position of enemies
+		end, //The goal position of enemies
+		border //tile cannot be modified or pathed through
 		//TODO Tower type, Start and End types? Consider subclassing instead?
 	};
 
-	tile_type type{tile_type::empty};
+	tile_state state{tile_state::empty};
 
 	//Set the borders/corners etc to the given game object
 	void set_border(const engine::ref<engine::game_object>& obj, const orientation& facing);

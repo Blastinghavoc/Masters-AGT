@@ -9,10 +9,11 @@ int gameplay_manager::m_max_build_time = 30;
 std::map<std::string, int> gameplay_manager::m_prices{};
 player* gameplay_manager::m_player_ptr;
 glm::vec3  gameplay_manager::m_player_spawnpoint{};
-engine::ref<text_hud_element> gameplay_manager::m_time_display{};
+engine::ref<text_hud_element> gameplay_manager::m_top_display{};
 engine::ref<text_hud_element> gameplay_manager::m_score_display{};
 engine::ref<text_hud_element> gameplay_manager::m_money_display{};
 engine::ref<text_hud_element> gameplay_manager::m_life_display{};
+bool gameplay_manager::m_wave_active = false;
 
 void gameplay_manager::init(player* playr,engine::ref<engine::text_manager> text_manager)
 {
@@ -28,9 +29,9 @@ void gameplay_manager::init(player* playr,engine::ref<engine::text_manager> text
 
 	text_hud_element::default_colour = { .5f, 1.f, 0.5f, 1.f };
 
-	m_time_display = text_hud_element::create(text_manager, "Time Remaining: ", glm::vec2{ 0.4f,0.95f });
-	m_time_display->set_text_size(0.5f);
-	hud_manager::add_element(m_time_display);
+	m_top_display = text_hud_element::create(text_manager, "Time Remaining: ", glm::vec2{ 0.4f,0.95f });
+	m_top_display->set_text_size(0.5f);
+	hud_manager::add_element(m_top_display);
 
 	m_score_display = text_hud_element::create(text_manager, "Score: ", glm::vec2{ 0.025f,0.95f });
 	m_score_display->set_text_size(0.5f);
@@ -51,12 +52,19 @@ void gameplay_manager::update(const engine::timestep& ts)
 	m_life_display->set_text("Health: " + std::to_string(m_health));
 	m_score_display->set_text("Score: "+ std::to_string(m_score));
 
-	int time_remaining = build_time();
-	if (time_remaining > 0)
+	if (m_wave_active)
 	{
-		m_time_display->set_text("Time: "+ std::to_string(time_remaining));
+
 	}
 	else {
-		m_time_display->set_text("");
+		int time_remaining = build_time();
+		if (time_remaining > 0)
+		{
+			m_top_display->set_text("Time: "+ std::to_string(time_remaining));
+		}
+		else {
+			m_top_display->set_text("");
+		}
 	}
+
 }

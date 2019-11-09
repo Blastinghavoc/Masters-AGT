@@ -11,7 +11,11 @@ public:
 	void on_update(const engine::timestep& time_step) override;
 
 	void add_waypoint(glm::vec3 point) { m_waypoints.push_back(point); };
+
+	void set_path(std::deque<glm::vec3> path) { m_waypoints = path; };
 private:
+	static engine::game_object_properties prefab;
+	static bool prefab_ready;
 	std::deque<glm::vec3> m_waypoints{};
 	int m_id;//Unique enemy id
 };

@@ -5,9 +5,11 @@
 #include <string>
 #include "../player.h"
 #include "../gui/hud_manager.h"
+#include "../enemy_manager.h"
 /*
 Static class to manage gameplay elements
-like health, money, score etc.
+like health, money, score etc, as well as the
+flow of the gameplay
 */
 class gameplay_manager {
 public:
@@ -41,5 +43,6 @@ private:
 	static std::map<std::string, int> m_prices;
 	static player* m_player_ptr;
 	static glm::vec3 m_player_spawnpoint;
-	static engine::ref<text_hud_element> m_time_display, m_score_display, m_money_display, m_life_display;
+	static engine::ref<text_hud_element> m_top_display, m_score_display, m_money_display, m_life_display;
+	static bool m_wave_active;
 };

@@ -51,6 +51,9 @@
     <ClCompile Include="src\gameplay\gameplay_manager.cpp">
       <Filter>gameplay</Filter>
     </ClCompile>
+    <ClCompile Include="src\ai\pathfinder.cpp">
+      <Filter>ai</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="layers">
@@ -130,6 +133,9 @@
     <ClInclude Include="src\intro_screen.h" />
     <ClInclude Include="src\gameplay\gameplay_manager.h">
       <Filter>gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ai\pathfinder.h">
+      <Filter>ai</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

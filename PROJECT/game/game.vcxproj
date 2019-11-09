@@ -131,6 +131,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\ai\pathfinder.h" />
     <ClInclude Include="src\animated_actor.h" />
     <ClInclude Include="src\enemy.h" />
     <ClInclude Include="src\enemy_manager.h" />
@@ -151,6 +152,7 @@
     <ClInclude Include="src\turret.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\ai\pathfinder.cpp" />
     <ClCompile Include="src\animated_actor.cpp" />
     <ClCompile Include="src\enemy.cpp" />
     <ClCompile Include="src\enemy_manager.cpp" />

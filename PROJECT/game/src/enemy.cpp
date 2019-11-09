@@ -1,24 +1,39 @@
 #include "enemy.h"
 
+bool enemy::prefab_ready = false;//TODO remove/rework
+engine::game_object_properties enemy::prefab{};
+
 enemy::enemy() :m_id{-1}
 {
 }
 
 enemy::enemy(int id, glm::vec3 position) :m_id{id}
 {
-	//Currently using same model as the player
-	engine::ref<engine::skinned_mesh> skinned_mesh = engine::skinned_mesh::create("assets/models/animated/mannequin/free3Dmodel.dae");
-	skinned_mesh->LoadAnimationFile("assets/models/animated/mannequin/walking.dae");
-	skinned_mesh->LoadAnimationFile("assets/models/animated/mannequin/idle.dae");
-	skinned_mesh->LoadAnimationFile("assets/models/animated/mannequin/jump.dae");
-	skinned_mesh->LoadAnimationFile("assets/models/animated/mannequin/standard_run.dae");
-	skinned_mesh->switch_root_movement(false);
 	engine::game_object_properties props;
-	props.animated_mesh = skinned_mesh;
-	props.scale = glm::vec3(1.f / glm::max(skinned_mesh->size().x, glm::max(skinned_mesh->size().y, skinned_mesh->size().z)));
-	props.type = 0;
-	props.position = position;
-	props.bounding_shape = skinned_mesh->size() / 2.f * props.scale.x;
+	/*if (prefab_ready)
+	{
+		props = prefab;
+		props.position = position;
+		props.animated_mesh = std::make_shared<engine::skinned_mesh>(*props.animated_mesh);
+	}
+	else {*/
+		//Currently using same model as the player
+		engine::ref<engine::skinned_mesh> skinned_mesh = engine::skinned_mesh::create("assets/models/animated/mannequin/free3Dmodel.dae");
+		skinned_mesh->LoadAnimationFile("assets/models/animated/mannequin/walking.dae");
+		skinned_mesh->LoadAnimationFile("assets/models/animated/mannequin/idle.dae");
+		skinned_mesh->LoadAnimationFile("assets/models/animated/mannequin/jump.dae");
+		skinned_mesh->LoadAnimationFile("assets/models/animated/mannequin/standard_run.dae");
+		skinned_mesh->switch_root_movement(false);
+		props;
+		props.animated_mesh = skinned_mesh;
+		props.scale = glm::vec3(1.f / glm::max(skinned_mesh->size().x, glm::max(skinned_mesh->size().y, skinned_mesh->size().z)));
+		props.type = 0;
+		props.position = position;
+		props.bounding_shape = skinned_mesh->size() / 2.f * props.scale.x;
+
+		prefab = props;
+		prefab_ready = true;
+	//}
 
 	m_animations["walk"] = 1;
 	m_animations["idle"] = 2;

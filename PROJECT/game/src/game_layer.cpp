@@ -146,24 +146,26 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	m_level_grid.set_gateway(max_grid_dimension-2, max_grid_dimension-1, orientation::north_east);
 	m_level_grid.set_gateway(max_grid_dimension-2, max_grid_dimension-1, orientation::north_west,(float)M_PI);
 	m_level_grid.del_border(max_grid_dimension-2, max_grid_dimension-1, orientation::north);
+	m_level_grid.set_start(max_grid_dimension - 2, max_grid_dimension);
 
 	m_level_grid.set_gateway(1, 0, orientation::south_east);
 	m_level_grid.set_gateway(1, 0, orientation::south_west,(float)M_PI);
 	m_level_grid.del_border(1, 0, orientation::south);
+	m_level_grid.set_end(1, -1);
 
 	m_level_grid.bake_tiles();
 
-	bool place = false;
-	for (size_t i = 0; i < max_grid_dimension; ++i)
+	/*bool place = false;
+	for (int i = 0; i < max_grid_dimension; ++i)
 	{
-		for (size_t j = 0; j < max_grid_dimension; ++j) {
+		for (int j = 0; j < max_grid_dimension; ++j) {
 			if (place)
 			{
 				m_level_grid.place_block(i, j);
 			}
 			place = !place;
 		}
-	}
+	}*/
 	//end of grid testing.
 
 	//re-center terrain.
@@ -203,7 +205,7 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 		shape_props.textures = { tst_texture };
 		shape_props.bounding_shape = glm::vec3(5.f);
 		shape_props.position = center + glm::vec3(0, m_big_decor_height,0);
-		shape_props.rotation_amount = M_PI;
+		shape_props.rotation_amount = (float)M_PI;
 		shape_props.rotation_axis = { 1,1,1 };
 		m_decorational_objects.push_back(engine::game_object::create(shape_props));
 	}
@@ -248,9 +250,10 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	
 
 	enemy_manager::init(std::make_shared<grid>(m_level_grid));
-	auto& e1 = enemy_manager::spawn_minion(m_level_grid.grid_to_world_coords(max_grid_dimension-2,max_grid_dimension-1));
+	/*auto& e1 = enemy_manager::spawn_minion(m_level_grid.grid_to_world_coords(max_grid_dimension-2,max_grid_dimension-1));
 	e1.add_waypoint(m_level_grid.grid_to_world_coords(max_grid_dimension-2,1));
-	e1.add_waypoint(m_level_grid.grid_to_world_coords(1, 1));
+	e1.add_waypoint(m_level_grid.grid_to_world_coords(1, 1));*/
+	enemy_manager::begin_wave(5);
 
 	
 
