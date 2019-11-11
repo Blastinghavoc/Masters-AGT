@@ -33,6 +33,8 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	m_audio_manager->init();
 	m_audio_manager->load_sound("assets/audio/DST-impuretechnology.mp3", engine::sound_type::track, "music");  // Royalty free music from http://www.nosoapradio.us/
 	//m_audio_manager->play("music");
+	//Error sound from https://freesound.org/people/Autistic%20Lucario/sounds/142608/
+	m_audio_manager->load_sound("assets/audio/error_sound.wav",engine::sound_type::event,"error");
 
 
 	// Initialise the shaders, materials, and lights
@@ -281,7 +283,7 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	////player_body->setDamping(player_body->getLinearDamping(), 100.f);	
 
 	enemy_manager::init(m_level_grid);
-	gameplay_manager::init(&m_player,m_text_manager,&m_3d_camera,m_level_grid);
+	gameplay_manager::init(&m_player,m_text_manager,&m_3d_camera,m_level_grid,m_audio_manager);
 
 	m_grid_center = center;
 }

@@ -38,7 +38,7 @@ void intro_screen::render(engine::ref<engine::text_manager>& text_manager)
 		"Jump->SPACE",
 		"Shoot/Place block->LMB",
 		"Remove block->RMB",		
-		"Switch weapons/blocks->1...9",
+		"Switch blocks->1,2",
 		"Zoom->L_CTRL + SCROLL"
 	};
 

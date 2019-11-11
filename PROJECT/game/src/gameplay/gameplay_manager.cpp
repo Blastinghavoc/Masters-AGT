@@ -18,6 +18,7 @@ engine::ref<text_hud_element> gameplay_manager::m_score_display{};
 engine::ref<text_hud_element> gameplay_manager::m_money_display{};
 engine::ref<text_hud_element> gameplay_manager::m_health_display{};
 engine::ref<text_hud_element> gameplay_manager::m_portal_health_display{};
+engine::ref<text_hud_element> gameplay_manager::m_tool_display{};
 bool gameplay_manager::m_wave_active = false;
 std::vector<gameplay_manager::wave_definition> gameplay_manager::m_waves{};
 int gameplay_manager::m_max_waves = 0;
@@ -25,15 +26,21 @@ int gameplay_manager::m_wave_number = 0;
 engine::perspective_camera* gameplay_manager::m_camera;
 engine::ref<grid> gameplay_manager::m_level_grid;
 gameplay_manager::wave_definition gameplay_manager::m_current_wave_definition;
+engine::ref<engine::audio_manager> gameplay_manager::m_audio_manager;
+std::vector<engine::ref<turret>> gameplay_manager::m_owned_turrets{};
+int gameplay_manager::m_available_blocks = 6;
+gameplay_manager::tool gameplay_manager::m_current_tool = tool::block;
 
 void gameplay_manager::init(player* playr,engine::ref<engine::text_manager> text_manager, engine::perspective_camera* camera,
-	engine::ref<grid> level_grid)
+	engine::ref<grid> level_grid,
+	engine::ref<engine::audio_manager> audio_manager)
 {
 	m_player_ptr = playr;
 	m_player_spawnpoint = m_player_ptr->object()->position();
 
 	m_camera = camera;
 	m_level_grid = level_grid;
+	m_audio_manager = audio_manager;
 
 	//TODO store the crosshair somewhere? Only if I ever need to modify it.
 	auto y_scale = (float)engine::application::window().width() / (float)engine::application::window().height();
@@ -64,6 +71,11 @@ void gameplay_manager::init(player* playr,engine::ref<engine::text_manager> text
 	m_portal_health_display->set_text_size(0.5f);
 	hud_manager::add_element(m_portal_health_display);
 
+	m_tool_display = text_hud_element::create(text_manager, "Tool: Turret, cost £100, owned {} max {}", glm::vec2{ 0.025f,0.05f });
+	m_tool_display->set_text_size(0.5f);
+	hud_manager::add_element(m_tool_display);
+	m_tool_display->hide();
+
 	//Adding waves in reverse order
 	m_waves.push_back({ 15,3,30 });
 	m_waves.push_back({ 5,1,10 });
@@ -83,6 +95,7 @@ void gameplay_manager::update(const engine::timestep& ts)
 
 	if (m_wave_active)
 	{
+		
 		auto total_enemies_this_wave = m_current_wave_definition.num_enemies;
 		auto spawned_so_far = total_enemies_this_wave - enemy_manager::remaining();
 		auto alive = enemy_manager::current_active();
@@ -92,8 +105,19 @@ void gameplay_manager::update(const engine::timestep& ts)
 		);
 	}
 	else {
+		std::string tool_text = "Tool: ";
+		if (m_current_tool == tool::turret)
+		{
+			tool_text += "turret. Cost £100, Owned "+std::to_string(m_owned_turrets.size()) +
+				", Max " + std::to_string(m_max_turrets);
+
+		}
+		else if (m_current_tool == tool::block){
+			tool_text += "block. Available " + std::to_string(m_available_blocks);
+		}
+		m_tool_display->set_text(tool_text);
+
 		int time_remaining = build_time();
-		LOG_INFO("{},{},{}",time_remaining,m_build_timer.total(),m_build_timer.elapsed());
 		if (time_remaining > 0)
 		{
 			m_top_display->set_text("Time: "+ std::to_string(time_remaining));
@@ -116,7 +140,9 @@ void gameplay_manager::next_build_phase()
 		m_max_build_time = wave_config.prep_time;
 		//Start build phase
 		m_build_timer.start();
+		m_tool_display->show();
 		m_wave_active = false;
+		m_available_blocks += 4;//TODO make number of blocks awarded determined by wave definition?
 		++m_wave_number;
 	}
 	else {
@@ -152,6 +178,15 @@ void gameplay_manager::on_event(engine::event& event)
 		case engine::key_codes::KEY_ENTER:
 			//Allows build phase to be skipped early.			
 			start_combat_phase();
+			e.handled = true;
+			break;
+		case engine::key_codes::KEY_1:
+			m_current_tool = tool::block;
+			e.handled = true;
+			break;
+		case engine::key_codes::KEY_2:
+			m_current_tool = tool::turret;
+			e.handled = true;
 			break;
 		default:
 			break;
@@ -168,6 +203,7 @@ void gameplay_manager::mouse1_event_handler()
 {
 	if (!m_wave_active)
 	{
+		//Delete Block
 		auto fv = m_camera->front_vector();
 		if (fv.y > 0)
 		{
@@ -178,7 +214,11 @@ void gameplay_manager::mouse1_event_handler()
 		auto delta_y = m_level_grid->floor_level() - cam_pos.y;
 		auto ground_pos = cam_pos + (delta_y / fv.y) * fv;
 		auto grid_coords = m_level_grid->world_to_grid_coords(ground_pos);
-		m_level_grid->remove_block(grid_coords.first, grid_coords.second);
+		bool succeeded = m_level_grid->remove_block(grid_coords.first, grid_coords.second);
+		if (succeeded)
+		{
+			++m_available_blocks;
+		}
 	}
 	else {
 		//TODO Fire weapon
@@ -190,6 +230,10 @@ void gameplay_manager::mouse2_event_handler()
 {
 	if (!m_wave_active)
 	{
+		if (m_available_blocks <= 0)
+		{
+			return;
+		}
 		auto fv = m_camera->front_vector();
 		if (fv.y > 0)
 		{
@@ -200,13 +244,21 @@ void gameplay_manager::mouse2_event_handler()
 		auto delta_y = m_level_grid->floor_level() - cam_pos.y;
 		auto ground_pos = cam_pos + (delta_y / fv.y) * fv;
 		auto grid_coords = m_level_grid->world_to_grid_coords(ground_pos);
-		m_level_grid->place_block(grid_coords.first, grid_coords.second);
-		
-		if (pathfinder::find_path(*m_level_grid).empty())
+		bool succeeded = m_level_grid->place_block(grid_coords.first, grid_coords.second);
+
+		if (succeeded)
 		{
-			//Placing block blocked the path, so undo
-			m_level_grid->remove_block(grid_coords.first, grid_coords.second);
+			if (pathfinder::find_path(*m_level_grid).empty())
+			{
+				//Placing block blocked the path, so undo
+				m_level_grid->remove_block(grid_coords.first, grid_coords.second);
+				m_audio_manager->play("error");
+			}
+			else {
+				--m_available_blocks;
+			}
 		}
+		
 	}
 }
 
@@ -214,6 +266,7 @@ void gameplay_manager::start_combat_phase()
 {
 	m_build_timer.reset();
 	m_wave_active = true;
+	m_tool_display->hide();
 
 	enemy_manager::begin_wave(m_current_wave_definition.num_enemies, m_current_wave_definition.enemy_spacing);	
 }

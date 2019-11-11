@@ -6,6 +6,7 @@
 #include "../player.h"
 #include "../gui/hud_manager.h"
 #include "../enemy_manager.h"
+#include "../turret.h"
 /*
 Static class to manage gameplay elements
 like health, money, score etc, as well as the
@@ -15,7 +16,8 @@ class gameplay_manager {
 public:
 
 	static void init(player* playr, engine::ref<engine::text_manager> text_manager, engine::perspective_camera* camera,
-		engine::ref<grid> level_grid);
+		engine::ref<grid> level_grid,
+		engine::ref<engine::audio_manager> audio_manager);
 	static void update(const engine::timestep& ts);
 
 	static int score() { return m_score; };
@@ -54,7 +56,7 @@ private:
 	static player* m_player_ptr;
 	static glm::vec3 m_player_spawnpoint;
 	static engine::ref<text_hud_element> m_top_display, m_score_display, m_money_display, m_health_display,
-		m_portal_health_display;
+		m_portal_health_display,m_tool_display;
 	static bool m_wave_active;
 
 	struct wave_definition {
@@ -69,6 +71,32 @@ private:
 	static engine::perspective_camera* m_camera;
 	static engine::ref<grid> m_level_grid;
 	static wave_definition m_current_wave_definition;
+	static engine::ref<engine::audio_manager> m_audio_manager;
+	static constexpr int m_max_turrets = 5;
+	static std::vector<engine::ref<turret>> m_owned_turrets;
+	static int m_available_blocks;
+
+	enum class tool
+	{
+		block,
+		turret
+	};
+
+	static std::string string_of(tool t) {
+		switch (t)
+		{
+		case gameplay_manager::tool::block:
+			return "block";
+			break;
+		case gameplay_manager::tool::turret:
+			return "turret";
+			break;
+		default:
+			break;
+		}
+	};
+
+	static tool m_current_tool;
 
 	static void mouse1_event_handler();
 	static void mouse2_event_handler();

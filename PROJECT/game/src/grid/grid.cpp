@@ -213,7 +213,7 @@ Blocks cannot be placed where the grid does not already exist (to prevent placin
 outside the defined level), unless the "force" flag is set. This flag may be set to
 create blocks as part of the level before it is baked.
 */
-void grid::place_block(const int& x, const int& z,bool force)
+bool grid::place_block(const int& x, const int& z,bool force)
 {
 	auto index = std::make_pair(x, z);
 
@@ -222,11 +222,17 @@ void grid::place_block(const int& x, const int& z,bool force)
 		if (!force)
 		{
 			//Cannot create a new tile with this method, unless "force" is true.
-			return;
+			return false;
 		}
 	}
 
 	auto& tile = m_tiles[index];
+
+	if (tile.state != grid_tile::tile_state::empty)
+	{
+		//can't place block on non-empty tile
+		return false;
+	}
 
 	set_ceiling(x, z);
 	std::vector<orientation> wall_facings= orientation::get_all_cardinal();
@@ -328,108 +334,113 @@ void grid::place_block(const int& x, const int& z,bool force)
 		}
 	}
 
-
+	return true;
 }
 
 //The opposite of place_block. Removes a whole block, reseting the tile state to the baked state if possible.
-void grid::remove_block(const int& x, const int& z)
+bool grid::remove_block(const int& x, const int& z)
 {
 	auto index = std::make_pair(x, z);
 
-	if (contains(index))
+	if (!contains(index))
 	{
-		auto& old_tile = m_tiles[index];
-		if (old_tile.state != grid_tile::tile_state::maze)
+		//Can't remove in an invalid position.
+		return false;
+	}
+
+	auto& old_tile = m_tiles[index];
+
+	if (old_tile.state != grid_tile::tile_state::maze)
+	{
+		//Can't remove a block if there isn't one.
+		return false;
+	}
+
+	auto wall_facings = orientation::get_all_cardinal();
+	old_tile.state = grid_tile::tile_state::empty;
+
+	if (m_tiles_baked.count(index) > 0)
+	{
+		//Restore saved version if possible.
+		m_tiles[index] = m_tiles_baked[index];			
+	}
+	else {
+		//This branch should not really be executed in normal gameplay, because the whole map should have been baked before play begins.
+		throw std::exception();
+
+		//What the code would do if this was allowed.
+		for each (auto facing in wall_facings)
 		{
-			//Can't remove a block if there isn't one.
-			return;
+			old_tile.del_border(facing);				
 		}
+		del_corner(x, z, orientation::north_east);
+		del_corner(x, z, orientation::south_east);
+		del_corner(x, z, orientation::south_west);
+		del_corner(x, z, orientation::north_west);
+	}
 
-		auto wall_facings = orientation::get_all_cardinal();
-		old_tile.state = grid_tile::tile_state::empty;
+	std::map<orientation, bool> adjacent_is_maze;
 
-		if (m_tiles_baked.count(index) > 0)
+	for (const auto& facing : orientation::get_all() ) {			
+		auto adjacent_index = adjacent_to(index,facing);
+		if (contains(adjacent_index))
 		{
-			//Restore saved version if possible.
-			m_tiles[index] = m_tiles_baked[index];			
+			adjacent_is_maze[facing] = m_tiles[adjacent_index].state == grid_tile::tile_state::maze;
+		}
+		else
+		{
+			adjacent_is_maze[facing] = false;
+		}
+	}
+
+	//Recalculate whether each corner should exist
+	for (const auto& corner_facing : orientation::get_all_composite())
+	{
+		auto adjacent_to_corner = corner_facing.cardinal_components();
+		bool need_corner = false;
+		if (adjacent_is_maze[corner_facing] || adjacent_is_maze[adjacent_to_corner[0]] || adjacent_is_maze[adjacent_to_corner[1]])
+		{
+			//If any of the tiles that share the corner are maze tiles, the corner should be present.
+			//Add the corner if it's missing
+			if (!has_corner(index.first, index.second, corner_facing))
+			{
+				set_corner(index.first, index.second, corner_facing);
+			}
+			continue;
 		}
 		else {
-			//This branch should not really be executed in normal gameplay, because the whole map should have been baked before play begins.
-			throw std::exception();
-
-			//What the code would do if this was allowed.
-			for each (auto facing in wall_facings)
+			auto corner_index = get_corner_index_from_heading(x, z, corner_facing);
+			//If the baked version of the tile exists and has a corner, keep it.
+			if (m_tiles_baked.count(corner_index) > 0 && m_tiles_baked[corner_index].has_corner())
 			{
-				old_tile.del_border(facing);				
-			}
-			del_corner(x, z, orientation::north_east);
-			del_corner(x, z, orientation::south_east);
-			del_corner(x, z, orientation::south_west);
-			del_corner(x, z, orientation::north_west);
-		}
-
-		std::map<orientation, bool> adjacent_is_maze;
-
-		for (const auto& facing : orientation::get_all() ) {			
-			auto adjacent_index = adjacent_to(index,facing);
-			if (contains(adjacent_index))
-			{
-				adjacent_is_maze[facing] = m_tiles[adjacent_index].state == grid_tile::tile_state::maze;
-			}
-			else
-			{
-				adjacent_is_maze[facing] = false;
-			}
-		}
-
-		//Recalculate whether each corner should exist
-		for (const auto& corner_facing : orientation::get_all_composite())
-		{
-			auto adjacent_to_corner = corner_facing.cardinal_components();
-			bool need_corner = false;
-			if (adjacent_is_maze[corner_facing] || adjacent_is_maze[adjacent_to_corner[0]] || adjacent_is_maze[adjacent_to_corner[1]])
-			{
-				//If any of the tiles that share the corner are maze tiles, the corner should be present.
-				//Add the corner if it's missing
-				if (!has_corner(index.first, index.second, corner_facing))
-				{
-					set_corner(index.first, index.second, corner_facing);
-				}
 				continue;
 			}
 			else {
-				auto corner_index = get_corner_index_from_heading(x, z, corner_facing);
-				//If the baked version of the tile exists and has a corner, keep it.
-				if (m_tiles_baked.count(corner_index) > 0 && m_tiles_baked[corner_index].has_corner())
-				{
-					continue;
-				}
-				else {
-					//Otherwise, delete the corner
-					del_corner(corner_index.first, corner_index.second);
-				}
+				//Otherwise, delete the corner
+				del_corner(corner_index.first, corner_index.second);
 			}
 		}
-
-		//Similar to placing a tile, must smartly update adjacent walls.
-		//Any adjacent maze tiles should have a border in this direction, and a corner.
-		for (const auto& facing : wall_facings)
-		{
-			if (adjacent_is_maze[facing])
-			{	
-				//Guaranteed to be a tile that exists, otherwise adjacent_is_maze[facing] would be false
-				auto adjacent_index = adjacent_to(index, facing);
-				auto adjacent_tile = m_tiles[adjacent_index];
-				auto opposite_facing = facing.invert();
-
-				//Set any missing borders.
-				if (!adjacent_tile.has_border(opposite_facing))
-				{
-					set_border(adjacent_index.first, adjacent_index.second, opposite_facing);
-				}
-			}			
-		}
 	}
+
+	//Similar to placing a tile, must smartly update adjacent walls.
+	//Any adjacent maze tiles should have a border in this direction, and a corner.
+	for (const auto& facing : wall_facings)
+	{
+		if (adjacent_is_maze[facing])
+		{	
+			//Guaranteed to be a tile that exists, otherwise adjacent_is_maze[facing] would be false
+			auto adjacent_index = adjacent_to(index, facing);
+			auto adjacent_tile = m_tiles[adjacent_index];
+			auto opposite_facing = facing.invert();
+
+			//Set any missing borders.
+			if (!adjacent_tile.has_border(opposite_facing))
+			{
+				set_border(adjacent_index.first, adjacent_index.second, opposite_facing);
+			}
+		}			
+	}
+	return true;
 }
 
 //Removes the border (wall) associated with a particular grid location and orientation.

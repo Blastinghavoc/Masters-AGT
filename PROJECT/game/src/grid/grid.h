@@ -47,8 +47,9 @@ public:
 	};
 
 	//Methods to place and remove whole "blocks" of the grid. A block has 4 walls, 4 corners and a ceiling.
-	void place_block(const int& x, const int& z, bool force = false);
-	void remove_block(const int& x, const int& z);
+	//returns indicate success or failure of operation
+	bool place_block(const int& x, const int& z, bool force = false);
+	bool remove_block(const int& x, const int& z);
 
 	//The opposite of the set_ methods. Removes a particular grid element.
 	void del_border(const int& x, const int& z, const orientation& relative_heading);
