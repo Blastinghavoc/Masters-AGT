@@ -49,6 +49,9 @@ namespace engine {
 
 		void on_render(const glm::mat4& transform, const ref<shader>& meshShader);
 
+		//Copy creator
+		static engine::ref<skinned_mesh> create(engine::ref<skinned_mesh> mesh);
+
 		static ref<skinned_mesh> create(const std::string& Filename);
 
 		uint32_t NumBones() const

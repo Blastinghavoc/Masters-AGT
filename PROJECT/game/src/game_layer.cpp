@@ -183,6 +183,7 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 
 	//Primitive shapes
 	{
+		//rhombicuboctahedron
 		engine::ref<engine::texture_2d> rhombi_texture_sqr = engine::texture_2d::create("assets/textures/rhombi_face_sqr.png", true);//These textures made by me
 		engine::ref<engine::texture_2d> rhombi_texture_tri = engine::texture_2d::create("assets/textures/rhombi_face_tri.png", true);
 		engine::ref<engine::rhombicuboctahedron> rhombi_shape = engine::rhombicuboctahedron::create();
@@ -193,6 +194,7 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 		shape_props.bounding_shape = glm::vec3(1.f);
 		m_rhombi = engine::game_object::create(shape_props);
 
+		//stepped pyramid
 		engine::ref<engine::texture_2d> pyr_texture = engine::texture_2d::create("assets/textures/pyramid_face.png", true);
 		engine::ref<engine::texture_2d> pyr_texture_border = engine::texture_2d::create("assets/textures/pyramid_border.png", true);
 		engine::ref<engine::stepped_pyramid> pyr_shape = engine::stepped_pyramid::create(15.f, 1.f, terrain_dimensions.x, 8,0.1f,8);
@@ -204,7 +206,7 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 		shape_props.rotation_amount = (float)M_PI;
 		m_decorational_objects.push_back(engine::game_object::create(shape_props));
 
-		//Testing hollow cuboid
+		//hollow cuboid
 		engine::ref<engine::texture_2d> tst_texture = engine::texture_2d::create("assets/textures/funky_cube.png", false);
 		float size = 1.1f;
 		engine::ref<engine::hollow_cuboid> tst_shape = engine::hollow_cuboid::create({ size,size,size },size/2,2*size);
@@ -246,23 +248,7 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 
 	//start fps timer
 	m_fps_timer.start();
-
-	//m_physical_gameobjects.push_back(m_player.object());
-	//m_physical_gameobjects.push_back(m_terrain);
-	//m_physics_manager = engine::bullet_manager::create(m_physical_gameobjects);
-	//auto player_body = m_player.object()->physics_obj()->get_body();
-	//player_body->setAngularFactor(btVector3(0, 0, 0));	
-	//////player_body->setInvInertiaDiagLocal({ 1,1,1 });
-	////player_body->setDamping(player_body->getLinearDamping(), 100.f);
 	
-
-	enemy_manager::init(m_level_grid);
-	/*auto& e1 = enemy_manager::spawn_minion(m_level_grid->grid_to_world_coords(max_grid_dimension-2,max_grid_dimension-1));
-	e1.add_waypoint(m_level_grid->grid_to_world_coords(max_grid_dimension-2,1));
-	e1.add_waypoint(m_level_grid->grid_to_world_coords(1, 1));*/
-
-	
-
 	//------
 	//Extra Lights
 	//------
@@ -286,8 +272,16 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	light_manager::point_lights.push_back(point_light_2);
 	light_manager::point_lights.push_back(point_light_3);
 
+	//m_physical_gameobjects.push_back(m_player.object());
+	//m_physical_gameobjects.push_back(m_terrain);
+	//m_physics_manager = engine::bullet_manager::create(m_physical_gameobjects);
+	//auto player_body = m_player.object()->physics_obj()->get_body();
+	//player_body->setAngularFactor(btVector3(0, 0, 0));	
+	//////player_body->setInvInertiaDiagLocal({ 1,1,1 });
+	////player_body->setDamping(player_body->getLinearDamping(), 100.f);	
 
-	gameplay_manager::init(&m_player,m_text_manager);
+	enemy_manager::init(m_level_grid);
+	gameplay_manager::init(&m_player,m_text_manager,&m_3d_camera,m_level_grid);
 
 	m_grid_center = center;
 }
@@ -543,7 +537,7 @@ void game_layer::on_event(engine::event& event)
 				intro_screen::active(false);
 				m_3d_camera.position(m_camera_start_pos);
 				m_3d_camera.face(orientation::north.to_vec());
-				gameplay_manager::begin_wave();//Start the game!
+				gameplay_manager::next_build_phase();//Start the game!
 				event.handled = true;
 			}
 			break;			
@@ -551,65 +545,21 @@ void game_layer::on_event(engine::event& event)
 			break;
 		}		
 	}
-	else if (!intro_screen::active() && event.event_type() == engine::event_type_e::mouse_button_pressed)
-	{//Mouse button handling when intro screen is not active.
-		auto& e = dynamic_cast<engine::mouse_button_pressed_event&>(event);
-		switch (e.mouse_button())
-		{
-		case engine::mouse_button_codes::MOUSE_BUTTON_1:
-			mouse1_event_handler();
-			break;
-		case engine::mouse_button_codes::MOUSE_BUTTON_2:
-			mouse2_event_handler();
-			break;
-		default:
-			break;
-		}
-	}
+
 
 	//If the event's not already handled, pass it on to child objects of this layer.
 	if (!event.handled)
 	{
-		//Currently only player deals with events.
-		m_player.on_event(event);
+		if (!intro_screen::active())
+		{//Gameplay handling when intro screen is not active.
+			gameplay_manager::on_event(event);
+			
+			m_player.on_event(event);
+		}
 	}
 }
 
-/*
-TODO: Add logic for weapons as well, and switching between build and combat mode.
-Refactor duplicated code.
-*/
-//Remove a block at the targeted position (if possible)
-void game_layer::mouse1_event_handler()
-{
-	auto fv = m_3d_camera.front_vector();
-	if (fv.y > 0)
-	{
-		//Not looking at the ground
-		return;
-	}
-	auto cam_pos = m_3d_camera.position();
-	auto delta_y = m_level_grid->floor_level() - cam_pos.y;
-	auto ground_pos = cam_pos + (delta_y / fv.y) * fv;
-	auto grid_coords = m_level_grid->world_to_grid_coords(ground_pos);
-	m_level_grid->remove_block(grid_coords.first,grid_coords.second);
-}
 
-//Place a block at the targeted position if posible
-void game_layer::mouse2_event_handler()
-{
-	auto fv = m_3d_camera.front_vector();
-	if (fv.y > 0)
-	{
-		//Not looking at the ground
-		return;
-	}
-	auto cam_pos = m_3d_camera.position();
-	auto delta_y = m_level_grid->floor_level() - cam_pos.y;
-	auto ground_pos = cam_pos + (delta_y / fv.y) * fv;
-	auto grid_coords = m_level_grid->world_to_grid_coords(ground_pos);
-	m_level_grid->place_block(grid_coords.first, grid_coords.second);
-}
 
 /*
 Generate gameobjects for all the models in a directory and arrange them in the scene.

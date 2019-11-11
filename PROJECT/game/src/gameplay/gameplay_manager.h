@@ -14,7 +14,8 @@ flow of the gameplay
 class gameplay_manager {
 public:
 
-	static void init(player* playr, engine::ref<engine::text_manager> text_manager);
+	static void init(player* playr, engine::ref<engine::text_manager> text_manager, engine::perspective_camera* camera,
+		engine::ref<grid> level_grid);
 	static void update(const engine::timestep& ts);
 
 	static int score() { return m_score; };
@@ -39,9 +40,11 @@ public:
 		return false;
 	};
 
-	static void begin_wave();
+	static void next_build_phase();
 
 	static bool is_wave_active() { return m_wave_active; };
+
+	static void on_event(engine::event& event);
 
 private:
 	static int m_score, m_health, m_money, m_portal_health;
@@ -63,4 +66,11 @@ private:
 	static std::vector<wave_definition> m_waves;
 	static int m_max_waves;
 	static int m_wave_number;
+	static engine::perspective_camera* m_camera;
+	static engine::ref<grid> m_level_grid;
+	static wave_definition m_current_wave_definition;
+
+	static void mouse1_event_handler();
+	static void mouse2_event_handler();
+	static void start_combat_phase();
 };

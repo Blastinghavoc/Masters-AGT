@@ -1,6 +1,6 @@
 #include "enemy.h"
 
-bool enemy::prefab_ready = false;//TODO remove/rework
+bool enemy::prefab_ready = false;
 engine::game_object_properties enemy::prefab{};
 
 enemy::enemy() :m_id{-1}
@@ -10,13 +10,13 @@ enemy::enemy() :m_id{-1}
 enemy::enemy(int id, glm::vec3 position) :m_id{id}
 {
 	engine::game_object_properties props;
-	/*if (prefab_ready)
+	if (prefab_ready)
 	{
 		props = prefab;
 		props.position = position;
-		props.animated_mesh = std::make_shared<engine::skinned_mesh>(*props.animated_mesh);
+		props.animated_mesh = engine::skinned_mesh::create(props.animated_mesh);
 	}
-	else {*/
+	else {
 		//Currently using same model as the player
 		engine::ref<engine::skinned_mesh> skinned_mesh = engine::skinned_mesh::create("assets/models/animated/mannequin/free3Dmodel.dae");
 		skinned_mesh->LoadAnimationFile("assets/models/animated/mannequin/walking.dae");
@@ -33,7 +33,7 @@ enemy::enemy(int id, glm::vec3 position) :m_id{id}
 
 		prefab = props;
 		prefab_ready = true;
-	//}
+	}
 
 	m_animations["walk"] = 1;
 	m_animations["idle"] = 2;

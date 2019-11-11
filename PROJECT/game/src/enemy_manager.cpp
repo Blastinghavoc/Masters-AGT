@@ -14,6 +14,10 @@ std::set<int> enemy_manager::s_current_active_minions{};
 void enemy_manager::init(engine::ref<grid> level_grid)
 {
 	s_level_grid = level_grid;
+
+	//Add one enemy to the buffer, allowing the enemy prefab to be initialised.
+	s_minion_buffer.push(spawn_minion({0,0,0}).get_id());
+
 }
 
 void enemy_manager::on_update(engine::timestep time_step)
@@ -44,7 +48,7 @@ void enemy_manager::on_update(engine::timestep time_step)
 		if (s_current_active_minions.empty() && gameplay_manager::is_wave_active())
 		{
 			//wave is active but no more to spawn, and none left active -> next wave!
-			gameplay_manager::begin_wave();
+			gameplay_manager::next_build_phase();
 			return;
 		}
 	}

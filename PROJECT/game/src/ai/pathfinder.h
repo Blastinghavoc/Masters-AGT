@@ -22,8 +22,5 @@ class pathfinder {
 public:
 	static std::deque<glm::vec3> find_path(const grid& level_grid);
 
-	
-private:
-	
 
 };

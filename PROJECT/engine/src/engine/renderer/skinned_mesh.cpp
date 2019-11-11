@@ -618,8 +618,70 @@ void engine::skinned_mesh::LoadAnimationFile(const std::string& Filename)
 	m_extra_animations.push_back(animation);
 }
 
+//Full member-wise copy
+engine::ref<engine::skinned_mesh> engine::skinned_mesh::create(engine::ref<engine::skinned_mesh> mesh)
+
+{
+
+	engine::ref<engine::skinned_mesh> new_mesh = std::make_shared<engine::skinned_mesh>();
+
+	new_mesh->m_VAO = mesh->m_VAO;
+
+	new_mesh->m_Buffers[0] = mesh->m_Buffers[0];
+
+	new_mesh->m_Buffers[1] = mesh->m_Buffers[1];
+
+	new_mesh->m_Buffers[2] = mesh->m_Buffers[2];
+
+	new_mesh->m_Buffers[3] = mesh->m_Buffers[3];
+
+	new_mesh->m_Buffers[4] = mesh->m_Buffers[4];
+
+	new_mesh->m_Entries = mesh->m_Entries;
+
+	new_mesh->m_textures = mesh->m_textures;
+
+	new_mesh->m_BoneTransforms = mesh->m_BoneTransforms;
+
+	new_mesh->m_BoneMapping = mesh->m_BoneMapping;
+
+	new_mesh->m_NumBones = mesh->m_NumBones;
+
+	new_mesh->m_BoneInfo = mesh->m_BoneInfo;
+
+	new_mesh->m_GlobalInverseTransform = mesh->m_GlobalInverseTransform;
+
+	new_mesh->m_pScene = mesh->m_pScene;
+
+	new_mesh->m_extra_animations = mesh->m_extra_animations;
+
+	new_mesh->m_pAnimations = mesh->m_pAnimations;
+
+	new_mesh->m_current_animation_index = mesh->m_current_animation_index;
+
+	new_mesh->m_default_animation_index = mesh->m_default_animation_index;
+
+	new_mesh->m_AnimationPlaying = mesh->m_AnimationPlaying;
+
+	new_mesh->m_first_point = mesh->m_first_point;
+
+	new_mesh->m_size = mesh->m_size;
+
+	new_mesh->m_offset = mesh->m_offset;
+
+	new_mesh->m_root_movement_on = mesh->m_root_movement_on;
+
+	new_mesh->m_root_movements = mesh->m_root_movements;
+
+	new_mesh->m_current_root_movement_offset = mesh->m_current_root_movement_offset;
+
+	new_mesh->m_update_root_offset = mesh->m_update_root_offset;
 
 
+
+	return new_mesh;
+
+}
 
 engine::ref<engine::skinned_mesh> engine::skinned_mesh::create(const std::string& Filename)
 {
