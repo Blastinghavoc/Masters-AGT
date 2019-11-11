@@ -118,7 +118,8 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	m_decorational_objects.push_back( engine::game_object::create(test_props));*/
 
 
-	//Populate level grid, and test its functionality.
+	//TODO move into a function?
+	//Populate level grid
 	for (int i = 0; i < max_grid_dimension; i++)
 	{
 		m_level_grid.set_border(0,i,orientation::east);
@@ -133,7 +134,8 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 		
 		for (int j = 0; j < max_grid_dimension; j++)
 		{
-			m_level_grid.set_floor(i, j);
+			//Forcibly create empty tiles
+			m_level_grid.set_state(i, j,grid_tile::tile_state::empty,true);
 		}
 	}
 	m_level_grid.set_corner(max_grid_dimension, max_grid_dimension, orientation::south_east);
@@ -253,7 +255,6 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	/*auto& e1 = enemy_manager::spawn_minion(m_level_grid.grid_to_world_coords(max_grid_dimension-2,max_grid_dimension-1));
 	e1.add_waypoint(m_level_grid.grid_to_world_coords(max_grid_dimension-2,1));
 	e1.add_waypoint(m_level_grid.grid_to_world_coords(1, 1));*/
-	enemy_manager::begin_wave(5);
 
 	
 
@@ -537,6 +538,7 @@ void game_layer::on_event(engine::event& event)
 				intro_screen::active(false);
 				m_3d_camera.position(m_camera_start_pos);
 				m_3d_camera.face(orientation::north.to_vec());
+				gameplay_manager::begin_wave();//Start the game!
 				event.handled = true;
 			}
 			break;			
