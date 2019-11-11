@@ -78,7 +78,7 @@ void gameplay_manager::update(const engine::timestep& ts)
 		auto spawned_so_far = total_enemies_this_wave - enemy_manager::remaining();
 		auto alive = enemy_manager::current_active();
 		m_top_display->set_text("Wave: " + std::to_string(m_wave_number) + " of " + std::to_string(m_max_waves)
-			+ " Enemies: " + std::to_string(spawned_so_far) + " of " +
+			+ "| Enemies: " + std::to_string(spawned_so_far) + " of " +
 			std::to_string(total_enemies_this_wave) + " alive: " +std::to_string(alive)
 		);
 	}

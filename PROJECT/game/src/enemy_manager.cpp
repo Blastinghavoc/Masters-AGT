@@ -58,6 +58,7 @@ void enemy_manager::on_update(engine::timestep time_step)
 		{
 			s_minion_buffer.push(*minion_iterator);
 			minion_iterator = s_current_active_minions.erase(minion_iterator);//Erase and return next.
+			gameplay_manager::damage_portal();
 
 		}
 		else {

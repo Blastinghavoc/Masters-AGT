@@ -50,7 +50,7 @@ private:
 	bool m_freecam{ false };
 
 	//The grid object representing the level.
-	grid m_level_grid{2.f,0.01f};
+	engine::ref<grid> m_level_grid{};
 	glm::vec3 m_grid_center{};
 
 	player m_player{glm::vec3(3.f,0,0.f)};

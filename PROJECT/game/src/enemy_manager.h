@@ -20,7 +20,7 @@ public:
 
 	static void render(const engine::ref<engine::shader>& shader);
 
-	static int current_active() { return s_current_active_minions.size(); };
+	static int current_active() { return (int)s_current_active_minions.size(); };
 	static int remaining() { return s_current_wave_remaining; };
 private:
 	static std::map<int,enemy> s_minions;

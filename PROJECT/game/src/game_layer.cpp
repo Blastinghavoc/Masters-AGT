@@ -21,6 +21,9 @@ game_layer::game_layer() :
 m_2d_camera(0, (float)engine::application::window().width(), 0, (float)engine::application::window().height()),
 m_3d_camera((float)engine::application::window().width(), (float)engine::application::window().height(),45.f,0.1f,200.f)
 {
+	//Initialise the level grid.
+	m_level_grid = std::make_shared<grid>(2.f, 0.01f);
+
 	// Hide the mouse and lock it inside the window
 	//engine::input::anchor_mouse(true);
 	engine::application::window().hide_mouse_cursor();
@@ -89,13 +92,13 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 		});
 
 	int max_grid_dimension = 11;
-	auto cell_size = m_level_grid.cell_size();
+	auto cell_size = m_level_grid->cell_size();
 
 	// Load the terrain texture and create a terrain mesh. Create a terrain object. Set its properties
 	// Using my tiled_cuboid instead of the original terrain shape in order to have tiled textures.
 	std::vector<engine::ref<engine::texture_2d>> terrain_textures = { engine::texture_2d::create("assets/textures/terrain_grid.bmp",false) };//Texture by me
 	glm::vec3 terrain_dimensions{ max_grid_dimension + 2* cell_size, 1.f, max_grid_dimension + 2 * cell_size };
-	engine::ref<engine::tiled_cuboid> terrain_shape = engine::tiled_cuboid::create(terrain_dimensions, false, m_level_grid.cell_size());
+	engine::ref<engine::tiled_cuboid> terrain_shape = engine::tiled_cuboid::create(terrain_dimensions, false, m_level_grid->cell_size());
 	engine::game_object_properties terrain_props;
 	terrain_props.meshes = { terrain_shape->mesh() };
 	terrain_props.textures = terrain_textures;
@@ -122,40 +125,42 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	//Populate level grid
 	for (int i = 0; i < max_grid_dimension; i++)
 	{
-		m_level_grid.set_border(0,i,orientation::east);
-		m_level_grid.set_border(max_grid_dimension-1, i, orientation::west);
-		m_level_grid.set_border(i, 0, orientation::south);
-		m_level_grid.set_border(i, max_grid_dimension-1, orientation::north);
+		m_level_grid->set_border(0,i,orientation::east);
+		m_level_grid->set_border(max_grid_dimension-1, i, orientation::west);
+		m_level_grid->set_border(i, 0, orientation::south);
+		m_level_grid->set_border(i, max_grid_dimension-1, orientation::north);
 
-		m_level_grid.set_corner(0, i, orientation::south_east);
-		m_level_grid.set_corner(max_grid_dimension-1, i, orientation::south_west);
-		m_level_grid.set_corner(i, 0, orientation::south_east);
-		m_level_grid.set_corner(i, max_grid_dimension-1, orientation::north_east);
+		m_level_grid->set_corner(0, i, orientation::south_east);
+		m_level_grid->set_corner(max_grid_dimension-1, i, orientation::south_west);
+		m_level_grid->set_state(max_grid_dimension, i, grid_tile::tile_state::border);
+		m_level_grid->set_corner(i, 0, orientation::south_east);
+		m_level_grid->set_corner(i, max_grid_dimension-1, orientation::north_east);
+		m_level_grid->set_state(i,max_grid_dimension, grid_tile::tile_state::border);
 		
 		for (int j = 0; j < max_grid_dimension; j++)
 		{
 			//Forcibly create empty tiles
-			m_level_grid.set_state(i, j,grid_tile::tile_state::empty,true);
+			m_level_grid->set_state(i, j,grid_tile::tile_state::empty,true);
 		}
 	}
-	m_level_grid.set_corner(max_grid_dimension, max_grid_dimension, orientation::south_east);
-	glm::vec3 center = m_level_grid.grid_to_world_coords(max_grid_dimension/2, max_grid_dimension/2) + glm::vec3(cell_size/2,0,cell_size/2);//The point in the center of the center grid square
-	/*m_level_grid.set_corner(7, 7, orientation::north_east);
-	m_level_grid.set_corner(7, 7, orientation::south_east);
-	m_level_grid.set_corner(7, 7, orientation::south_west);
-	m_level_grid.set_corner(7, 7, orientation::north_west);*/
+	m_level_grid->set_corner(max_grid_dimension, max_grid_dimension, orientation::south_east);
+	glm::vec3 center = m_level_grid->grid_to_world_coords(max_grid_dimension/2, max_grid_dimension/2) + glm::vec3(cell_size/2,0,cell_size/2);//The point in the center of the center grid square
+	/*m_level_grid->set_corner(7, 7, orientation::north_east);
+	m_level_grid->set_corner(7, 7, orientation::south_east);
+	m_level_grid->set_corner(7, 7, orientation::south_west);
+	m_level_grid->set_corner(7, 7, orientation::north_west);*/
 
-	m_level_grid.set_gateway(max_grid_dimension-2, max_grid_dimension-1, orientation::north_east);
-	m_level_grid.set_gateway(max_grid_dimension-2, max_grid_dimension-1, orientation::north_west,(float)M_PI);
-	m_level_grid.del_border(max_grid_dimension-2, max_grid_dimension-1, orientation::north);
-	m_level_grid.set_start(max_grid_dimension - 2, max_grid_dimension);
+	m_level_grid->set_gateway(max_grid_dimension-2, max_grid_dimension-1, orientation::north_east);
+	m_level_grid->set_gateway(max_grid_dimension-2, max_grid_dimension-1, orientation::north_west,(float)M_PI);
+	m_level_grid->del_border(max_grid_dimension-2, max_grid_dimension-1, orientation::north);
+	m_level_grid->set_start(max_grid_dimension - 2, max_grid_dimension);
 
-	m_level_grid.set_gateway(1, 0, orientation::south_east);
-	m_level_grid.set_gateway(1, 0, orientation::south_west,(float)M_PI);
-	m_level_grid.del_border(1, 0, orientation::south);
-	m_level_grid.set_end(1, -1);
+	m_level_grid->set_gateway(1, 0, orientation::south_east);
+	m_level_grid->set_gateway(1, 0, orientation::south_west,(float)M_PI);
+	m_level_grid->del_border(1, 0, orientation::south);
+	m_level_grid->set_end(1, -1);
 
-	m_level_grid.bake_tiles();
+	m_level_grid->bake_tiles();
 
 	/*bool place = false;
 	for (int i = 0; i < max_grid_dimension; ++i)
@@ -163,7 +168,7 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 		for (int j = 0; j < max_grid_dimension; ++j) {
 			if (place)
 			{
-				m_level_grid.place_block(i, j);
+				m_level_grid->place_block(i, j);
 			}
 			place = !place;
 		}
@@ -251,10 +256,10 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	////player_body->setDamping(player_body->getLinearDamping(), 100.f);
 	
 
-	enemy_manager::init(std::make_shared<grid>(m_level_grid));
-	/*auto& e1 = enemy_manager::spawn_minion(m_level_grid.grid_to_world_coords(max_grid_dimension-2,max_grid_dimension-1));
-	e1.add_waypoint(m_level_grid.grid_to_world_coords(max_grid_dimension-2,1));
-	e1.add_waypoint(m_level_grid.grid_to_world_coords(1, 1));*/
+	enemy_manager::init(m_level_grid);
+	/*auto& e1 = enemy_manager::spawn_minion(m_level_grid->grid_to_world_coords(max_grid_dimension-2,max_grid_dimension-1));
+	e1.add_waypoint(m_level_grid->grid_to_world_coords(max_grid_dimension-2,1));
+	e1.add_waypoint(m_level_grid->grid_to_world_coords(1, 1));*/
 
 	
 
@@ -372,7 +377,7 @@ void game_layer::on_render()
 	engine::renderer::submit(textured_lighting_shader, m_terrain);
 
 	//render all children of the level grid
-	m_level_grid.render(textured_lighting_shader);
+	m_level_grid->render(textured_lighting_shader);
 
 	//render all turrets
 	for (auto& t:m_turrets)
@@ -584,10 +589,10 @@ void game_layer::mouse1_event_handler()
 		return;
 	}
 	auto cam_pos = m_3d_camera.position();
-	auto delta_y = m_level_grid.floor_level() - cam_pos.y;
+	auto delta_y = m_level_grid->floor_level() - cam_pos.y;
 	auto ground_pos = cam_pos + (delta_y / fv.y) * fv;
-	auto grid_coords = m_level_grid.world_to_grid_coords(ground_pos);
-	m_level_grid.remove_block(grid_coords.first,grid_coords.second);
+	auto grid_coords = m_level_grid->world_to_grid_coords(ground_pos);
+	m_level_grid->remove_block(grid_coords.first,grid_coords.second);
 }
 
 //Place a block at the targeted position if posible
@@ -600,10 +605,10 @@ void game_layer::mouse2_event_handler()
 		return;
 	}
 	auto cam_pos = m_3d_camera.position();
-	auto delta_y = m_level_grid.floor_level() - cam_pos.y;
+	auto delta_y = m_level_grid->floor_level() - cam_pos.y;
 	auto ground_pos = cam_pos + (delta_y / fv.y) * fv;
-	auto grid_coords = m_level_grid.world_to_grid_coords(ground_pos);
-	m_level_grid.place_block(grid_coords.first, grid_coords.second);
+	auto grid_coords = m_level_grid->world_to_grid_coords(ground_pos);
+	m_level_grid->place_block(grid_coords.first, grid_coords.second);
 }
 
 /*
