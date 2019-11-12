@@ -22,4 +22,5 @@ public:
 	static int count() { return (int)m_turrets.size(); };
 private:
 	static std::map<vec3,engine::ref<turret>> m_turrets;
+	static std::vector<engine::ref<turret>> m_buffer;
 };

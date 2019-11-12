@@ -150,6 +150,7 @@
     <ClInclude Include="src\orientation.h" />
     <ClInclude Include="src\pickup.h" />
     <ClInclude Include="src\player.h" />
+    <ClInclude Include="src\sfx\camera_jitter.h" />
     <ClInclude Include="src\turret.h" />
   </ItemGroup>
   <ItemGroup>
@@ -172,6 +173,7 @@
     <ClCompile Include="src\orientation.cpp" />
     <ClCompile Include="src\pickup.cpp" />
     <ClCompile Include="src\player.cpp" />
+    <ClCompile Include="src\sfx\camera_jitter.cpp" />
     <ClCompile Include="src\turret.cpp" />
   </ItemGroup>
   <ItemGroup>

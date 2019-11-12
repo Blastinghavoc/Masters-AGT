@@ -215,7 +215,7 @@ void gameplay_manager::mouse1_event_handler()
 		auto delta_y = m_level_grid->floor_level() - cam_pos.y;
 		if (m_current_tool == tool::turret)
 		{
-			delta_y += m_level_grid->cell_size();//Add height of block.
+			delta_y += m_level_grid->block_height();//Add height of block.
 		}
 		auto ground_pos = cam_pos + (delta_y / fv.y) * fv;
 		auto grid_coords = m_level_grid->world_to_grid_coords(ground_pos);
@@ -225,7 +225,7 @@ void gameplay_manager::mouse1_event_handler()
 			remove_block(grid_coords.first, grid_coords.second);
 		}
 		else if (m_current_tool == tool::turret) {
-			//TODO remove turret.
+			remove_turret(grid_coords.first, grid_coords.second);
 		}
 	}
 	else {
@@ -252,7 +252,7 @@ void gameplay_manager::mouse2_event_handler()
 		auto delta_y = m_level_grid->floor_level() - cam_pos.y;
 		if (m_current_tool == tool::turret)
 		{
-			delta_y += m_level_grid->cell_size();//Add height of block.
+			delta_y += m_level_grid->block_height();//Add height of block.
 		}
 		auto ground_pos = cam_pos + (delta_y / fv.y) * fv;
 		auto grid_coords = m_level_grid->world_to_grid_coords(ground_pos);
@@ -311,7 +311,7 @@ void gameplay_manager::place_turret(int x, int z)
 		auto pair = std::make_pair(x, z);
 		if (m_level_grid->is_block(pair)) {
 			auto coords = m_level_grid->center_of(x, z);
-			coords.y += m_level_grid->cell_size();
+			coords.y += m_level_grid->block_height();
 			success = turret_manager::place_turret(coords);
 		}
 	}
@@ -319,6 +319,26 @@ void gameplay_manager::place_turret(int x, int z)
 	if (success)
 	{
 		m_money -= m_prices["turret"];		
+	}
+	else {
+		m_audio_manager->play("error");
+	}
+}
+
+void gameplay_manager::remove_turret(int x, int z)
+{
+	bool success = false;
+	
+	auto pair = std::make_pair(x, z);
+	if (m_level_grid->is_block(pair)) {
+		auto coords = m_level_grid->center_of(x, z);
+		coords.y += m_level_grid->block_height();
+		success = turret_manager::remove_turret(coords);
+	}	
+
+	if (success)
+	{
+		m_money += m_prices["turret"];
 	}
 	else {
 		m_audio_manager->play("error");

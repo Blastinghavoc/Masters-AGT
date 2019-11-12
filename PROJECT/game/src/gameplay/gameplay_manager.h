@@ -102,4 +102,5 @@ private:
 	static void place_block(int x, int z);
 	static void remove_block(int x, int z);
 	static void place_turret(int x, int z);
+	static void remove_turret(int x, int z);
 };

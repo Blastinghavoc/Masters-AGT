@@ -57,6 +57,9 @@
     <ClCompile Include="src\ai\turret_manager.cpp">
       <Filter>ai</Filter>
     </ClCompile>
+    <ClCompile Include="src\sfx\camera_jitter.cpp">
+      <Filter>sfx</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="layers">
@@ -82,6 +85,9 @@
     </Filter>
     <Filter Include="gameplay">
       <UniqueIdentifier>{ce17d1af-fd4f-4f54-8ba2-625d8ea06cf2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sfx">
+      <UniqueIdentifier>{ccdc8de5-4135-4332-b72a-d77bf724a8c0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -142,6 +148,9 @@
     </ClInclude>
     <ClInclude Include="src\ai\turret_manager.h">
       <Filter>ai</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sfx\camera_jitter.h">
+      <Filter>sfx</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

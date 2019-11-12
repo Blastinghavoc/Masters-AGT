@@ -3,9 +3,6 @@
 
 turret::turret(glm::vec3 position)
 {
-	float base_height = .3f;
-	float swivel_height = .7f;
-
 	engine::ref <engine::model> model = engine::model::create("assets/models/static/turrets/modified/base.obj");
 	engine::game_object_properties props;
 	props.meshes = model->meshes();
@@ -20,12 +17,12 @@ turret::turret(glm::vec3 position)
 	props = {};
 	props.meshes = model->meshes();
 	props.textures = model->textures();
-	props.position = position + glm::vec3(0,base_height,0);
+	props.position = position + glm::vec3(0,m_base_height,0);
 	props.scale = glm::vec3(scale);
 	props.bounding_shape = model->size() / 2.f * scale;
 	m_swivel = engine::game_object::create(props);
 
-	m_barrel_position = position + glm::vec3(0, swivel_height, 0);
+	m_barrel_position = position + glm::vec3(0, m_swivel_height, 0);
 	model = engine::model::create("assets/models/static/turrets/modified/barrel.obj");
 	props = {};
 	props.meshes = model->meshes();
@@ -64,4 +61,12 @@ void turret::face(glm::vec3 target)
 	barrel_transform = glm::scale(barrel_transform, m_barrel->scale());
 	m_barrel_transform = barrel_transform;
 
+}
+
+void turret::set_position(glm::vec3 position)
+{
+	m_base->set_position(position);
+	m_swivel->set_position(position + glm::vec3(0, m_base_height, 0));
+	m_barrel_position = position + glm::vec3(0, m_swivel_height, 0);
+	m_barrel->set_position(m_barrel_position);
 }

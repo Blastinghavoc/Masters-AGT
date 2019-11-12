@@ -16,6 +16,8 @@ public:
 		return std::make_shared<turret>(position);
 	};
 
+	void set_position(glm::vec3 position);
+
 private:
 	glm::vec3 m_barrel_position;
 
@@ -25,5 +27,8 @@ private:
 	engine::ref<engine::game_object> m_barrel;
 
 	glm::mat4 m_barrel_transform{};
+
+	const float m_base_height = .3f;
+	const float m_swivel_height = .7f;
 
 };

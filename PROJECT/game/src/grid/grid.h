@@ -92,6 +92,8 @@ public:
 	const float& cell_size() const { return m_cell_size; };
 	const float& floor_level() const { return m_y; };
 
+	const float& block_height() const { return m_block_height; };
+
 private:
 	//utility functions
 
@@ -106,6 +108,7 @@ private:
 
 	float m_cell_size;
 	float m_y;
+	float m_block_height{1};
 
 	//The tiles owned by this grid object, indexed by an x-z pair
 	std::map<std::pair<int,int>, grid_tile> m_tiles{};
