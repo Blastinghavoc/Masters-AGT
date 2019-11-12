@@ -54,6 +54,9 @@
     <ClCompile Include="src\ai\pathfinder.cpp">
       <Filter>ai</Filter>
     </ClCompile>
+    <ClCompile Include="src\ai\turret_manager.cpp">
+      <Filter>ai</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="layers">
@@ -135,6 +138,9 @@
       <Filter>gameplay</Filter>
     </ClInclude>
     <ClInclude Include="src\ai\pathfinder.h">
+      <Filter>ai</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ai\turret_manager.h">
       <Filter>ai</Filter>
     </ClInclude>
   </ItemGroup>

@@ -31,10 +31,13 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	// Initialise audio and play background music
 	m_audio_manager = engine::audio_manager::instance();
 	m_audio_manager->init();
-	m_audio_manager->load_sound("assets/audio/DST-impuretechnology.mp3", engine::sound_type::track, "music");  // Royalty free music from http://www.nosoapradio.us/
-	//m_audio_manager->play("music");
+	//Music from https://freesound.org/people/orangefreesounds/sounds/262940/
+	m_audio_manager->load_sound("assets/audio/ambience.wav", engine::sound_type::track, "music");
+	m_audio_manager->play("music");
 	//Error sound from https://freesound.org/people/Autistic%20Lucario/sounds/142608/
 	m_audio_manager->load_sound("assets/audio/error_sound.wav",engine::sound_type::event,"error");
+	//Alert from https://freesound.org/people/willy_ineedthatapp_com/sounds/167337/
+	m_audio_manager->load_sound("assets/audio/8_bit_alert.mp3",engine::sound_type::event,"alert");
 
 
 	// Initialise the shaders, materials, and lights
@@ -240,10 +243,6 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	m_pickups.push_back(pickup(engine::game_object::create(pickup_props), -1.f));
 	pickup_props.position = center + glm::vec3(0, 0, -1);
 	m_pickups.push_back(pickup(engine::game_object::create(pickup_props), -1.f));*/
-
-	//Create a few turrets for testing
-	m_turrets.push_back(turret(glm::vec3(10, 0, 10)));
-	m_turrets.push_back(turret(glm::vec3(8, 0, 8)));
 
 	//Create text manager
 	m_text_manager = engine::text_manager::create();

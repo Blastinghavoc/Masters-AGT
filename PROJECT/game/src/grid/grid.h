@@ -26,16 +26,32 @@ public:
 	void set_ceiling(const int& x, const int& z);
 
 	void set_state(const int& x, const int& z, grid_tile::tile_state state,bool force= false);
+
 	void set_start(const int& x, const int& z) {
 		set_state(x, z, grid_tile::tile_state::start, true);
 		m_start_index = std::pair(x, z);
 	};
+
 	void set_end(const int& x, const int& z) {
 		set_state(x, z, grid_tile::tile_state::end, true);
 		m_end_index = std::pair(x, z);
 	};
+
 	std::pair<int,int> get_start() const { return m_start_index; };
+
 	std::pair<int, int> get_end() const { return m_end_index; };
+
+	//Checks if given index is a maze block
+	bool is_block(std::pair<int, int> index) {
+		if (contains(index))
+		{
+			auto tile_state = m_tiles.at(index).state;
+			return tile_state == grid_tile::tile_state::maze;
+		}
+		return false;
+	};
+
+	//Checks if given index can be pathed through
 	bool is_walkable(std::pair<int, int> index) const {
 		if (contains(index))
 		{
@@ -69,6 +85,8 @@ public:
 	//Conversions between grid indices and world coordinates.
 	glm::vec3 grid_to_world_coords(int x, int z) const;
 	std::pair<int,int> world_to_grid_coords(glm::vec3 vec) const;
+	//Obtain coordinate in the center of a grid square
+	glm::vec3 center_of(int x, int z) const { return grid_to_world_coords(x, z) + glm::vec3(m_cell_size / 2, 0, m_cell_size / 2); };
 
 	//Simple getters
 	const float& cell_size() const { return m_cell_size; };

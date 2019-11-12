@@ -12,6 +12,10 @@ public:
 
 	void face(glm::vec3 target);
 
+	static engine::ref<turret> create(glm::vec3 position = { 0,0,0 }) {
+		return std::make_shared<turret>(position);
+	};
+
 private:
 	glm::vec3 m_barrel_position;
 

@@ -31,7 +31,6 @@ private:
 
 	std::vector<engine::ref<engine::game_object>> m_decorational_objects{};
 	std::vector<engine::ref<engine::game_object>> m_physical_gameobjects{};
-	std::vector<turret> m_turrets{};
 
 	std::vector<pickup> m_pickups{0};
 

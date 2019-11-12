@@ -13,6 +13,9 @@ text_hud_element::text_hud_element(engine::ref<engine::text_manager> text_manage
 //Doesn't actually use the passed shader.
 void text_hud_element::render(engine::ref<engine::shader> shader)
 {
+	if (!m_show)
+		return;
+
 	auto screen_pos = screen_position();
 
 	const auto text_shader = engine::renderer::shaders_library()->get("text_2D");

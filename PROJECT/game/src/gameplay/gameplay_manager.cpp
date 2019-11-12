@@ -71,10 +71,11 @@ void gameplay_manager::init(player* playr,engine::ref<engine::text_manager> text
 	m_portal_health_display->set_text_size(0.5f);
 	hud_manager::add_element(m_portal_health_display);
 
-	m_tool_display = text_hud_element::create(text_manager, "Tool: Turret, cost £100, owned {} max {}", glm::vec2{ 0.025f,0.05f });
+	m_tool_display = text_hud_element::create(text_manager, "Tool: Turret, cost 100, owned {} max {}", glm::vec2{ 0.025f,0.05f });
 	m_tool_display->set_text_size(0.5f);
 	hud_manager::add_element(m_tool_display);
 	m_tool_display->hide();
+	m_prices["turret"] = 100;
 
 	//Adding waves in reverse order
 	m_waves.push_back({ 15,3,30 });
@@ -212,12 +213,19 @@ void gameplay_manager::mouse1_event_handler()
 		}
 		auto cam_pos = m_camera->position();
 		auto delta_y = m_level_grid->floor_level() - cam_pos.y;
+		if (m_current_tool == tool::turret)
+		{
+			delta_y += m_level_grid->cell_size();//Add height of block.
+		}
 		auto ground_pos = cam_pos + (delta_y / fv.y) * fv;
 		auto grid_coords = m_level_grid->world_to_grid_coords(ground_pos);
-		bool succeeded = m_level_grid->remove_block(grid_coords.first, grid_coords.second);
-		if (succeeded)
+
+		if (m_current_tool == tool::block)
 		{
-			++m_available_blocks;
+			remove_block(grid_coords.first, grid_coords.second);
+		}
+		else if (m_current_tool == tool::turret) {
+			//TODO remove turret.
 		}
 	}
 	else {
@@ -242,23 +250,20 @@ void gameplay_manager::mouse2_event_handler()
 		}
 		auto cam_pos = m_camera->position();
 		auto delta_y = m_level_grid->floor_level() - cam_pos.y;
+		if (m_current_tool == tool::turret)
+		{
+			delta_y += m_level_grid->cell_size();//Add height of block.
+		}
 		auto ground_pos = cam_pos + (delta_y / fv.y) * fv;
 		auto grid_coords = m_level_grid->world_to_grid_coords(ground_pos);
-		bool succeeded = m_level_grid->place_block(grid_coords.first, grid_coords.second);
 
-		if (succeeded)
+		if (m_current_tool == tool::block)
 		{
-			if (pathfinder::find_path(*m_level_grid).empty())
-			{
-				//Placing block blocked the path, so undo
-				m_level_grid->remove_block(grid_coords.first, grid_coords.second);
-				m_audio_manager->play("error");
-			}
-			else {
-				--m_available_blocks;
-			}
+			place_block(grid_coords.first, grid_coords.second);
 		}
-		
+		else if (m_current_tool == tool::turret) {
+			//TODO place turret.
+		}
 	}
 }
 
@@ -269,4 +274,45 @@ void gameplay_manager::start_combat_phase()
 	m_tool_display->hide();
 
 	enemy_manager::begin_wave(m_current_wave_definition.num_enemies, m_current_wave_definition.enemy_spacing);	
+}
+
+void gameplay_manager::place_block(int x, int z)
+{
+	bool succeeded = m_level_grid->place_block(x, z);
+
+	if (succeeded)
+	{
+		if (pathfinder::find_path(*m_level_grid).empty())
+		{
+			//Placing block blocked the path, so undo
+			m_level_grid->remove_block(x, z);
+			m_audio_manager->play("error");
+		}
+		else {
+			--m_available_blocks;
+		}
+	}
+}
+
+void gameplay_manager::remove_block(int x, int z)
+{
+	bool succeeded = m_level_grid->remove_block(x, z);
+	if (succeeded)
+	{
+		++m_available_blocks;
+	}	
+}
+
+void gameplay_manager::place_turret(int x, int z)
+{
+	if (m_money >= m_prices["turret"])
+	{
+		auto pair = std::make_pair(x, z);
+		if (m_level_grid->is_block(pair)) {
+			auto coords = m_level_grid->center_of(x, z);
+			coords.y += m_level_grid->cell_size();
+			m_owned_turrets.push_back(turret::create(coords));
+		}
+	}
+	m_audio_manager->play("error");
 }
