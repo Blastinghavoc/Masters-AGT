@@ -6,7 +6,6 @@
 #include "../player.h"
 #include "../gui/hud_manager.h"
 #include "../enemy_manager.h"
-#include "../turret.h"
 /*
 Static class to manage gameplay elements
 like health, money, score etc, as well as the
@@ -73,7 +72,6 @@ private:
 	static wave_definition m_current_wave_definition;
 	static engine::ref<engine::audio_manager> m_audio_manager;
 	static constexpr int m_max_turrets = 5;
-	static std::vector<engine::ref<turret>> m_owned_turrets;
 	static int m_available_blocks;
 
 	enum class tool

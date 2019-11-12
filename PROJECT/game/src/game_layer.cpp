@@ -375,11 +375,7 @@ void game_layer::on_render()
 	m_level_grid->render(textured_lighting_shader);
 
 	//render all turrets
-	for (auto& t:m_turrets)
-	{
-		t.face(m_player.object()->position()+glm::vec3(0,0.5f,0));
-		t.render(textured_lighting_shader);
-	}
+	turret_manager::render(textured_lighting_shader);
 
 	//render all pickups
 	for (auto& pick : m_pickups)

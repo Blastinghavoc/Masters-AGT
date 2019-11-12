@@ -2,11 +2,12 @@
 #include "gameplay_manager.h"
 #include "engine/events/mouse_event.h"
 #include "engine/events/key_event.h"
+#include "../ai/turret_manager.h"
 
 //Static initializers
 int gameplay_manager::m_score = 0;
 int gameplay_manager::m_health = 100;
-int gameplay_manager::m_money = 0;
+int gameplay_manager::m_money = 100;
 int gameplay_manager::m_portal_health = 100;
 engine::timer gameplay_manager::m_build_timer{};
 int gameplay_manager::m_max_build_time = 30;
@@ -27,7 +28,6 @@ engine::perspective_camera* gameplay_manager::m_camera;
 engine::ref<grid> gameplay_manager::m_level_grid;
 gameplay_manager::wave_definition gameplay_manager::m_current_wave_definition;
 engine::ref<engine::audio_manager> gameplay_manager::m_audio_manager;
-std::vector<engine::ref<turret>> gameplay_manager::m_owned_turrets{};
 int gameplay_manager::m_available_blocks = 6;
 gameplay_manager::tool gameplay_manager::m_current_tool = tool::block;
 
@@ -109,7 +109,7 @@ void gameplay_manager::update(const engine::timestep& ts)
 		std::string tool_text = "Tool: ";
 		if (m_current_tool == tool::turret)
 		{
-			tool_text += "turret. Cost £100, Owned "+std::to_string(m_owned_turrets.size()) +
+			tool_text += "turret. Cost £100, Owned "+std::to_string(turret_manager::count()) +
 				", Max " + std::to_string(m_max_turrets);
 
 		}
@@ -262,7 +262,7 @@ void gameplay_manager::mouse2_event_handler()
 			place_block(grid_coords.first, grid_coords.second);
 		}
 		else if (m_current_tool == tool::turret) {
-			//TODO place turret.
+			place_turret(grid_coords.first, grid_coords.second);
 		}
 	}
 }
@@ -305,14 +305,22 @@ void gameplay_manager::remove_block(int x, int z)
 
 void gameplay_manager::place_turret(int x, int z)
 {
+	bool success = false;
 	if (m_money >= m_prices["turret"])
 	{
 		auto pair = std::make_pair(x, z);
 		if (m_level_grid->is_block(pair)) {
 			auto coords = m_level_grid->center_of(x, z);
 			coords.y += m_level_grid->cell_size();
-			m_owned_turrets.push_back(turret::create(coords));
+			success = turret_manager::place_turret(coords);
 		}
 	}
-	m_audio_manager->play("error");
+
+	if (success)
+	{
+		m_money -= m_prices["turret"];		
+	}
+	else {
+		m_audio_manager->play("error");
+	}
 }

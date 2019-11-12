@@ -6,10 +6,10 @@
 #include "player.h"
 #include "pickup.h"
 #include "enemy_manager.h"
-#include "turret.h"
 #include "gui/hud_manager.h"
 #include "lighting/light_manager.h"
 #include "gameplay/gameplay_manager.h"
+#include "ai/turret_manager.h"
 
 //The main layer for the game.
 class game_layer : public engine::layer
