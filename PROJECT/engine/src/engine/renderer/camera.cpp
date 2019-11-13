@@ -4,10 +4,6 @@
 #include "engine/core/input.h"
 #include "engine/key_codes.h"
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-
-
 //================== Orthographic Camera [2D] =================================
 
 engine::orthographic_camera::orthographic_camera(float left, float right, float bottom, float top)
