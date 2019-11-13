@@ -25,7 +25,7 @@ public:
 	static int portal_health() { return m_portal_health; };//The health of the portal the player is defending.
 	static int build_time() { return m_max_build_time - (int)m_build_timer.total(); };
 
-	static void damage_portal() { m_portal_health -= 10; m_audio_manager->play("alert"); };
+	static void damage_portal();
 
 	static void add_score(int amnt) { m_score += amnt; };
 	static bool buy(std::string name) {

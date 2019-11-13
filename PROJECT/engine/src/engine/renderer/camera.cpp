@@ -4,6 +4,9 @@
 #include "engine/core/input.h"
 #include "engine/key_codes.h"
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 
 //================== Orthographic Camera [2D] =================================
 
@@ -267,8 +270,10 @@ void engine::perspective_camera::face(glm::vec3& direction) {
 	update_view_matrix();
 
 	//reverse engineer yaw and pitch to keep them correct
+	//REF Formulas obtained from https://gamedev.stackexchange.com/questions/112565/finding-pitch-yaw-values-from-lookat-vector
+	auto yaw_radians = atan2(m_front_vector.z, m_front_vector.x);
 	auto pitch_radians = asin(m_front_vector.y);
-	auto yaw_radians = acos(m_front_vector.x / cos(pitch_radians));
+
 	m_yaw = glm::degrees(yaw_radians);
 	m_pitch = glm::degrees(pitch_radians);
 }

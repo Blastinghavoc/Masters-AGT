@@ -3,6 +3,7 @@
 #include "engine/events/mouse_event.h"
 #include "engine/events/key_event.h"
 #include "../ai/turret_manager.h"
+#include "../sfx/sfx_manager.h"
 
 //Static initializers
 int gameplay_manager::m_score = 0;
@@ -128,6 +129,13 @@ void gameplay_manager::update(const engine::timestep& ts)
 		}
 	}
 
+}
+
+void gameplay_manager::damage_portal()
+{
+	m_portal_health -= 10;
+	m_audio_manager->play("alert");
+	sfx_manager::jitter_effect.activate(0.1f, 0.5f);
 }
 
 //Begins the next build phase, which will trigger the next wave when it finishes

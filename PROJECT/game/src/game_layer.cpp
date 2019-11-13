@@ -15,6 +15,8 @@ namespace fs = std::filesystem;
 
 #include "btBulletDynamicsCommon.h"//For bt rigid body?
 
+#include "sfx/sfx_manager.h"
+
 
 game_layer::game_layer() :
 //m_2d_camera(-1.6f, 1.6f, -0.9f, 0.9f),
@@ -283,6 +285,7 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 
 	enemy_manager::init(m_level_grid);
 	gameplay_manager::init(&m_player,m_text_manager,&m_3d_camera,m_level_grid,m_audio_manager);
+	sfx_manager::init(&m_3d_camera);
 
 	m_grid_center = center;
 }
@@ -335,6 +338,7 @@ void game_layer::on_update(const engine::timestep& time_step)
 		}
 
 		gameplay_manager::update(time_step);
+		sfx_manager::on_update(time_step);
 
 		//m_physics_manager->dynamics_world_update(m_physical_gameobjects,time_step);
 	}

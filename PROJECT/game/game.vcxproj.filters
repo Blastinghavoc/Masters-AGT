@@ -60,6 +60,7 @@
     <ClCompile Include="src\sfx\camera_jitter.cpp">
       <Filter>sfx</Filter>
     </ClCompile>
+    <ClCompile Include="src\sfx\sfx_manager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="layers">
@@ -150,6 +151,9 @@
       <Filter>ai</Filter>
     </ClInclude>
     <ClInclude Include="src\sfx\camera_jitter.h">
+      <Filter>sfx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sfx\sfx_manager.h">
       <Filter>sfx</Filter>
     </ClInclude>
   </ItemGroup>

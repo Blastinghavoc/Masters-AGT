@@ -11,15 +11,18 @@ public:
 	};
 	~camera_jitter() {};
 
-	void on_update(engine::timestep& ts);
+	void on_update(const engine::timestep& ts);
 
 	void activate(float intensity, float duration);
+
+	bool is_active() { return m_active; };
 
 private:
 	engine::perspective_camera* m_camera;
 	bool m_active = false;
 	float m_remaining = 0;
 	float m_intensity = 0;
+	glm::vec3 m_previous{0,0,0};
 
 	
 	std::mt19937 m_generator;	
