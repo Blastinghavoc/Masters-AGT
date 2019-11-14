@@ -11,7 +11,7 @@ void hud_manager::render(engine::orthographic_camera& cam_2d,engine::ref<engine:
 
 	engine::renderer::begin_scene(cam_2d, shader);
 	std::dynamic_pointer_cast<engine::gl_shader>(shader)->set_uniform("lighting_on", false);//HUD needs no lighting
-	for (auto& element : m_hud_elements) {
+	for (auto& element : m_hud_elements) {		
 		element->render(shader);
 	}
 	std::dynamic_pointer_cast<engine::gl_shader>(shader)->set_uniform("lighting_on", true);

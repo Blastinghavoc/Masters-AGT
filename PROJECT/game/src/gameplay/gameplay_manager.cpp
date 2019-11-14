@@ -135,7 +135,13 @@ void gameplay_manager::damage_portal()
 {
 	m_portal_health -= 10;
 	m_audio_manager->play("alert");
-	sfx_manager::jitter_effect.activate(0.1f, 0.5f);
+	sfx_manager::jitter_effect.activate(0.2f, 0.5f);	
+}
+
+void gameplay_manager::damange_player()
+{
+	m_health -= 10;
+	sfx_manager::cross_fade_effect.activate(1.f);
 }
 
 //Begins the next build phase, which will trigger the next wave when it finishes
@@ -197,6 +203,9 @@ void gameplay_manager::on_event(engine::event& event)
 			m_current_tool = tool::turret;
 			e.handled = true;
 			break;
+		//case engine::key_codes::KEY_P:
+		//	damage_portal();//DEBUG
+		//	break;
 		default:
 			break;
 		}

@@ -22,8 +22,10 @@ public:
 
 	void set_transparency(float trans) { m_transparency = trans; };
 	const float& get_transparency() { return m_transparency; };
+	void set_z_order(float z) { m_z = z; };
 private:
 	engine::ref<engine::quad> m_quad{};
 	engine::ref<engine::texture_2d> m_texture{};
-	float m_transparency{};
+	float m_transparency{1.f};
+	float m_z{ 0.1f };
 };

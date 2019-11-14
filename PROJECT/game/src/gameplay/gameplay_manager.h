@@ -26,6 +26,7 @@ public:
 	static int build_time() { return m_max_build_time - (int)m_build_timer.total(); };
 
 	static void damage_portal();
+	static void damange_player();
 
 	static void add_score(int amnt) { m_score += amnt; };
 	static bool buy(std::string name) {
