@@ -10,14 +10,29 @@ float enemy_manager::s_interval_accumulator = 0;
 float enemy_manager::s_current_wave_interval = 2.f;
 std::stack<int> enemy_manager::s_minion_buffer{};
 std::set<int> enemy_manager::s_current_active_minions{};
+engine::ref<engine::SpotLight> enemy_manager::m_spot_light{};
 
 void enemy_manager::init(engine::ref<grid> level_grid)
 {
 	s_level_grid = level_grid;
 
 	//Add one enemy to the buffer, allowing the enemy prefab to be initialised.
-	s_minion_buffer.push(spawn_minion({0,0,0}).get_id());
+	auto id = spawn_minion({ 0,0,0 }).id();
+	s_minion_buffer.push(id);
 
+	m_spot_light = std::make_shared<engine::SpotLight>();
+	m_spot_light->Color = glm::vec3(.75f, .1f, .1f);
+	m_spot_light->AmbientIntensity = 0.4f;
+	m_spot_light->DiffuseIntensity = 0.6f;
+	m_spot_light->Position = glm::vec3{0,0,0};
+	m_spot_light->Attenuation.Constant = .1f;
+	m_spot_light->Attenuation.Linear = .1f;
+	m_spot_light->Attenuation.Exp = .01f;
+	m_spot_light->Direction = glm::vec3(0, -1, 0);
+	m_spot_light->Cutoff = .9f;
+	m_spot_light->On = false;
+
+	light_manager::spot_lights.push_back(m_spot_light);
 }
 
 void enemy_manager::on_update(engine::timestep time_step)
@@ -39,7 +54,7 @@ void enemy_manager::on_update(engine::timestep time_step)
 			}
 
 			new_minion->set_path(s_current_path);
-			s_current_active_minions.emplace(new_minion->get_id());			
+			s_current_active_minions.emplace(new_minion->id());			
 			s_interval_accumulator -= s_current_wave_interval;
 			--s_current_wave_remaining;
 		}
@@ -53,22 +68,38 @@ void enemy_manager::on_update(engine::timestep time_step)
 		}
 	}
 
+	if (s_current_active_minions.size() > 0)
+	{
+		auto furthest_forward_alive = *begin(s_current_active_minions);
+		for (auto& minion_iterator = begin(s_current_active_minions); minion_iterator != end(s_current_active_minions);) {
+			auto& current_minion = s_minions[*minion_iterator];
+			current_minion.on_update(time_step);
+			//If the minion has reached the goal, deactivate it and signal the gameplay manager.
+			if (current_minion.object()->position() == s_current_path.back())
+			{
+				s_minion_buffer.push(*minion_iterator);
+				minion_iterator = s_current_active_minions.erase(minion_iterator);//Erase and return next.
+				gameplay_manager::damage_portal();
 
-	for (auto& minion_iterator = begin(s_current_active_minions); minion_iterator != end(s_current_active_minions);) {
-		auto& current_minion = s_minions[*minion_iterator];
-		current_minion.on_update(time_step);
-		//If the minion has reached the goal, deactivate it and signal the gameplay manager.
-		if (current_minion.object()->position() == s_current_path.back())
-		{
-			s_minion_buffer.push(*minion_iterator);
-			minion_iterator = s_current_active_minions.erase(minion_iterator);//Erase and return next.
-			gameplay_manager::damage_portal();
+			}
+			else {
+				//Otherwise, move on to the next.
 
+				//Check if this minion is closer to the goal than any we've seen so far
+				if (current_minion.waypoints_remaining() < s_minions[furthest_forward_alive].waypoints_remaining())
+				{
+					furthest_forward_alive = current_minion.id();
+				}
+				++minion_iterator;
+			}
 		}
-		else {
-			//Otherwise, move on to the next.
-			++minion_iterator;
-		}
+
+		m_spot_light->Position = s_minions[furthest_forward_alive].position();
+		m_spot_light->Position.y += 4.f;
+		m_spot_light->On = true;
+	}
+	else {
+		m_spot_light->On = false;
 	}
 }
 

@@ -267,25 +267,29 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	//------
 	//Extra Lights
 	//------
-	engine::PointLight point_light_1;
-	point_light_1.Color = glm::vec3(.25f, .75f, .5f);
-	point_light_1.AmbientIntensity = 0.25f;
-	point_light_1.DiffuseIntensity = 0.4f;
-	point_light_1.Position = glm::vec3(cell_size * 1.5f, 5, 0);
-	point_light_1.Attenuation.Constant = .001f;
-	point_light_1.Attenuation.Linear = .1f;
-	point_light_1.Attenuation.Exp = .01f;
+	engine::ref<engine::PointLight> point_light_1 = std::make_shared<engine::PointLight>();
+	point_light_1->Color = glm::vec3(.25f, .75f, .5f);
+	point_light_1->AmbientIntensity = 0.25f;
+	point_light_1->DiffuseIntensity = 0.4f;
+	point_light_1->Position = glm::vec3(cell_size * 1.5f, 5, 0);
+	point_light_1->Attenuation.Constant = .001f;
+	point_light_1->Attenuation.Linear = .1f;
+	point_light_1->Attenuation.Exp = .01f;
 
-	engine::PointLight point_light_2 = point_light_1;
-	point_light_2.Position = glm::vec3(cell_size * max_grid_dimension - cell_size * 1.5f, 5, cell_size * max_grid_dimension);
+	engine::ref<engine::PointLight> point_light_2 = std::make_shared<engine::PointLight>();
+	*point_light_2 = *point_light_1;
+	point_light_2->Position = glm::vec3(cell_size * max_grid_dimension - cell_size * 1.5f, 5, cell_size * max_grid_dimension);
 
-	engine::PointLight point_light_3 = point_light_1;
-	point_light_3.Position = center + glm::vec3(0, m_big_decor_height, 0);
-	point_light_3.Attenuation.Constant = 0.01f;
+	engine::ref<engine::PointLight> point_light_3 = std::make_shared<engine::PointLight>();
+	*point_light_3 = *point_light_1;
+	point_light_3->Position = center + glm::vec3(0, m_big_decor_height, 0);
+	point_light_3->Attenuation.Constant = 0.01f;
 
 	light_manager::point_lights.push_back(point_light_1);
 	light_manager::point_lights.push_back(point_light_2);
 	light_manager::point_lights.push_back(point_light_3);
+
+
 
 	physics_manager::add(m_player.object());
 	physics_manager::add(m_terrain);		
@@ -334,7 +338,7 @@ void game_layer::on_update(const engine::timestep& time_step)
 	else {
 		enemy_manager::on_update(time_step);
 
-		//Freecam or play-based movement
+		//Freecam or player-based movement
 		if (m_freecam)
 		{
 			m_3d_camera.on_update(time_step);
@@ -344,7 +348,7 @@ void game_layer::on_update(const engine::timestep& time_step)
 			m_player.on_update(time_step);
 		}		
 		//DEBUG off while testing physics
-		//gameplay_manager::update(time_step);
+		gameplay_manager::update(time_step);
 		sfx_manager::on_update(time_step);
 
 		physics_manager::update(time_step);		
@@ -398,19 +402,19 @@ void game_layer::on_render()
 	{
 		//over door 1
 		glm::mat4 transform(1.0f);
-		transform = glm::translate(transform, light_manager::point_lights[0].Position);
+		transform = glm::translate(transform, light_manager::point_lights[0]->Position);
 		transform = glm::rotate(transform,m_rhombi_angle, glm::vec3(1,0,0) );
 		transform = glm::scale(transform,0.5f * glm::vec3(1.f));
 		engine::renderer::submit(textured_lighting_shader, transform, m_rhombi);
 
 		//over door 2
 		transform = glm::mat4(1.f);
-		transform = glm::translate(transform, light_manager::point_lights[1].Position);
+		transform = glm::translate(transform, light_manager::point_lights[1]->Position);
 		transform = glm::rotate(transform, -m_rhombi_angle, glm::vec3(1, 0, 0));
 		transform = glm::scale(transform, 0.5f * glm::vec3(1.f));
 		engine::renderer::submit(textured_lighting_shader, transform, m_rhombi);
 
-		auto big_center_position = light_manager::point_lights[2].Position;
+		auto big_center_position = light_manager::point_lights[2]->Position;
 		//Large, centered
 		transform = glm::mat4(1.f);
 		transform = glm::translate(transform, big_center_position);
@@ -473,11 +477,19 @@ void game_layer::on_render()
 	m_material->submit(textured_material_shader);
 	std::dynamic_pointer_cast<engine::gl_shader>(textured_material_shader)->set_uniform("gEyeWorldPos", m_3d_camera.position());
 
-
+	//DEBUG rendering positions of lights
 	auto cube = engine::cuboid::create({ .1f,.1f,.1f }, false);
 	for (auto& pl : light_manager::point_lights)
 	{
-		engine::renderer::submit(textured_material_shader, cube->mesh(), glm::translate(glm::mat4(1.f), pl.Position));
+		engine::renderer::submit(textured_material_shader, cube->mesh(), glm::translate(glm::mat4(1.f), pl->Position));
+	}
+	//TODO Keep some object following the front-runner enemy, but make it nicer than just a cube.
+	for (auto& sl : light_manager::spot_lights)
+	{
+		if (sl->On)
+		{
+			engine::renderer::submit(textured_material_shader, cube->mesh(), glm::translate(glm::mat4(1.f), sl->Position));
+		}
 	}
 
 	//update the lighting for this shader
@@ -492,7 +504,7 @@ void game_layer::on_render()
 	std::dynamic_pointer_cast<engine::gl_shader>(animated_mesh_shader)->set_uniform("gEyeWorldPos", m_3d_camera.position());
 
 	//update the lighting for this shader
-	light_manager::submit(textured_lighting_shader);
+	light_manager::submit(animated_mesh_shader);
 
 	//Render the player object
 	engine::renderer::submit(animated_mesh_shader, m_player.object());

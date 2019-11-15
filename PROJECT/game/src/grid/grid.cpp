@@ -49,7 +49,7 @@ grid::grid(float cell_size,float y):
 	props.position = { m_cell_size * .5f,0,m_cell_size * .5f };
 	m_floor_prefab = engine::game_object::create(props);
 	//ceiling
-	m_block_height = m_cell_size * .8;
+	m_block_height = m_cell_size * .8f;
 	props.position += glm::vec3{0, m_block_height, 0};
 	m_ceiling_prefab = engine::game_object::create(props);
 

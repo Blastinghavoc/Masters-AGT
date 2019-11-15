@@ -14,7 +14,11 @@ public:
 
 	void set_path(std::deque<glm::vec3> path) { m_waypoints = path; };
 
-	const int& get_id() const { return m_id; };
+	const int& id() const { return m_id; };
+
+	const int waypoints_remaining() const { return (int)m_waypoints.size(); };
+
+	glm::vec3 position() const { return m_object->position(); };
 private:
 	static engine::game_object_properties prefab;
 	static bool prefab_ready;

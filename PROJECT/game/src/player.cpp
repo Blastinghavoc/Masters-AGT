@@ -40,7 +40,7 @@ player::player(glm::vec3 position):
 	m_object->set_forward(glm::vec3(0.f, 0.f, 1.f));
 	m_object->animated_mesh()->set_default_animation(1);
 	m_object->animated_mesh()->switch_animation(m_object->animated_mesh()->default_animation());
-	m_object->set_rotation_axis(m_rotation_axis);
+	m_object->set_rotation_axis(m_rotation_axis);	
 }
 
 player::~player()
@@ -145,7 +145,7 @@ void player::update_camera(engine::perspective_camera& camera)
 
 	//Adjusts the position of the camera to be 3rd person.
 	//A particular distance backwards and upwards from the player
-	camera.position(m_object->position() + (-m_camera_backoff_distance * forward_unit) + (.5f * upward_unit));
+	camera.position(m_object->position() + (-m_camera_backoff_distance * forward_unit) + (m_camera_elevation * upward_unit));
 
 	//Set the forward direction of the gameobject to be where we're looking, so the player can run in a direction by just looking there.
 	m_camera_forward = glm::vec3(forward_unit.x, 0.f, forward_unit.z);

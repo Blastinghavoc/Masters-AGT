@@ -9,12 +9,14 @@ namespace engine
 		glm::vec3 Color;
 		float AmbientIntensity;
 		float DiffuseIntensity;
+		bool On;//flag to indicate whether or not this light should be turned on
 
 		BaseLight()
 		{
 			Color = glm::vec3(0.0f, 0.0f, 0.0f);
 			AmbientIntensity = 0.0f;
 			DiffuseIntensity = 0.0f;
+			On = true;
 		}
 	};
 

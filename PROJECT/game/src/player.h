@@ -20,7 +20,6 @@ public:
 	//Update the camera to provide a 3rd person perspective of the player.
 	void update_camera(engine::perspective_camera& camera);
 
-	//Plays the jump animation, but currently does not change the trajectory of the player.
 	void jump(const engine::timestep& ts);
 
 	//Respond to events, specifically the mouse scroll event
@@ -36,5 +35,6 @@ private:
 
 	//camera details (distance behind the player to put the camera)
 	const float camera_backoff_distance_default{1.f};
-	float m_camera_backoff_distance;	
+	float m_camera_backoff_distance;
+	const float m_camera_elevation{ .5f };	
 };

@@ -6,6 +6,7 @@
 #include "ai/pathfinder.h"
 #include <set>
 #include "gameplay/gameplay_manager.h"
+#include "lighting/light_manager.h"
 
 //Static class to manage the movement of enemies in the level
 class enemy_manager {
@@ -32,4 +33,7 @@ private:
 	static float s_current_wave_interval;
 	static std::stack<int> s_minion_buffer;//Holds the ID of created but inactive minions.
 	static std::set<int> s_current_active_minions;//Holds the IDs of minions currently alive
+
+	//Highlights the furthest forward enemy
+	static engine::ref<engine::SpotLight> m_spot_light;
 };
