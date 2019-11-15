@@ -1383,8 +1383,8 @@
     <ClInclude Include="src\engine\entities\shapes\quad.h">
       <Filter>src\engine\entities\shapes</Filter>
     </ClInclude>
-    <ClInclude Include="src\engine\utils\physical_object.h">
-      <Filter>src\engine\utils</Filter>
+    <ClInclude Include="src\engine\entities\bounding_box_bullet.h">
+      <Filter>src\engine\entities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1532,8 +1532,8 @@
     <ClCompile Include="src\engine\entities\shapes\quad.cpp">
       <Filter>src\engine\entities\shapes</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine\utils\physical_object.cpp">
-      <Filter>src\engine\utils</Filter>
+    <ClCompile Include="src\engine\entities\bounding_box_bullet.cpp">
+      <Filter>src\engine\entities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/utils/physical_object.h"
+#include "bounding_box_bullet.h"
 
 namespace engine
 {
@@ -102,9 +102,30 @@ namespace engine
 		// bind the object's textures if there are any
 		void bind_textures();
 
-		engine::physical_object*& physics_obj() { return m_physics_obj; };
+		bool is_colliding() const { return s_colliding; }
+		std::vector<engine::ref<engine::game_object>> collision_objects() const {
+			return
+				m_collision_objects;
+		}
+		void set_collision_state(bool col_state) { s_colliding = col_state; }
+		void clear_collision_objects() { m_collision_objects.clear(); }
+		void add_collision_object(engine::ref<engine::game_object> object) {
+			m_collision_objects.push_back(object);
+		}
 
+		void set_angular_factor(glm::vec3 factor) { m_angular_factor = factor; };
+		glm::vec3 get_angular_factor() { return m_angular_factor; };
 
+		void update_obb() {
+			m_obb.on_update(position() - glm::vec3(0.f,
+				offset().y, 0.f) * scale(),
+				rotation_amount(),rotation_axis());
+		};
+
+		void render_obb(glm::vec3 rgb,const engine::ref<engine::shader>& shader) {
+			update_obb();
+			m_obb.on_render(rgb.x, rgb.y, rgb.z, shader);
+		}
     public:
         static ref<game_object> create(const game_object_properties& props);
 
@@ -161,6 +182,12 @@ namespace engine
 		//object's offset from the local origin
 		glm::vec3 m_offset{ 0.f };
 
-		engine::physical_object* m_physics_obj{};
+		//---Physics stuff
+		bool s_colliding = false;
+		std::vector<engine::ref<engine::game_object>> m_collision_objects{};
+
+		glm::vec3 m_angular_factor{ 1.f };
+
+		bounding_box m_obb;
     };
 }

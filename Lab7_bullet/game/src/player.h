@@ -18,6 +18,8 @@ public:
 
 	void jump();
 
+	void set_speed(float s) { m_speed = s; }
+
 private:
 	float m_speed{ 0.f };
 	float m_timer;

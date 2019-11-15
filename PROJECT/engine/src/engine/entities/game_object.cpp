@@ -20,6 +20,10 @@ engine::game_object::game_object(const game_object_properties& props)
     m_type(props.type),
     m_bounding_shape(props.bounding_shape)
 {
+	m_obb.set_box(props.bounding_shape.x * 2.f * props.scale.x,
+		props.bounding_shape.y * 2.f * props.scale.y,
+		props.bounding_shape.z * 2.f * props.scale.z,
+		props.position);
 }
 
 /*engine::game_object::game_object(const glm::vec3 position, const glm::vec3 velocity, std::vector<ref<mesh>> meshes,

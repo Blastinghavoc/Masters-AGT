@@ -15,7 +15,7 @@ public:
 	//Update the player based on user input and delta-time
 	void on_update(const engine::timestep& time_step) override;
 
-	void move_physics(const glm::vec3& direction, const float& speed, const engine::timestep& time_step);
+	void move_physics(const glm::vec3& direction, const float& speed);
 
 	//Update the camera to provide a 3rd person perspective of the player.
 	void update_camera(engine::perspective_camera& camera);
@@ -29,6 +29,8 @@ public:
 private:
 	const float m_walk_speed{ 1.f };
 	const float m_run_speed{ 2.f };
+	glm::vec3 m_rotation_axis{ 0,1,0 };
+	glm::vec3 m_camera_forward{0,0,1};
 
 	float m_jump_timer{0.f};
 

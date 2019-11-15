@@ -91,26 +91,31 @@ engine::perspective_camera::perspective_camera(
 void engine::perspective_camera::on_update(const timestep& timestep)
 {
 	auto [mouse_delta_x, mouse_delta_y] = input::mouse_position();
-	//process_mouse(mouse_delta_x, mouse_delta_y);
+	process_mouse(mouse_delta_x, mouse_delta_y);
 
 	update_camera_vectors();
 
 	//float y_value = m_position.y;
 
     if(input::key_pressed(engine::key_codes::KEY_A)) // left
-        move_rail(e_direction::left, timestep);
+        move(e_direction::left, timestep);
     else if(input::key_pressed(engine::key_codes::KEY_D)) // right
-		move_rail(e_direction::right, timestep);
+		move(e_direction::right, timestep);
+
+	if (input::key_pressed(engine::key_codes::KEY_W))
+		move(e_direction::forward, timestep);
+	else if (input::key_pressed(engine::key_codes::KEY_S))
+		move(e_direction::backward, timestep);
 
     if(input::key_pressed(engine::key_codes::KEY_S)) // down
-		move_rail(e_direction::down, timestep);
+		move(e_direction::down, timestep);
     else if(engine::input::key_pressed(engine::key_codes::KEY_W)) // up
-		move_rail(e_direction::up, timestep);
+		move(e_direction::up, timestep);
 
-	m_position.x = glm::clamp(m_position.x, -5.0f, 5.0f);
-	m_position.y = glm::clamp(m_position.y, 1.0f, 11.0f);
+	/*m_position.x = glm::clamp(m_position.x, -5.0f, 5.0f);
+	m_position.y = glm::clamp(m_position.y, 1.0f, 11.0f);*/
 		
-	update_rail(timestep);
+	//update_rail(timestep);
 	//m_position.y = y_value;
 
     //float delta = input::mouse_scroll();

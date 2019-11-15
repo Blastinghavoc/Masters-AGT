@@ -538,6 +538,7 @@ IF EXIST ..\engine\external\FMOD\lib\x64\fmod.dll\ (xcopy /Q /E /Y /I ..\engine\
     <ClInclude Include="src\engine\core\manager.h" />
     <ClInclude Include="src\engine\core\timestep.h" />
     <ClInclude Include="src\engine\core\window.h" />
+    <ClInclude Include="src\engine\entities\bounding_box_bullet.h" />
     <ClInclude Include="src\engine\entities\character.h" />
     <ClInclude Include="src\engine\entities\game_object.h" />
     <ClInclude Include="src\engine\entities\grid.h" />
@@ -580,7 +581,6 @@ IF EXIST ..\engine\external\FMOD\lib\x64\fmod.dll\ (xcopy /Q /E /Y /I ..\engine\
     <ClInclude Include="src\engine\utils\file_utils.h" />
     <ClInclude Include="src\engine\utils\glm_extension.h" />
     <ClInclude Include="src\engine\utils\maths.h" />
-    <ClInclude Include="src\engine\utils\physical_object.h" />
     <ClInclude Include="src\engine\utils\sound.h" />
     <ClInclude Include="src\engine\utils\string_utils.h" />
     <ClInclude Include="src\engine\utils\textures_utils.h" />
@@ -602,6 +602,7 @@ IF EXIST ..\engine\external\FMOD\lib\x64\fmod.dll\ (xcopy /Q /E /Y /I ..\engine\
     <ClCompile Include="src\engine\core\layer.cpp" />
     <ClCompile Include="src\engine\core\layers_stack.cpp" />
     <ClCompile Include="src\engine\core\logger.cpp" />
+    <ClCompile Include="src\engine\entities\bounding_box_bullet.cpp" />
     <ClCompile Include="src\engine\entities\character.cpp" />
     <ClCompile Include="src\engine\entities\game_object.cpp" />
     <ClCompile Include="src\engine\entities\grid.cpp" />
@@ -632,7 +633,6 @@ IF EXIST ..\engine\external\FMOD\lib\x64\fmod.dll\ (xcopy /Q /E /Y /I ..\engine\
     <ClCompile Include="src\engine\utils\audio_manager.cpp" />
     <ClCompile Include="src\engine\utils\bullet_manager.cpp" />
     <ClCompile Include="src\engine\utils\event_sound.cpp" />
-    <ClCompile Include="src\engine\utils\physical_object.cpp" />
     <ClCompile Include="src\engine\utils\timer.cpp" />
     <ClCompile Include="src\engine\utils\track.cpp" />
     <ClCompile Include="src\pch.cpp">

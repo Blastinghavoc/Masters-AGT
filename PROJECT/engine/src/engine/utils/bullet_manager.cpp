@@ -23,34 +23,34 @@
 ///btBulletDynamicsCommon.h is the main Bullet include file, contains most common include files.
 #include "btBulletDynamicsCommon.h"
 
-//engine::physical_object::physical_object(btRigidBody* body) : body(body) {}
-//
-////returns the forward vector of the physical object
-//btVector3 engine::physical_object::get_forward()
-//{
-//	btVector3 body_forward_vector;
-//	btTransform trans = body->getWorldTransform();
-//	body_forward_vector = (trans * forward_vector - trans.getOrigin());
-//	return body_forward_vector;
-//}
-//
-////Returns the up vector of the physical object
-//btVector3 engine::physical_object::get_up()
-//{
-//	btVector3 body_up_vector;
-//	btTransform trans = body->getWorldTransform();
-//	body_up_vector = (trans * up_vector - trans.getOrigin());
-//	return body_up_vector;
-//}
-//
-////Returns the right vector of the physical object
-//btVector3 engine::physical_object::get_right()
-//{
-//	btVector3 body_right_vector;
-//	btTransform trans = body->getWorldTransform();
-//	body_right_vector = (trans * right_vector - trans.getOrigin());
-//	return body_right_vector;
-//}
+engine::physical_object::physical_object(btRigidBody* body) : body(body) {}
+
+//returns the forward vector of the physical object
+btVector3 engine::physical_object::get_forward()
+{
+	btVector3 body_forward_vector;
+	btTransform trans = body->getWorldTransform();
+	body_forward_vector = (trans * forward_vector - trans.getOrigin());
+	return body_forward_vector;
+}
+
+//Returns the up vector of the physical object
+btVector3 engine::physical_object::get_up()
+{
+	btVector3 body_up_vector;
+	btTransform trans = body->getWorldTransform();
+	body_up_vector = (trans * up_vector - trans.getOrigin());
+	return body_up_vector;
+}
+
+//Returns the right vector of the physical object
+btVector3 engine::physical_object::get_right()
+{
+	btVector3 body_right_vector;
+	btTransform trans = body->getWorldTransform();
+	body_right_vector = (trans * right_vector - trans.getOrigin());
+	return body_right_vector;
+}
 
 //Constructor passing the game object vector
 engine::bullet_manager::bullet_manager(const std::vector<engine::ref<engine::game_object>>& game_objects)
@@ -109,7 +109,7 @@ void	engine::bullet_manager::init_physics(const std::vector<engine::ref<engine::
 }
 
 //Creating a rigidBody from a collision shape
-btRigidBody*	engine::bullet_manager::local_create_rigid_body(float mass, const btTransform& start_transform, btCollisionShape* shape, btDynamicsWorld* dynamics_world)
+btRigidBody* engine::bullet_manager::local_create_rigid_body(float mass, const btTransform& start_transform, btCollisionShape* shape, btDynamicsWorld* dynamics_world)
 {
 	btAssert((!shape || shape->getShapeType() != INVALID_SHAPE_PROXYTYPE));
 
@@ -138,7 +138,7 @@ btRigidBody*	engine::bullet_manager::local_create_rigid_body(float mass, const b
 	body->setWorldTransform(start_transform);
 #endif//
 	get_dynamics_world()->addRigidBody(body);
-	
+
 	return body;
 }
 
@@ -154,8 +154,8 @@ void engine::bullet_manager::add_physical_object(engine::ref<engine::game_object
 	case 0:
 	{
 		shape = new btBoxShape(btVector3(btScalar(game_object->bounding_shape().x) * btScalar(game_object->scale().x),
-										 btScalar(game_object->bounding_shape().y) * btScalar(game_object->scale().y),
-										 btScalar(game_object->bounding_shape().z) * btScalar(game_object->scale().z)));
+			btScalar(game_object->bounding_shape().y) * btScalar(game_object->scale().y),
+			btScalar(game_object->bounding_shape().z) * btScalar(game_object->scale().z)));
 		break;
 	}
 	//if type is a sphere shape
@@ -167,7 +167,7 @@ void engine::bullet_manager::add_physical_object(engine::ref<engine::game_object
 	//if type is a convex shape 
 	case 2:
 	{
-		btConvexHullShape * c_shape = new btConvexHullShape();
+		btConvexHullShape* c_shape = new btConvexHullShape();
 		for (int32_t i = 0; i < game_object->meshes().at(0)->vertices().size(); i++)
 		{
 			glm::vec3 vertex = game_object->meshes().at(0)->vertices().at(i).position;
@@ -211,7 +211,6 @@ void engine::bullet_manager::add_physical_object(engine::ref<engine::game_object
 		//body->setRestitution(game_object->restitution());
 		physical_object* object = new physical_object(body);
 		physical_objects.push_back(object);
-		game_object->physics_obj() = object;
 	}
 }
 
@@ -223,34 +222,44 @@ void engine::bullet_manager::dynamics_world_update(const std::vector<engine::ref
 		int32_t i = 0;
 		for (int32_t i = 0; i < physical_objects.size(); i++)
 		{
-			
-				btTransform trans;
-				engine::ref<engine::game_object> game_object_i = game_objects.at(i);
-				physical_object* physical_object_i = physical_objects.at(i);
 
-				btVector3 pos = to_bt_vector3(game_object_i->position());
-				trans.setOrigin(pos);
-				trans.setRotation(btQuaternion(to_bt_vector3(game_object_i->rotation_axis()), btScalar(game_object_i->rotation_amount())));
-				btDefaultMotionState* myMotionState = new btDefaultMotionState(trans);
+			btTransform trans;
+			engine::ref<engine::game_object> game_object_i = game_objects.at(i);
+			physical_object* physical_object_i = physical_objects.at(i);
 
-				physical_object_i->get_body()->setMotionState(myMotionState);
-				physical_object_i->get_body()->setLinearVelocity(to_bt_vector3(game_object_i->velocity()));
-				physical_object_i->get_body()->setAngularVelocity(to_bt_vector3(game_object_i->angular_velocity()));
+			btVector3 pos = to_bt_vector3(game_object_i->position());
+			trans.setOrigin(pos);
+			trans.setRotation(btQuaternion(to_bt_vector3(game_object_i->rotation_axis()), btScalar(game_object_i->rotation_amount())));
+			btDefaultMotionState* myMotionState = new btDefaultMotionState(trans);
 
-				//physical_object_i->get_body()->clearForces();
-				if (game_object_i->acceleration() != glm::vec3(0.0f))
-				{
-					physical_object_i->get_body()->applyCentralForce(to_bt_vector3(game_object_i->acceleration()));
-					game_object_i->set_acceleration(glm::vec3(0.0f));
-					physical_object_i->get_body()->setActivationState(ACTIVE_TAG);
-				}
-				if (game_object_i->torque() != glm::vec3(0.0f))
-				{
-					physical_object_i->get_body()->applyTorque(to_bt_vector3(game_object_i->torque()));
-					game_object_i->set_torque(glm::vec3(0.0f));
-					physical_object_i->get_body()->setActivationState(ACTIVE_TAG);
-				}
-			
+			physical_object_i->get_body()->setMotionState(myMotionState);
+			physical_object_i->get_body()->setLinearVelocity(to_bt_vector3(game_object_i->velocity()));
+			physical_object_i->get_body()->setAngularVelocity(to_bt_vector3(game_object_i->angular_velocity()));
+
+			//Allow constraining rotation on certain axes
+			physical_object_i->get_body()->setAngularFactor(to_bt_vector3(game_object_i->get_angular_factor()));
+
+			//If the object is supposed to be moving, set it's activation state
+			if (game_object_i->angular_velocity() != glm::vec3(0.0f) ||
+				game_object_i->velocity() != glm::vec3(0.0f))
+			{
+				physical_object_i->get_body()->setActivationState(ACTIVE_TAG);
+			}
+
+			//physical_object_i->get_body()->clearForces();
+			if (game_object_i->acceleration() != glm::vec3(0.0f))
+			{
+				physical_object_i->get_body()->applyCentralForce(to_bt_vector3(game_object_i->acceleration()));
+				game_object_i->set_acceleration(glm::vec3(0.0f));
+				physical_object_i->get_body()->setActivationState(ACTIVE_TAG);
+			}
+			if (game_object_i->torque() != glm::vec3(0.0f))
+			{
+				physical_object_i->get_body()->applyTorque(to_bt_vector3(game_object_i->torque()));
+				game_object_i->set_torque(glm::vec3(0.0f));
+				physical_object_i->get_body()->setActivationState(ACTIVE_TAG);
+			}
+
 		}
 	}
 	///step the simulation
@@ -275,11 +284,47 @@ void engine::bullet_manager::dynamics_world_update(const std::vector<engine::ref
 
 			game_object_i->set_velocity(to_vec3(physical_object_i->get_body()->getLinearVelocity()));
 			game_object_i->set_angular_velocity(to_vec3(physical_object_i->get_body()->getAngularVelocity()));
+
+			game_object_i->clear_collision_objects();
+			game_object_i->set_collision_state(false);
 		}
 	}
+	myTickCallback(m_dynamics_world, (float)dt, game_objects);
 }
 
 engine::ref<engine::bullet_manager> engine::bullet_manager::create(const std::vector<engine::ref<engine::game_object>>& game_objects)
 {
 	return std::make_shared<engine::bullet_manager>(game_objects);
 }
+
+void engine::bullet_manager::myTickCallback(btDynamicsWorld* dynamicsWorld, btScalar timeStep,
+	const std::vector<engine::ref<engine::game_object>>& game_objects) {
+	int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
+	for (int i = 0; i < numManifolds; i++) {
+		btPersistentManifold* contactManifold = dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
+		{
+			const btCollisionObject* objA = contactManifold->getBody0();
+			const btCollisionObject* objB = contactManifold->getBody1();
+			int indexA = -1;
+			int indexB = -1;
+			int j = 0;
+			while (j < dynamicsWorld->getCollisionObjectArray().size() && (indexA == -1
+				|| indexB == -1))
+			{
+				if (objA == dynamicsWorld->getCollisionObjectArray().at(j))
+					indexA = j;
+
+				else if (objB == dynamicsWorld->getCollisionObjectArray().at(j))
+					indexB = j;
+				j++;
+			}
+			if (indexA != -1 && indexB != -1)
+			{
+				game_objects.at(indexA)->set_collision_state(true);
+				game_objects.at(indexA)->add_collision_object(game_objects.at(indexB));
+				game_objects.at(indexB)->set_collision_state(true);
+				game_objects.at(indexB)->add_collision_object(game_objects.at(indexA));
+			}
+		}
+	}
+}

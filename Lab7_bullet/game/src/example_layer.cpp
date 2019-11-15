@@ -94,7 +94,7 @@ example_layer::example_layer()
 	mannequin_props.animated_mesh = m_skinned_mesh;
 	mannequin_props.scale = glm::vec3(1.f / glm::max(m_skinned_mesh->size().x,
 		glm::max(m_skinned_mesh->size().y, m_skinned_mesh->size().z)));
-	mannequin_props.position = glm::vec3(3.0f, 1.5f, -5.0f);
+	mannequin_props.position = glm::vec3(3.0f, 1.5f, -1.0f);
 	mannequin_props.type = 0;
 	mannequin_props.bounding_shape = glm::vec3(m_skinned_mesh->size().x / 4.f,
 		m_skinned_mesh->size().y / 2.f, m_skinned_mesh->size().x / 4.f);
@@ -107,19 +107,28 @@ example_layer::example_layer()
 		mannequin_props.scale.x, mannequin_props.bounding_shape.y * 2.f *
 		mannequin_props.scale.x, mannequin_props.bounding_shape.z * 2.f *
 		mannequin_props.scale.x, mannequin_props.position);
+	m_player.set_speed(0);
+	
 
 
 	// Load the terrain texture and create a terrain mesh. Create a terrain object. Set its properties
 	std::vector<engine::ref<engine::texture_2d>> terrain_textures = { engine::texture_2d::create("assets/textures/terrain.bmp", false) };
-	engine::ref<engine::terrain> terrain_shape = engine::terrain::create(100.f, 0.5f, 100.f);
+	engine::ref<engine::terrain> terrain_shape = engine::terrain::create(10.f, 0.5f, 10.f);
 	engine::game_object_properties terrain_props;
+	terrain_props.position = { 0,0,0 };
 	terrain_props.meshes = { terrain_shape->mesh() };
 	terrain_props.textures = terrain_textures;
 	terrain_props.is_static = true;
 	terrain_props.type = 0;
-	terrain_props.bounding_shape = glm::vec3(100.f, 0.5f, 100.f);
+	terrain_props.bounding_shape = glm::vec3(10.f, 0.5f, 10.f);
 	terrain_props.restitution = 0.92f;
 	m_terrain = engine::game_object::create(terrain_props);
+	//m_terrain->set_offset({0,-0.5f,0});//Does not fix the problem
+	m_terrain_box.set_box(terrain_props.bounding_shape.x * 2.f *
+		terrain_props.scale.x, terrain_props.bounding_shape.y * 2.f *
+		terrain_props.scale.y, terrain_props.bounding_shape.z * 2.f *
+		terrain_props.scale.z, terrain_props.position - glm::vec3(0.f, m_terrain->offset().y, 0.f) *
+		m_terrain->scale());
 
 	// Load the cow model. Create a cow object. Set its properties
 	engine::ref <engine::model> cow_model =
@@ -205,8 +214,8 @@ example_layer::~example_layer() {}
 
 void example_layer::on_update(const engine::timestep& time_step) 
 {
-    //m_3d_camera.on_update(time_step);
-	m_player.update_camera(m_3d_camera);
+    m_3d_camera.on_update(time_step);
+	//m_player.update_camera(m_3d_camera);
 
 	m_physics_manager->dynamics_world_update(m_game_objects, double(time_step));
 
@@ -217,6 +226,8 @@ void example_layer::on_update(const engine::timestep& time_step)
 		m_player.object()->rotation_amount(), m_player.object()->rotation_axis());
 	m_cow_box.on_update(m_cow->position() - glm::vec3(0.f, m_cow->offset().y, 0.f) *
 		m_cow->scale(), m_cow->rotation_amount(), m_cow->rotation_axis());
+	m_terrain_box.on_update(m_terrain->position() - glm::vec3(0.f, m_terrain->offset().y, 0.f) *
+		m_terrain->scale(), m_terrain->rotation_amount(), m_terrain->rotation_axis());
 
 	if (m_ball->is_colliding() && m_ball->collision_objects().size() > 1)
 	{
@@ -258,6 +269,7 @@ void example_layer::on_render()
 
 	m_player_box.on_render(2.5f, 0.f, 0.f, textured_lighting_shader);
 	m_cow_box.on_render(2.5f, 0.f, 0.f, textured_lighting_shader);
+	m_terrain_box.on_render(2.5f, 0.f, 0.f, textured_lighting_shader);
 
 	engine::renderer::submit(textured_lighting_shader, m_tetrahedron);
 
@@ -266,12 +278,13 @@ void example_layer::on_render()
 	tree_transform = glm::rotate(tree_transform, m_tree->rotation_amount(), m_tree->rotation_axis());
 	tree_transform = glm::scale(tree_transform, m_tree->scale());
 	engine::renderer::submit(textured_lighting_shader, tree_transform, m_tree);
-	
-	glm::mat4 cow_transform(1.0f);
+
+	engine::renderer::submit(textured_lighting_shader, m_cow);
+	/*glm::mat4 cow_transform(1.0f);
 	cow_transform = glm::translate(cow_transform, m_cow->position() - m_cow->offset() * m_cow-> scale());
 	cow_transform = glm::rotate(cow_transform, m_cow->rotation_amount(), m_cow->rotation_axis());
 	cow_transform = glm::scale(cow_transform, m_cow->scale());
-	engine::renderer::submit(textured_lighting_shader, cow_transform, m_cow);
+	engine::renderer::submit(textured_lighting_shader, cow_transform, m_cow);*/
 
 	glm::mat4 jeep_transform(1.0f);
 	jeep_transform = glm::translate(jeep_transform, m_jeep->position());

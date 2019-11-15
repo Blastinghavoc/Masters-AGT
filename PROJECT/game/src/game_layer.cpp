@@ -275,13 +275,9 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	light_manager::point_lights.push_back(point_light_2);
 	light_manager::point_lights.push_back(point_light_3);
 
-	//m_physical_gameobjects.push_back(m_player.object());
-	//m_physical_gameobjects.push_back(m_terrain);
-	//m_physics_manager = engine::bullet_manager::create(m_physical_gameobjects);
-	//auto player_body = m_player.object()->physics_obj()->get_body();
-	//player_body->setAngularFactor(btVector3(0, 0, 0));	
-	//////player_body->setInvInertiaDiagLocal({ 1,1,1 });
-	////player_body->setDamping(player_body->getLinearDamping(), 100.f);	
+	m_physical_gameobjects.push_back(m_player.object());
+	m_physical_gameobjects.push_back(m_terrain);
+	m_physics_manager = engine::bullet_manager::create(m_physical_gameobjects);
 
 	enemy_manager::init(m_level_grid);
 	gameplay_manager::init(&m_player,m_text_manager,&m_3d_camera,m_level_grid,m_audio_manager);
@@ -333,14 +329,29 @@ void game_layer::on_update(const engine::timestep& time_step)
 			m_3d_camera.on_update(time_step);
 		}
 		else {
-			m_player.on_update(time_step);
 			m_player.update_camera(m_3d_camera);
+			m_player.on_update(time_step);
+		}
+
+		bool debug = false;
+		if (engine::input::key_pressed(engine::key_codes::KEY_W) ||
+			engine::input::key_pressed(engine::key_codes::KEY_A) ||
+			engine::input::key_pressed(engine::key_codes::KEY_S) ||
+			engine::input::key_pressed(engine::key_codes::KEY_D))
+		{
+			debug = true;
+			LOG_INFO("pre velocity{}", m_player.object()->velocity());
 		}
 
 		gameplay_manager::update(time_step);
 		sfx_manager::on_update(time_step);
 
-		//m_physics_manager->dynamics_world_update(m_physical_gameobjects,time_step);
+		m_physics_manager->dynamics_world_update(m_physical_gameobjects,time_step);
+		if (debug)
+		{
+			LOG_INFO("post velocity{}", m_player.object()->velocity());
+			LOG_INFO("Active? {}",m_physics_manager->physical_objects[0]->get_body()->getActivationState());
+		}
 	}
 }
 
@@ -446,6 +457,10 @@ void game_layer::on_render()
 	for (auto& obj : m_decorational_objects) {		
 		engine::renderer::submit(textured_lighting_shader, obj);
 	}
+
+	//Render Bounding boxes
+	m_player.object()->render_obb({1,0,0},textured_lighting_shader);
+	//m_terrain->render_obb({ 1,0,0 }, textured_lighting_shader);	
 
 	engine::renderer::end_scene();
 

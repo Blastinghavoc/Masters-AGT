@@ -19,6 +19,7 @@ private:
 
 	bounding_box m_cow_box;
 	bounding_box m_player_box;
+	bounding_box m_terrain_box;
 
 	engine::ref<engine::skybox>			m_skybox{};
 	engine::ref<engine::game_object>	m_terrain{};

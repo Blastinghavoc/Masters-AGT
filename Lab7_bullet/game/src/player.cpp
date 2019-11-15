@@ -14,7 +14,7 @@ void player::initialise(engine::ref<engine::game_object> object)
 {
 	m_object = object;
 	m_object->set_forward(glm::vec3(0.f, 0.f, -1.f));
-	m_object->set_position(glm::vec3(0.f, 0.5, 10.f));
+	m_object->set_position(glm::vec3(0.f, 0.5, 4.f));
 	m_object->animated_mesh()->set_default_animation(1);
 }
 

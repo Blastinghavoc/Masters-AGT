@@ -52,7 +52,7 @@ private:
 	engine::ref<grid> m_level_grid{};
 	glm::vec3 m_grid_center{};
 
-	player m_player{glm::vec3(3.f,0,0.f)};
+	player m_player{glm::vec3(3.f,.5f,0.f)};
 
 	bool m_show_debug{ false };
 
