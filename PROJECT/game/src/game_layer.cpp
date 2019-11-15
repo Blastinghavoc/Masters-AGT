@@ -16,6 +16,7 @@ namespace fs = std::filesystem;
 #include "btBulletDynamicsCommon.h"//For bt rigid body?
 
 #include "sfx/sfx_manager.h"
+#include "physics/physics_manager.h"
 
 
 game_layer::game_layer() :
@@ -40,6 +41,8 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	m_audio_manager->load_sound("assets/audio/error_sound.wav",engine::sound_type::event,"error");
 	//Alert from https://freesound.org/people/willy_ineedthatapp_com/sounds/167337/
 	m_audio_manager->load_sound("assets/audio/8_bit_alert.mp3",engine::sound_type::event,"alert");
+
+	physics_manager::init();
 
 
 	// Initialise the shaders, materials, and lights
@@ -137,12 +140,12 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 		m_level_grid->set_border(i, 0, orientation::south);
 		m_level_grid->set_border(i, max_grid_dimension-1, orientation::north);
 
-		m_level_grid->set_corner(0, i, orientation::south_east);
-		m_level_grid->set_corner(max_grid_dimension-1, i, orientation::south_west);
-		m_level_grid->set_state(max_grid_dimension, i, grid_tile::tile_state::border);
-		m_level_grid->set_corner(i, 0, orientation::south_east);
-		m_level_grid->set_corner(i, max_grid_dimension-1, orientation::north_east);
-		m_level_grid->set_state(i,max_grid_dimension, grid_tile::tile_state::border);
+		//m_level_grid->set_corner(0, i, orientation::south_east);
+		//m_level_grid->set_corner(max_grid_dimension-1, i, orientation::south_west);
+		//m_level_grid->set_state(max_grid_dimension, i, grid_tile::tile_state::border);
+		//m_level_grid->set_corner(i, 0, orientation::south_east);
+		//m_level_grid->set_corner(i, max_grid_dimension-1, orientation::north_east);
+		//m_level_grid->set_state(i,max_grid_dimension, grid_tile::tile_state::border);
 		
 		for (int j = 0; j < max_grid_dimension; j++)
 		{
@@ -150,13 +153,12 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 			m_level_grid->set_state(i, j,grid_tile::tile_state::empty,true);
 		}
 	}
+	m_level_grid->set_corner(0, 0, orientation::south_east);
+	m_level_grid->set_corner(max_grid_dimension, 0, orientation::south_east);
+	m_level_grid->set_corner(0, max_grid_dimension, orientation::south_east);
 	m_level_grid->set_corner(max_grid_dimension, max_grid_dimension, orientation::south_east);
 	glm::vec3 center = m_level_grid->grid_to_world_coords(max_grid_dimension/2, max_grid_dimension/2) + glm::vec3(cell_size/2,0,cell_size/2);//The point in the center of the center grid square
-	/*m_level_grid->set_corner(7, 7, orientation::north_east);
-	m_level_grid->set_corner(7, 7, orientation::south_east);
-	m_level_grid->set_corner(7, 7, orientation::south_west);
-	m_level_grid->set_corner(7, 7, orientation::north_west);*/
-
+	
 	m_level_grid->set_gateway(max_grid_dimension-2, max_grid_dimension-1, orientation::north_east);
 	m_level_grid->set_gateway(max_grid_dimension-2, max_grid_dimension-1, orientation::north_west,(float)M_PI);
 	m_level_grid->del_border(max_grid_dimension-2, max_grid_dimension-1, orientation::north);
@@ -165,7 +167,17 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	m_level_grid->set_gateway(1, 0, orientation::south_east);
 	m_level_grid->set_gateway(1, 0, orientation::south_west,(float)M_PI);
 	m_level_grid->del_border(1, 0, orientation::south);
-	m_level_grid->set_end(1, -1);
+	m_level_grid->set_end(1, -1);	
+
+	//Physics
+	for (int i = 0; i < max_grid_dimension; i++)
+	{
+		for (int j = 0; j < max_grid_dimension; j++) {
+			for (auto& obj : (*m_level_grid)[glm::vec2(i, j)].get_borders()) {
+				physics_manager::add(obj);
+			}
+		}
+	}
 
 	m_level_grid->bake_tiles();
 
@@ -275,9 +287,8 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	light_manager::point_lights.push_back(point_light_2);
 	light_manager::point_lights.push_back(point_light_3);
 
-	m_physical_gameobjects.push_back(m_player.object());
-	m_physical_gameobjects.push_back(m_terrain);
-	m_physics_manager = engine::bullet_manager::create(m_physical_gameobjects);
+	physics_manager::add(m_player.object());
+	physics_manager::add(m_terrain);		
 
 	enemy_manager::init(m_level_grid);
 	gameplay_manager::init(&m_player,m_text_manager,&m_3d_camera,m_level_grid,m_audio_manager);
@@ -331,27 +342,12 @@ void game_layer::on_update(const engine::timestep& time_step)
 		else {
 			m_player.update_camera(m_3d_camera);
 			m_player.on_update(time_step);
-		}
-
-		bool debug = false;
-		if (engine::input::key_pressed(engine::key_codes::KEY_W) ||
-			engine::input::key_pressed(engine::key_codes::KEY_A) ||
-			engine::input::key_pressed(engine::key_codes::KEY_S) ||
-			engine::input::key_pressed(engine::key_codes::KEY_D))
-		{
-			debug = true;
-			LOG_INFO("pre velocity{}", m_player.object()->velocity());
-		}
-
-		gameplay_manager::update(time_step);
+		}		
+		//DEBUG off while testing physics
+		//gameplay_manager::update(time_step);
 		sfx_manager::on_update(time_step);
 
-		m_physics_manager->dynamics_world_update(m_physical_gameobjects,time_step);
-		if (debug)
-		{
-			LOG_INFO("post velocity{}", m_player.object()->velocity());
-			LOG_INFO("Active? {}",m_physics_manager->physical_objects[0]->get_body()->getActivationState());
-		}
+		physics_manager::update(time_step);		
 	}
 }
 
@@ -460,7 +456,10 @@ void game_layer::on_render()
 
 	//Render Bounding boxes
 	m_player.object()->render_obb({1,0,0},textured_lighting_shader);
-	//m_terrain->render_obb({ 1,0,0 }, textured_lighting_shader);	
+	//m_terrain->render_obb({ 1,0,0 }, textured_lighting_shader);
+	/*for (auto& obj : (*m_level_grid)[glm::vec2(-1, -1)].get_borders()) {
+		obj->render_obb({ 1,0,0 }, textured_lighting_shader);
+	}*/
 
 	engine::renderer::end_scene();
 

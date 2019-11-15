@@ -93,7 +93,7 @@ void player::on_update(const engine::timestep& time_step)
 	//Possibly jump if not already jumping
 	if (!jumping && engine::input::key_pressed(engine::key_codes::KEY_SPACE))
 	{
-		jump();
+		jump(time_step);
 		jumping = true;
 	}
 
@@ -159,12 +159,13 @@ void player::update_camera(engine::perspective_camera& camera)
 	//m_object->set_angular_velocity(glm::vec3(0.f, correction, 0.f));
 }
 
-//Play the jump animation. TODO actually move the player when physics is added
-void player::jump()
+//Play the jump animation.
+void player::jump(const engine::timestep& ts)
 {
+	auto time_compensation = 1 / ts;
 	switch_animation(m_animations["jump"]);
 	m_jump_timer = (float)(m_object->animated_mesh()->animations().at(m_animations["jump"])->mDuration);
-	m_object->set_acceleration(m_object->acceleration() + glm::vec3(0, m_object->mass()*250, 0));
+	m_object->set_acceleration(m_object->acceleration() + glm::vec3(0, time_compensation * m_object->mass()*8, 0));
 }
 
 //Handle events sent to the player

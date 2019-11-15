@@ -25,6 +25,7 @@ namespace engine
 		float friction = 0.9f;
         float rotation_amount = 0.f;
         bool is_static = false;
+		glm::vec3 offset{ 0.f };
 	};
 
 

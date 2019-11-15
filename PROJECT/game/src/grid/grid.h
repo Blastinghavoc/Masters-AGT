@@ -104,6 +104,14 @@ private:
 	//Obtains the grid index of the corner found at the given heading from the given grid coordinates.
 	std::pair<int, int> get_corner_index_from_heading(const int& x, const int& z, const orientation& heading);
 
+	/*
+	Determines which corners should exist around a given index, creating any missing ones
+	and removing any superfluous ones.
+	*/
+	void resolve_corners(std::pair<int, int> index, std::map<orientation, bool> adjacent_is_maze = {});
+	//Returns a map showing which adjacent tiles are maze tiles for a given index.
+	std::map<orientation, bool> get_adjacent_maze_status(std::pair<int, int> index);
+
 	//data
 
 	float m_cell_size;

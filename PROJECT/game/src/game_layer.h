@@ -30,7 +30,7 @@ private:
 	engine::ref < engine::game_object > m_test_obj{};
 
 	std::vector<engine::ref<engine::game_object>> m_decorational_objects{};
-	std::vector<engine::ref<engine::game_object>> m_physical_gameobjects{};
+	//std::vector<engine::ref<engine::game_object>> m_physical_gameobjects{};
 
 	std::vector<pickup> m_pickups{0};
 
@@ -38,7 +38,7 @@ private:
 
 	engine::DirectionalLight            m_directionalLight;
 
-	engine::ref<engine::bullet_manager> m_physics_manager{};
+	//engine::ref<engine::bullet_manager> m_physics_manager{};
 	engine::ref<engine::audio_manager>  m_audio_manager{};
 	engine::ref<engine::text_manager>	m_text_manager{};
 

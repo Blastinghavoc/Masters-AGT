@@ -15,7 +15,7 @@ public:
 		start, //The start position of enemies
 		end, //The goal position of enemies
 		border //tile cannot be modified or pathed through
-		//TODO Tower type, Start and End types? Consider subclassing instead?
+		
 	};
 
 	tile_state state{tile_state::empty};
@@ -35,6 +35,15 @@ public:
 
 	//Assumes begin scene has already been called
 	void render(const engine::ref<engine::shader>& shader);
+
+	//Testing physics
+	std::vector<engine::ref<engine::game_object>> get_borders() {
+		std::vector<engine::ref<engine::game_object>> tmp;
+		for (auto pair : m_borders) {
+			tmp.push_back(pair.second);
+		}
+		return tmp;
+	};
 
 private:
 	std::map<orientation,engine::ref<engine::game_object>> m_borders{};

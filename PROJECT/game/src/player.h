@@ -21,7 +21,7 @@ public:
 	void update_camera(engine::perspective_camera& camera);
 
 	//Plays the jump animation, but currently does not change the trajectory of the player.
-	void jump();
+	void jump(const engine::timestep& ts);
 
 	//Respond to events, specifically the mouse scroll event
 	void on_event(engine::event& e);

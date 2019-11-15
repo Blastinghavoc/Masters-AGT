@@ -62,6 +62,7 @@
     </ClCompile>
     <ClCompile Include="src\sfx\sfx_manager.cpp" />
     <ClCompile Include="src\sfx\cross_fade.cpp" />
+    <ClCompile Include="src\physics\physics_manager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="layers">
@@ -90,6 +91,9 @@
     </Filter>
     <Filter Include="sfx">
       <UniqueIdentifier>{ccdc8de5-4135-4332-b72a-d77bf724a8c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="physics">
+      <UniqueIdentifier>{346c8076-1b7f-43f5-aa20-1a3e86b727f3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -159,6 +163,9 @@
     </ClInclude>
     <ClInclude Include="src\sfx\cross_fade.h">
       <Filter>sfx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\physics\physics_manager.h">
+      <Filter>physics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

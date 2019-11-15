@@ -12,24 +12,28 @@ grid::grid(float cell_size,float y):
 
 	//Models in the "modified" directory were put together by me from the original pieces.
 	//Walls
-	engine::ref <engine::model> model = engine::model::create(path + "modified/wall_straight" + extn);
+	engine::ref <engine::model> model = engine::model::create(path + "modified/wall_without_corners" + extn);
 	engine::game_object_properties props;
+	props.is_static = true;
+	props.type = 0;
 	props.meshes = model->meshes();
 	props.textures = model->textures();
-	float scale = (m_cell_size * 1.f) / glm::max(model->size().x, glm::max(model->size().y, model->size().z));
+	float scale = (m_cell_size * 1.f) / model->size().y;//glm::max(model->size().x, glm::max(model->size().y, model->size().z));
 	props.scale = glm::vec3(scale);
-	props.bounding_shape = model->size() / 2.f * scale;
-	props.rotation_axis = { 0,1, 0 };
-	props.position = { 0,0,m_cell_size * .5f };
+	props.bounding_shape = model->size()/2.f;
+	props.offset = model->offset();
+	auto y_pos = props.offset.y;
+	props.rotation_axis = { 0,1, 0 };	
+	props.position = { 0,y_pos,m_cell_size * .5f };
 	props.rotation_amount = (float)(M_PI / 2);
 	m_walls_prefabs[orientation::east]=engine::game_object::create(props);
-	props.position = { m_cell_size ,0, m_cell_size * .5f };
+	props.position = { m_cell_size ,y_pos, m_cell_size * .5f };
 	props.rotation_amount = (float)(M_PI *1.5);
 	m_walls_prefabs[orientation::west] = engine::game_object::create(props);
-	props.position = { m_cell_size * .5f,0, 0 };
+	props.position = { m_cell_size * .5f,y_pos, 0 };
 	props.rotation_amount = 0;
 	m_walls_prefabs[orientation::south] = engine::game_object::create(props);
-	props.position = { m_cell_size * .5f,0, m_cell_size };
+	props.position = { m_cell_size * .5f,y_pos, m_cell_size };
 	props.rotation_amount = (float)M_PI;
 	m_walls_prefabs[orientation::north] = engine::game_object::create(props);
 
@@ -66,11 +70,13 @@ grid::grid(float cell_size,float y):
 	props = engine::game_object_properties();
 	props.meshes = model->meshes();
 	props.textures = model->textures();	
-	scale = (m_cell_size * 1.f) / model->size().x;
+	scale = (m_cell_size * 1) / model->size().x;
 	auto max_scale = (m_cell_size * 1.f) / glm::max(model->size().x, glm::max(model->size().y, model->size().z));
-	props.scale = glm::vec3(scale);
+	props.scale = glm::vec3(scale)*glm::vec3(.85f,1,.85f);
 	props.bounding_shape = model->size() / 2.f * max_scale;
 	props.rotation_axis = { 0,1, 0 };
+	//props.offset = model->offset();
+	//y_pos = props.offset.y;
 	props.position = { 0,0,0 };
 	m_gateway_prefab = engine::game_object::create(props);
 }
@@ -177,6 +183,7 @@ std::pair<int, int> grid::get_corner_index_from_heading(const int& x, const int&
 	return std::make_pair(effective_x, effective_z);
 }
 
+
 //Sets the floor at the given grid location.
 void grid::set_floor(const int& x, const int& z)
 {
@@ -202,6 +209,88 @@ void grid::set_state(const int& x, const int& z, grid_tile::tile_state state, bo
 	{
 		m_tiles[index].state = state;
 	}	
+}
+
+void grid::resolve_corners(std::pair<int, int> index, std::map<orientation, bool> adjacent_is_maze)
+{
+	if (adjacent_is_maze.size() != 8)//Expect entries for all 8 tiles around the index
+	{
+		adjacent_is_maze = get_adjacent_maze_status(index);
+	}
+
+	bool this_is_maze = is_block(index);
+
+	for (const auto& corner_facing : orientation::get_all_composite())
+	{
+		auto adjacent_to_corner = corner_facing.cardinal_components();
+		bool need_corner = false;
+		if (this_is_maze)
+		{
+			if (adjacent_is_maze[corner_facing])
+			{
+			
+				if (!(adjacent_is_maze[adjacent_to_corner[0]] && adjacent_is_maze[adjacent_to_corner[1]])) {
+					need_corner = true;
+				}
+						
+			}
+			else {				
+				if (adjacent_is_maze[adjacent_to_corner[0]] == adjacent_is_maze[adjacent_to_corner[1]]) {
+					need_corner = true;
+				}
+			}
+		}
+		else {
+			if (adjacent_is_maze[corner_facing])
+			{
+
+				if ((adjacent_is_maze[adjacent_to_corner[0]] == adjacent_is_maze[adjacent_to_corner[1]])) {
+					need_corner = true;
+				}
+
+			}
+			else {
+				if (adjacent_is_maze[adjacent_to_corner[0]] || adjacent_is_maze[adjacent_to_corner[1]]) {
+					need_corner = true;
+				}
+			}
+		}
+
+		if (need_corner)
+		{			
+			//Add the corner if it's missing
+			if (!has_corner(index.first, index.second, corner_facing))
+			{
+				set_corner(index.first, index.second, corner_facing);
+			}
+			continue;
+		}
+		else {
+			//Don't need a corner
+
+			auto corner_index = get_corner_index_from_heading(index.first, index.second, corner_facing);
+
+			//If the baked version of the tile exists and has a corner, keep it.
+			if (m_tiles_baked.count(corner_index) > 0 && m_tiles_baked[corner_index].has_corner())
+			{
+				continue;
+			}
+			else {
+				//Otherwise, delete the corner
+				del_corner(corner_index.first, corner_index.second);
+			}
+		}
+	}
+}
+
+std::map<orientation, bool> grid::get_adjacent_maze_status(std::pair<int,int> index)
+{
+	std::map<orientation, bool> adjacent_is_maze;
+	for (const auto& facing : orientation::get_all()) {
+		auto adjacent_index = adjacent_to(index, facing);
+		adjacent_is_maze[facing] = is_block(adjacent_index);
+	}
+	return adjacent_is_maze;
 }
 
 /*Place a whole "block" at the target location.
@@ -240,7 +329,7 @@ bool grid::place_block(const int& x, const int& z,bool force)
 
 	tile.state = grid_tile::tile_state::maze;
 
-	std::map<orientation,bool> adjacent_is_maze;
+	std::map<orientation,bool> adjacent_is_maze = get_adjacent_maze_status(index);;
 
 	//Must be careful about placing walls so as not to have two adjacent tiles both rendering walls.
 	for (const auto& facing : wall_facings)
@@ -251,8 +340,7 @@ bool grid::place_block(const int& x, const int& z,bool force)
 		bool need_to_place_border = true;
 		if (contains(adjacent_index))//Check the adjacent tile if it exists
 		{
-			auto& adjacent_tile = m_tiles[adjacent_index];
-			adjacent_is_maze[facing] = adjacent_tile.state == grid_tile::tile_state::maze;
+			auto& adjacent_tile = m_tiles[adjacent_index];			
 
 			//Nothing required if this tile already has a border in this direction.
 			if (!(tile.has_border(facing)))
@@ -278,9 +366,7 @@ bool grid::place_block(const int& x, const int& z,bool force)
 		}
 		else {
 			//If the adjacent tile does not exist, we definitely need to place a new border.
-			need_to_place_border = true;
-			//Definitely not a maze tile if it doesn't exist
-			adjacent_is_maze[facing] = false;
+			need_to_place_border = true;			
 		}
 
 		if (need_to_place_border)
@@ -289,51 +375,53 @@ bool grid::place_block(const int& x, const int& z,bool force)
 		}
 	}
 
-	//Set the south_east corner if necessary.
-	if (!tile.has_corner())
-	{
-		set_corner(x, z);
-	}	
+	resolve_corners(index,adjacent_is_maze);
 
-	//Add the other corners if they don't already exist.
-	orientation other_corner_owners[]{ orientation::north,orientation::west,orientation::north_west};
-	for (const auto& facing : other_corner_owners)
-	{
-		std::pair<int, int> other_index = adjacent_to(index,facing);
-		if (contains(other_index))
-		{
-			auto& other_tile = m_tiles[other_index];		
+	////Set the south_east corner if necessary.
+	//if (!tile.has_corner())
+	//{
+	//	set_corner(x, z);
+	//}	
 
-			if (!other_tile.has_corner())
-			{
-				set_corner(other_index.first, other_index.second);
-			}
-		}
-		else {
-			set_corner(other_index.first, other_index.second);
-		}
-	}
+	////Add the other corners if they don't already exist.
+	//orientation other_corner_owners[]{ orientation::north,orientation::west,orientation::north_west};
+	//for (const auto& facing : other_corner_owners)
+	//{
+	//	std::pair<int, int> other_index = adjacent_to(index,facing);
+	//	if (contains(other_index))
+	//	{
+	//		auto& other_tile = m_tiles[other_index];		
 
-	//Check if diagonally adjacent tiles are maze tiles
-	for (const auto & corner_facing : orientation::get_all_composite())
-	{
-		std::pair<int, int> corner_index = adjacent_to(index,corner_facing);
+	//		if (!other_tile.has_corner())
+	//		{
+	//			set_corner(other_index.first, other_index.second);
+	//		}
+	//	}
+	//	else {
+	//		set_corner(other_index.first, other_index.second);
+	//	}
+	//}
 
-		bool corner_is_maze = false;
-		if (contains(corner_index))
-		{
-			auto& corner_tile = m_tiles[corner_index];
-			corner_is_maze = corner_tile.state == grid_tile::tile_state::maze;
-		}
+	////Check if diagonally adjacent tiles are maze tiles
+	//for (const auto & corner_facing : orientation::get_all_composite())
+	//{
+	//	std::pair<int, int> corner_index = adjacent_to(index,corner_facing);
 
-		//Get the cardinal components of the composite orientation
-		auto components = corner_facing.cardinal_components();		
-		//Delete corner if shared on all sides by maze blocks.
-		if (corner_is_maze && adjacent_is_maze[components[0]] && adjacent_is_maze[components[1]])
-		{
-			del_corner(x,z, corner_facing);
-		}
-	}
+	//	bool corner_is_maze = false;
+	//	if (contains(corner_index))
+	//	{
+	//		auto& corner_tile = m_tiles[corner_index];
+	//		corner_is_maze = corner_tile.state == grid_tile::tile_state::maze;
+	//	}
+
+	//	//Get the cardinal components of the composite orientation
+	//	auto components = corner_facing.cardinal_components();		
+	//	//Delete corner if shared on all sides by maze blocks.
+	//	if (corner_is_maze && adjacent_is_maze[components[0]] && adjacent_is_maze[components[1]])
+	//	{
+	//		del_corner(x,z, corner_facing);
+	//	}
+	//}
 
 	return true;
 }
@@ -380,48 +468,9 @@ bool grid::remove_block(const int& x, const int& z)
 		del_corner(x, z, orientation::north_west);
 	}
 
-	std::map<orientation, bool> adjacent_is_maze;
+	std::map<orientation, bool> adjacent_is_maze = get_adjacent_maze_status(index);
 
-	for (const auto& facing : orientation::get_all() ) {			
-		auto adjacent_index = adjacent_to(index,facing);
-		if (contains(adjacent_index))
-		{
-			adjacent_is_maze[facing] = m_tiles[adjacent_index].state == grid_tile::tile_state::maze;
-		}
-		else
-		{
-			adjacent_is_maze[facing] = false;
-		}
-	}
-
-	//Recalculate whether each corner should exist
-	for (const auto& corner_facing : orientation::get_all_composite())
-	{
-		auto adjacent_to_corner = corner_facing.cardinal_components();
-		bool need_corner = false;
-		if (adjacent_is_maze[corner_facing] || adjacent_is_maze[adjacent_to_corner[0]] || adjacent_is_maze[adjacent_to_corner[1]])
-		{
-			//If any of the tiles that share the corner are maze tiles, the corner should be present.
-			//Add the corner if it's missing
-			if (!has_corner(index.first, index.second, corner_facing))
-			{
-				set_corner(index.first, index.second, corner_facing);
-			}
-			continue;
-		}
-		else {
-			auto corner_index = get_corner_index_from_heading(x, z, corner_facing);
-			//If the baked version of the tile exists and has a corner, keep it.
-			if (m_tiles_baked.count(corner_index) > 0 && m_tiles_baked[corner_index].has_corner())
-			{
-				continue;
-			}
-			else {
-				//Otherwise, delete the corner
-				del_corner(corner_index.first, corner_index.second);
-			}
-		}
-	}
+	resolve_corners(index, adjacent_is_maze);
 
 	//Similar to placing a tile, must smartly update adjacent walls.
 	//Any adjacent maze tiles should have a border in this direction, and a corner.
