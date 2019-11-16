@@ -19,6 +19,8 @@ public:
 
 	static bool remove_turret(glm::vec3 position);
 
+	static void update(const engine::timestep& ts);
+
 	static int count() { return (int)m_turrets.size(); };
 private:
 	static std::map<vec3,engine::ref<turret>> m_turrets;

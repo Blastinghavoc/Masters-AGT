@@ -56,9 +56,6 @@
     <ClCompile Include="src\entities\animated_actor.cpp">
       <Filter>entities</Filter>
     </ClCompile>
-    <ClCompile Include="src\entities\enemy.cpp">
-      <Filter>entities</Filter>
-    </ClCompile>
     <ClCompile Include="src\entities\pickup.cpp">
       <Filter>entities</Filter>
     </ClCompile>
@@ -75,6 +72,15 @@
       <Filter>gameplay</Filter>
     </ClCompile>
     <ClCompile Include="src\entities\trigger_box.cpp">
+      <Filter>entities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\entities\animated_enemy.cpp">
+      <Filter>entities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\entities\abstract_actor.cpp">
+      <Filter>entities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\entities\abstract_enemy.cpp">
       <Filter>entities</Filter>
     </ClCompile>
   </ItemGroup>
@@ -172,9 +178,6 @@
     <ClInclude Include="src\entities\animated_actor.h">
       <Filter>entities</Filter>
     </ClInclude>
-    <ClInclude Include="src\entities\enemy.h">
-      <Filter>entities</Filter>
-    </ClInclude>
     <ClInclude Include="src\entities\grenade.h">
       <Filter>entities</Filter>
     </ClInclude>
@@ -191,6 +194,15 @@
       <Filter>gameplay</Filter>
     </ClInclude>
     <ClInclude Include="src\entities\trigger_box.h">
+      <Filter>entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\entities\abstract_enemy.h">
+      <Filter>entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\entities\abstract_actor.h">
+      <Filter>entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\entities\animated_enemy.h">
       <Filter>entities</Filter>
     </ClInclude>
   </ItemGroup>

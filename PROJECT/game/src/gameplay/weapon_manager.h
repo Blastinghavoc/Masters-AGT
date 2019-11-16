@@ -20,4 +20,5 @@ private:
 	static std::vector<engine::ref<grenade>> m_active_grenades;
 	static engine::ref<engine::audio_manager> m_audio_manager;
 
+	static constexpr float m_grenade_damage = 50.f;
 };

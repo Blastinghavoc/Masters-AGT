@@ -1,15 +1,16 @@
 #include "enemy_manager.h"
+#include "../entities/animated_enemy.h"
 
 //Static initializers
-std::map<int,enemy> enemy_manager::s_minions;
+std::map<int, engine::ref<abstract_enemy>> enemy_manager::s_minions;
 int enemy_manager::s_next_id = 0;
 engine::ref<grid> enemy_manager::s_level_grid{};
 std::deque<glm::vec3> enemy_manager::s_current_path{};
 int enemy_manager::s_current_wave_remaining = 0;
 float enemy_manager::s_interval_accumulator = 0;
 float enemy_manager::s_current_wave_interval = 2.f;
-std::stack<enemy*> enemy_manager::s_minion_buffer{};
-std::vector<enemy*> enemy_manager::s_current_active_minions{};
+std::stack<engine::ref<abstract_enemy>> enemy_manager::s_minion_buffer{};
+std::vector<engine::ref<abstract_enemy>> enemy_manager::s_current_active_minions{};
 engine::ref<engine::SpotLight> enemy_manager::m_spot_light{};
 
 void enemy_manager::init(engine::ref<grid> level_grid)
@@ -17,7 +18,7 @@ void enemy_manager::init(engine::ref<grid> level_grid)
 	s_level_grid = level_grid;
 
 	//Add one enemy to the buffer, allowing the enemy prefab to be initialised.
-	auto minion = &spawn_minion({ 0,0,0 });
+	auto minion = spawn_minion({ 0,0,0 });
 	s_minion_buffer.push(minion);
 
 	m_spot_light = std::make_shared<engine::SpotLight>();
@@ -42,10 +43,10 @@ void enemy_manager::on_update(engine::timestep time_step)
 		s_interval_accumulator += time_step;
 		if (s_interval_accumulator > s_current_wave_interval)
 		{
-			enemy* new_minion;
+			engine::ref<abstract_enemy> new_minion;
 			if (s_minion_buffer.empty())
 			{
-				new_minion = &spawn_minion(s_current_path.front());
+				new_minion = spawn_minion(s_current_path.front());
 			}
 			else {
 				new_minion = s_minion_buffer.top();
@@ -53,6 +54,7 @@ void enemy_manager::on_update(engine::timestep time_step)
 				s_minion_buffer.pop();
 			}
 
+			new_minion->set_health(new_minion->max_health());
 			new_minion->set_path(s_current_path);
 			s_current_active_minions.push_back(new_minion);	
 			s_interval_accumulator -= s_current_wave_interval;
@@ -68,9 +70,8 @@ void enemy_manager::on_update(engine::timestep time_step)
 		}
 	}
 
-	if (s_current_active_minions.size() > 0)
+	if (!s_current_active_minions.empty())
 	{
-		auto furthest_forward_alive = *begin(s_current_active_minions);
 		for (auto& minion_iterator = begin(s_current_active_minions); minion_iterator != end(s_current_active_minions);) {
 			auto& current_minion = *minion_iterator;
 			current_minion->on_update(time_step);
@@ -82,30 +83,38 @@ void enemy_manager::on_update(engine::timestep time_step)
 				gameplay_manager::damage_portal();
 
 			}
+			else if (current_minion->health() <= 0) {
+				//If the minion has died, deactivate it and signal the gameplay manager
+				s_minion_buffer.push(current_minion);
+				gameplay_manager::add_score(current_minion->max_health());
+				minion_iterator = s_current_active_minions.erase(minion_iterator);//Erase and return next.
+			}
 			else {
 				//Otherwise, move on to the next.
-
-				//Check if this minion is closer to the goal than any we've seen so far
-				if (current_minion->waypoints_remaining() < furthest_forward_alive->waypoints_remaining())
-				{
-					furthest_forward_alive = current_minion;
-				}
 				++minion_iterator;
 			}
 		}
 
-		m_spot_light->Position = furthest_forward_alive->position();
-		m_spot_light->Position.y += 4.f;
-		m_spot_light->On = true;
+		//If there's still minions left active, highlight the furthest forward, and sort them by distance for use elsewhere
+		if (!s_current_active_minions.empty())
+		{
+			std::sort(begin(s_current_active_minions), end(s_current_active_minions), &abstract_enemy::is_closer_to_goal);
+
+			auto& furthest_forward_alive = s_current_active_minions.front();
+
+			m_spot_light->Position = furthest_forward_alive->position();
+			m_spot_light->Position.y += 4.f;
+			m_spot_light->On = true;
+		}
 	}
 	else {
 		m_spot_light->On = false;
 	}
 }
 
-enemy& enemy_manager::spawn_minion(glm::vec3 position)
+engine::ref<abstract_enemy> enemy_manager::spawn_minion(glm::vec3 position)
 {
-	s_minions[s_next_id] = enemy(s_next_id, position);
+	s_minions[s_next_id] = animated_enemy::create(s_next_id, position);
 	return s_minions[s_next_id++];
 }
 

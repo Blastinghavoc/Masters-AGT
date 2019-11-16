@@ -11,6 +11,7 @@ int gameplay_manager::m_score = 0;
 int gameplay_manager::m_health = 100;
 int gameplay_manager::m_money = 100;
 int gameplay_manager::m_portal_health = 100;
+float gameplay_manager::m_score_multiplier = 1.f;
 engine::timer gameplay_manager::m_build_timer{};
 int gameplay_manager::m_max_build_time = 30;
 std::map<std::string, int> gameplay_manager::m_prices{};
@@ -266,11 +267,7 @@ void gameplay_manager::mouse1_event_handler()
 void gameplay_manager::mouse2_event_handler()
 {
 	if (!m_wave_active)
-	{
-		if (m_available_blocks <= 0)
-		{
-			return;
-		}
+	{		
 		auto fv = m_camera->front_vector();
 		if (fv.y > 0)
 		{
@@ -307,6 +304,11 @@ void gameplay_manager::start_combat_phase()
 
 void gameplay_manager::place_block(int x, int z)
 {
+	if (m_available_blocks <= 0)
+	{
+		return;
+	}
+
 	bool succeeded = m_level_grid->place_block(x, z);
 
 	if (succeeded)

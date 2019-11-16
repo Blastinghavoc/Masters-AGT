@@ -28,7 +28,9 @@ public:
 	static void damage_portal();
 	static void damange_player();
 
-	static void add_score(int amnt) { m_score += amnt; };
+	static void add_score(int amnt) {
+		m_score += (int)(m_score_multiplier*amnt);
+	};
 	static bool buy(std::string name) {
 		if (m_prices.count(name) > 0)
 		{
@@ -50,6 +52,7 @@ public:
 
 private:
 	static int m_score, m_health, m_money, m_portal_health;
+	static float m_score_multiplier;
 	static engine::timer m_build_timer;
 	static int m_max_build_time;
 	static std::map<std::string, int> m_prices;

@@ -134,9 +134,11 @@
     <ClInclude Include="src\ai\enemy_manager.h" />
     <ClInclude Include="src\ai\pathfinder.h" />
     <ClInclude Include="src\ai\turret_manager.h" />
+    <ClInclude Include="src\entities\abstract_actor.h" />
+    <ClInclude Include="src\entities\abstract_enemy.h" />
     <ClInclude Include="src\entities\animated_actor.h" />
     <ClInclude Include="src\entities\trigger_box.h" />
-    <ClInclude Include="src\entities\enemy.h" />
+    <ClInclude Include="src\entities\animated_enemy.h" />
     <ClInclude Include="src\entities\grenade.h" />
     <ClInclude Include="src\entities\pickup.h" />
     <ClInclude Include="src\entities\player.h" />
@@ -164,9 +166,11 @@
     <ClCompile Include="src\ai\enemy_manager.cpp" />
     <ClCompile Include="src\ai\pathfinder.cpp" />
     <ClCompile Include="src\ai\turret_manager.cpp" />
+    <ClCompile Include="src\entities\abstract_actor.cpp" />
+    <ClCompile Include="src\entities\abstract_enemy.cpp" />
     <ClCompile Include="src\entities\animated_actor.cpp" />
     <ClCompile Include="src\entities\trigger_box.cpp" />
-    <ClCompile Include="src\entities\enemy.cpp" />
+    <ClCompile Include="src\entities\animated_enemy.cpp" />
     <ClCompile Include="src\entities\grenade.cpp" />
     <ClCompile Include="src\entities\pickup.cpp" />
     <ClCompile Include="src\entities\player.cpp" />

@@ -36,7 +36,11 @@ public:
 	//Assumes begin scene has already been called
 	void render(const engine::ref<engine::shader>& shader);
 
-	//Testing physics
+	engine::ref<engine::game_object> physics_object() { return m_physics_object; };
+	void set_physics_object(engine::ref<engine::game_object> obj) { m_physics_object = obj; }
+	bool has_physics_object() { return (m_physics_object)? true: false; };
+
+	//Allows access to the border objects directly
 	std::vector<engine::ref<engine::game_object>> get_borders() {
 		std::vector<engine::ref<engine::game_object>> tmp;
 		for (auto pair : m_borders) {
@@ -53,6 +57,9 @@ private:
 
 	engine::ref<engine::game_object> m_floor{};
 	engine::ref<engine::game_object> m_ceiling{};
+
+	//An object to represent the physical presence of a whole tile (a block)
+	engine::ref<engine::game_object> m_physics_object{};
 
 };
 

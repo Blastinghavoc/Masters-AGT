@@ -104,6 +104,9 @@ private:
 	//Obtains the grid index of the corner found at the given heading from the given grid coordinates.
 	std::pair<int, int> get_corner_index_from_heading(const int& x, const int& z, const orientation& heading);
 
+	//Creates a new gameobject to represent the physical presence of a block
+	engine::ref<engine::game_object> create_physics_shape_for_block();
+
 	/*
 	Determines which corners should exist around a given index, creating any missing ones
 	and removing any superfluous ones.
@@ -117,6 +120,7 @@ private:
 	float m_cell_size;
 	float m_y;
 	float m_block_height{1};
+	float m_wall_bounding_width{ 0.f };
 
 	//The tiles owned by this grid object, indexed by an x-z pair
 	std::map<std::pair<int,int>, grid_tile> m_tiles{};

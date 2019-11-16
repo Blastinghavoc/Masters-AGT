@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "turret_manager.h"
+#include "enemy_manager.h"
 
 std::map<turret_manager::vec3, engine::ref<turret>> turret_manager::m_turrets{};
 std::vector<engine::ref<turret>> turret_manager::m_buffer;
@@ -14,8 +15,7 @@ void turret_manager::init()
 
 void turret_manager::render(engine::ref<engine::shader> shader)
 {
-	for (auto& pair : m_turrets) {
-		pair.second->face({ 0,0,0 });
+	for (auto& pair : m_turrets) {		
 		pair.second->render(shader);
 	}
 }
@@ -53,4 +53,23 @@ bool turret_manager::remove_turret(glm::vec3 position)
 		return true;
 	}
 	return false;//Cannot remove turret that does not exist.
+}
+
+void turret_manager::update(const engine::timestep& ts)
+{
+	//As long as this function is called after the enemy_manager update, the active enemies are guaranteed to be sorted.
+	auto& enemies = enemy_manager::get_active_enemies();
+	for (auto& pair : m_turrets) {
+		auto& current_turret = pair.second;		
+		for (auto& enemy: enemies) {
+			//Attack the enemy that is closest to the goal and in range
+			if (current_turret->is_in_range(enemy->position()))
+			{
+				current_turret->face(enemy->position());
+				current_turret->update(ts);//Update the turret's cooldown
+				enemy->deal_damage(current_turret->fire());//Deals damage to the enemy if the turret is not on cooldown.
+				break;
+			}
+		}
+	}
 }

@@ -1,4 +1,5 @@
 #include "grid.h"
+#include "../physics/physics_manager.h"
 
 grid::grid(float cell_size,float y):
 	m_cell_size{cell_size},
@@ -21,6 +22,8 @@ grid::grid(float cell_size,float y):
 	float scale = (m_cell_size * 1.f) / model->size().y;//glm::max(model->size().x, glm::max(model->size().y, model->size().z));
 	props.scale = glm::vec3(scale);
 	props.bounding_shape = model->size()/2.f;
+	//Record the z-width of the wall for later use
+	m_wall_bounding_width = props.bounding_shape.z;
 	props.offset = model->offset();
 	auto y_pos = props.offset.y;
 	props.rotation_axis = { 0,1, 0 };	
@@ -183,6 +186,20 @@ std::pair<int, int> grid::get_corner_index_from_heading(const int& x, const int&
 	return std::make_pair(effective_x, effective_z);
 }
 
+/*
+Creates a gameobject with a collsion box the size of whole grid block
+*/
+engine::ref<engine::game_object> grid::create_physics_shape_for_block()
+{
+	auto& extra_width = m_wall_bounding_width;//Add the width of the walls, so that the physic shape includes them
+	engine::game_object_properties props;
+	props.bounding_shape = glm::vec3(m_cell_size/2.f + extra_width,m_block_height/2.f,m_cell_size/2.f + extra_width);
+	props.offset = glm::vec3(0, m_block_height / 2.f, 0);
+	props.type = 0;
+	props.is_static = true;
+	return engine::game_object::create(props);
+}
+
 
 //Sets the floor at the given grid location.
 void grid::set_floor(const int& x, const int& z)
@@ -211,6 +228,9 @@ void grid::set_state(const int& x, const int& z, grid_tile::tile_state state, bo
 	}	
 }
 
+/*
+Adds corners if they are missing, and removes extraneous corners around a given index
+*/
 void grid::resolve_corners(std::pair<int, int> index, std::map<orientation, bool> adjacent_is_maze)
 {
 	if (adjacent_is_maze.size() != 8)//Expect entries for all 8 tiles around the index
@@ -283,6 +303,9 @@ void grid::resolve_corners(std::pair<int, int> index, std::map<orientation, bool
 	}
 }
 
+/*
+Obtains a map showing which of the surrounding tiles are maze tiles for a given index
+*/
 std::map<orientation, bool> grid::get_adjacent_maze_status(std::pair<int,int> index)
 {
 	std::map<orientation, bool> adjacent_is_maze;
@@ -323,6 +346,15 @@ bool grid::place_block(const int& x, const int& z,bool force)
 		//can't place block on non-empty tile
 		return false;
 	}
+
+	//Set the physics object
+	if (!tile.has_physics_object())
+	{//Create one if it doesn't yet exist
+		tile.set_physics_object(create_physics_shape_for_block());
+		physics_manager::add(tile.physics_object());
+	}
+	tile.physics_object()->set_active(true);
+	tile.physics_object()->set_position(center_of(x,z)+glm::vec3(0,m_block_height/2.f,0));
 
 	set_ceiling(x, z);
 	std::vector<orientation> wall_facings= orientation::get_all_cardinal();
@@ -444,6 +476,12 @@ bool grid::remove_block(const int& x, const int& z)
 		//Can't remove a block if there isn't one.
 		return false;
 	}
+	
+	//Deactivate physics object if present (it should always be)
+	if (old_tile.has_physics_object())
+	{
+		old_tile.physics_object()->set_active(false);
+	}
 
 	auto wall_facings = orientation::get_all_cardinal();
 	old_tile.state = grid_tile::tile_state::empty;
@@ -466,7 +504,7 @@ bool grid::remove_block(const int& x, const int& z)
 		del_corner(x, z, orientation::south_east);
 		del_corner(x, z, orientation::south_west);
 		del_corner(x, z, orientation::north_west);
-	}
+	}	
 
 	std::map<orientation, bool> adjacent_is_maze = get_adjacent_maze_status(index);
 

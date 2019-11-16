@@ -66,4 +66,10 @@ void grid_tile::render(const engine::ref<engine::shader>& shader)
 	{
 		engine::renderer::submit(shader, m_ceiling);
 	}
+
+	//DEBUG
+	/*if (m_physics_object && m_physics_object->is_active())
+	{
+		m_physics_object->render_obb(glm::vec3(.5f),shader);
+	}*/
 }

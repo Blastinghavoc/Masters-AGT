@@ -16,7 +16,15 @@ public:
 		return std::make_shared<turret>(position);
 	};
 
+	void update(const engine::timestep& ts);
+
+	float fire();
+
 	void set_position(glm::vec3 position);
+
+	const float& range_squared() const { return m_range_squared; };
+
+	bool is_in_range(glm::vec3 target);
 
 private:
 	glm::vec3 m_barrel_position;
@@ -30,5 +38,13 @@ private:
 
 	const float m_base_height = .3f;
 	const float m_swivel_height = .7f;
+
+	const float m_range_squared = 49.f;//Range of 7 meters (3.5 blocks)
+
+	bool m_can_fire{ true };
+	float m_cooldown_remaining{ 0.f };
+	const float m_cooldown_time = 1.f;
+
+	const float m_damage = 20.f;
 
 };

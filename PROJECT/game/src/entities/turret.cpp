@@ -1,5 +1,6 @@
 #include "turret.h"
 #include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/norm.hpp>
 
 turret::turret(glm::vec3 position)
 {
@@ -31,6 +32,8 @@ turret::turret(glm::vec3 position)
 	props.scale = glm::vec3(scale);
 	props.bounding_shape = model->size() / 2.f * scale;
 	m_barrel = engine::game_object::create(props);
+	
+	face(m_barrel_position+glm::vec3( 0,0,1 ));//Face north
 }
 
 turret::~turret()
@@ -63,10 +66,38 @@ void turret::face(glm::vec3 target)
 
 }
 
+void turret::update(const engine::timestep& ts)
+{
+	if (m_cooldown_remaining > 0)
+	{
+		m_cooldown_remaining -= ts.seconds();
+		if (m_cooldown_remaining <= 0)
+		{
+			m_can_fire = true;
+		}
+	}
+}
+
+float turret::fire()
+{
+	if (m_can_fire)
+	{
+		m_can_fire = false;
+		m_cooldown_remaining = m_cooldown_time;
+		return m_damage;
+	}
+	return 0.0f;
+}
+
 void turret::set_position(glm::vec3 position)
 {
 	m_base->set_position(position);
 	m_swivel->set_position(position + glm::vec3(0, m_base_height, 0));
 	m_barrel_position = position + glm::vec3(0, m_swivel_height, 0);
 	m_barrel->set_position(m_barrel_position);
+}
+
+bool turret::is_in_range(glm::vec3 target)
+{
+	return glm::distance2(target, m_barrel_position) < m_range_squared;
 }

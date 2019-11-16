@@ -46,6 +46,7 @@ void weapon_manager::update(const engine::timestep& ts)
 		{
 			if (enemy_ptr->get_trigger_box().collision(gren->get_trigger_box()))
 			{
+				enemy_ptr->deal_damage(m_grenade_damage);
 				gren->set_active(false);
 			}
 		}

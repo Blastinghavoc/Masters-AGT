@@ -1,13 +1,13 @@
-#include "enemy.h"
+#include "animated_enemy.h"
 
-bool enemy::prefab_ready = false;
-engine::game_object_properties enemy::prefab{};
+bool animated_enemy::prefab_ready = false;
+engine::game_object_properties animated_enemy::prefab{};
 
-enemy::enemy() :m_id{-1}
+animated_enemy::animated_enemy() :abstract_enemy{-1.f}
 {
 }
 
-enemy::enemy(int id, glm::vec3 position) :m_id{id}
+animated_enemy::animated_enemy(int id, glm::vec3 position) : abstract_enemy{id}
 {
 	engine::game_object_properties props;
 	if (prefab_ready)
@@ -50,19 +50,13 @@ enemy::enemy(int id, glm::vec3 position) :m_id{id}
 	m_box.set_box(props);
 }
 
-enemy::~enemy()
+animated_enemy::~animated_enemy()
 {
 }
 
-void enemy::on_update(const engine::timestep& time_step)
+void animated_enemy::on_update(const engine::timestep& time_step)
 {
-	//Remove any waypoints from the front of the queue if we're already there.
-	while (!m_waypoints.empty() && m_object->position() == m_waypoints.front())
-	{
-		m_waypoints.pop_front();
-	}
-
-	m_box.on_update(m_object->position());
+	abstract_enemy::on_update(time_step);
 
 	if (!m_waypoints.empty())
 	{

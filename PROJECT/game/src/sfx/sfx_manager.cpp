@@ -45,11 +45,6 @@ void sfx_manager::on_update(const engine::timestep& ts)
 	jitter_effect.on_update(ts);
 	cross_fade_effect.on_update(ts);
 
-	if (m_active_explosions.size() > 0)
-	{
-		LOG_INFO("Active Explosions {}", m_active_explosions.size());
-	}
-
 	for (auto expl_it = begin(m_active_explosions); expl_it != end(m_active_explosions);) {
 		auto& expl = (*expl_it);
 		expl->on_update(ts);

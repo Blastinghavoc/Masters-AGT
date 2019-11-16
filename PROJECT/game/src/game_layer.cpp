@@ -147,10 +147,10 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 
 		//m_level_grid->set_corner(0, i, orientation::south_east);
 		//m_level_grid->set_corner(max_grid_dimension-1, i, orientation::south_west);
-		//m_level_grid->set_state(max_grid_dimension, i, grid_tile::tile_state::border);
+		m_level_grid->set_state(max_grid_dimension, i, grid_tile::tile_state::border,true);
 		//m_level_grid->set_corner(i, 0, orientation::south_east);
 		//m_level_grid->set_corner(i, max_grid_dimension-1, orientation::north_east);
-		//m_level_grid->set_state(i,max_grid_dimension, grid_tile::tile_state::border);
+		m_level_grid->set_state(i,max_grid_dimension, grid_tile::tile_state::border,true);
 		
 		for (int j = 0; j < max_grid_dimension; j++)
 		{
@@ -343,6 +343,7 @@ void game_layer::on_update(const engine::timestep& time_step)
 	}
 	else {
 		enemy_manager::on_update(time_step);
+		turret_manager::update(time_step);
 
 		//Freecam or player-based movement
 		if (m_freecam)
