@@ -151,6 +151,7 @@
     <ClInclude Include="src\physics\physics_manager.h" />
     <ClInclude Include="src\pickup.h" />
     <ClInclude Include="src\player.h" />
+    <ClInclude Include="src\sfx\billboard.h" />
     <ClInclude Include="src\sfx\camera_jitter.h" />
     <ClInclude Include="src\sfx\cross_fade.h" />
     <ClInclude Include="src\sfx\sfx_manager.h" />
@@ -177,6 +178,7 @@
     <ClCompile Include="src\physics\physics_manager.cpp" />
     <ClCompile Include="src\pickup.cpp" />
     <ClCompile Include="src\player.cpp" />
+    <ClCompile Include="src\sfx\billboard.cpp" />
     <ClCompile Include="src\sfx\camera_jitter.cpp" />
     <ClCompile Include="src\sfx\cross_fade.cpp" />
     <ClCompile Include="src\sfx\sfx_manager.cpp" />

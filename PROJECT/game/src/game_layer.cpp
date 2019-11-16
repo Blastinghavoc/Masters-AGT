@@ -458,6 +458,9 @@ void game_layer::on_render()
 		engine::renderer::submit(textured_lighting_shader, obj);
 	}
 
+	//Render SFX (specifically the billboards)
+	sfx_manager::on_render(textured_lighting_shader, m_3d_camera);
+
 	//Render Bounding boxes
 	m_player.object()->render_obb({1,0,0},textured_lighting_shader);
 	//m_terrain->render_obb({ 1,0,0 }, textured_lighting_shader);

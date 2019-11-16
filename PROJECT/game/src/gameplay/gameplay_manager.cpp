@@ -206,6 +206,9 @@ void gameplay_manager::on_event(engine::event& event)
 		//case engine::key_codes::KEY_P:
 		//	damage_portal();//DEBUG
 		//	break;
+		/*case engine::key_codes::KEY_E:
+			sfx_manager::explode_at(m_player_ptr->object()->position());
+			sfx_manager::explode_at(m_player_ptr->object()->position()+ glm::vec3(2,0,2));*/
 		default:
 			break;
 		}

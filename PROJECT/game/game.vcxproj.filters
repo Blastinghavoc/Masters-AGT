@@ -60,9 +60,14 @@
     <ClCompile Include="src\sfx\camera_jitter.cpp">
       <Filter>sfx</Filter>
     </ClCompile>
-    <ClCompile Include="src\sfx\sfx_manager.cpp" />
     <ClCompile Include="src\sfx\cross_fade.cpp" />
     <ClCompile Include="src\physics\physics_manager.cpp" />
+    <ClCompile Include="src\sfx\billboard.cpp">
+      <Filter>sfx</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sfx\sfx_manager.cpp">
+      <Filter>sfx</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="layers">
@@ -166,6 +171,9 @@
     </ClInclude>
     <ClInclude Include="src\physics\physics_manager.h">
       <Filter>physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sfx\billboard.h">
+      <Filter>sfx</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
