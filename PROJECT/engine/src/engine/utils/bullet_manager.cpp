@@ -208,7 +208,7 @@ void engine::bullet_manager::add_physical_object(engine::ref<engine::game_object
 
 		body->setRestitution(game_object->restitution());
 		body->setFriction(game_object->friction());
-		//body->setRestitution(game_object->restitution());
+		body->setRollingFriction(game_object->rolling_friction());
 		physical_object* object = new physical_object(body);
 		physical_objects.push_back(object);
 	}
@@ -239,26 +239,34 @@ void engine::bullet_manager::dynamics_world_update(const std::vector<engine::ref
 			//Allow constraining rotation on certain axes
 			physical_object_i->get_body()->setAngularFactor(to_bt_vector3(game_object_i->get_angular_factor()));
 
-			//If the object is supposed to be moving, set it's activation state
-			if (game_object_i->angular_velocity() != glm::vec3(0.0f) ||
-				game_object_i->velocity() != glm::vec3(0.0f))
+			if (game_object_i->is_active())
 			{
-				physical_object_i->get_body()->setActivationState(ACTIVE_TAG);
+				//If the object is supposed to be moving, set it's activation state
+				if (game_object_i->angular_velocity() != glm::vec3(0.0f) ||
+					game_object_i->velocity() != glm::vec3(0.0f))
+				{
+					physical_object_i->get_body()->setActivationState(ACTIVE_TAG);
+				}
+
+				//physical_object_i->get_body()->clearForces();
+				if (game_object_i->acceleration() != glm::vec3(0.0f))
+				{
+					physical_object_i->get_body()->applyCentralForce(to_bt_vector3(game_object_i->acceleration()));
+					game_object_i->set_acceleration(glm::vec3(0.0f));
+					physical_object_i->get_body()->setActivationState(ACTIVE_TAG);
+				}
+				if (game_object_i->torque() != glm::vec3(0.0f))
+				{
+					physical_object_i->get_body()->applyTorque(to_bt_vector3(game_object_i->torque()));
+					game_object_i->set_torque(glm::vec3(0.0f));
+					physical_object_i->get_body()->setActivationState(ACTIVE_TAG);
+				}
+			}
+			else {
+				//Forcibly put the thing to sleep if it's not active.
+				physical_object_i->get_body()->setActivationState(ISLAND_SLEEPING);
 			}
 
-			//physical_object_i->get_body()->clearForces();
-			if (game_object_i->acceleration() != glm::vec3(0.0f))
-			{
-				physical_object_i->get_body()->applyCentralForce(to_bt_vector3(game_object_i->acceleration()));
-				game_object_i->set_acceleration(glm::vec3(0.0f));
-				physical_object_i->get_body()->setActivationState(ACTIVE_TAG);
-			}
-			if (game_object_i->torque() != glm::vec3(0.0f))
-			{
-				physical_object_i->get_body()->applyTorque(to_bt_vector3(game_object_i->torque()));
-				game_object_i->set_torque(glm::vec3(0.0f));
-				physical_object_i->get_body()->setActivationState(ACTIVE_TAG);
-			}
 
 		}
 	}

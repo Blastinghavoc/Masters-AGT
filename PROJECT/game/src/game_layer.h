@@ -3,9 +3,9 @@
 #include <engine.h>
 #include "engine/utils/timer.h"
 #include "grid/grid.h"
-#include "player.h"
-#include "pickup.h"
-#include "enemy_manager.h"
+#include "entities/player.h"
+#include "entities/pickup.h"
+#include "ai/enemy_manager.h"
 #include "gui/hud_manager.h"
 #include "lighting/light_manager.h"
 #include "gameplay/gameplay_manager.h"

@@ -18,6 +18,7 @@ void sfx_manager::init(engine::perspective_camera* camera)
 	panel->set_z_order(0.11f);//Just a little bit ahead of the rest of the HUD so that it appears over all of it.
 	panel->hide();
 
+	//Explosion sprite sheet from https://opengameart.org/content/pixel-explosion-12-frames
 	m_explosion_prefab = billboard::create("assets/textures/Explosion.png", 12, 1, 12);
 	m_explosion_pool.push_back(std::make_shared<billboard>(*m_explosion_prefab));//Copy an explosion into the pool.
 }

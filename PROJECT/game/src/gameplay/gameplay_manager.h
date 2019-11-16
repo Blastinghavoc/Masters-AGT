@@ -3,9 +3,9 @@
 #include "engine/utils/timer.h"
 #include <map>
 #include <string>
-#include "../player.h"
+#include "../entities/player.h"
 #include "../gui/hud_manager.h"
-#include "../enemy_manager.h"
+#include "../ai/enemy_manager.h"
 /*
 Static class to manage gameplay elements
 like health, money, score etc, as well as the
@@ -74,6 +74,7 @@ private:
 	static engine::ref<engine::audio_manager> m_audio_manager;
 	static constexpr int m_max_turrets = 5;
 	static int m_available_blocks;
+	static bool m_fire_weapon;
 
 	enum class tool
 	{

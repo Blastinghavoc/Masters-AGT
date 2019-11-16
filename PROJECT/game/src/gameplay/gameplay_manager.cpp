@@ -4,6 +4,7 @@
 #include "engine/events/key_event.h"
 #include "../ai/turret_manager.h"
 #include "../sfx/sfx_manager.h"
+#include "weapon_manager.h"
 
 //Static initializers
 int gameplay_manager::m_score = 0;
@@ -31,6 +32,7 @@ gameplay_manager::wave_definition gameplay_manager::m_current_wave_definition;
 engine::ref<engine::audio_manager> gameplay_manager::m_audio_manager;
 int gameplay_manager::m_available_blocks = 6;
 gameplay_manager::tool gameplay_manager::m_current_tool = tool::block;
+bool gameplay_manager::m_fire_weapon;
 
 void gameplay_manager::init(player* playr,engine::ref<engine::text_manager> text_manager, engine::perspective_camera* camera,
 	engine::ref<grid> level_grid,
@@ -97,7 +99,17 @@ void gameplay_manager::update(const engine::timestep& ts)
 
 	if (m_wave_active)
 	{
-		
+		if (m_fire_weapon)
+		{
+			auto launch_position = m_player_ptr->object()->position();
+			launch_position.x += m_camera->front_vector().x;
+			launch_position.z += m_camera->front_vector().z;
+			weapon_manager::launch_grenade(launch_position, m_camera->front_vector(),10.f * (1/ts.seconds()) );
+			m_fire_weapon = false;			
+		}
+
+		weapon_manager::update(ts);
+
 		auto total_enemies_this_wave = m_current_wave_definition.num_enemies;
 		auto spawned_so_far = total_enemies_this_wave - enemy_manager::remaining();
 		auto alive = enemy_manager::current_active();
@@ -215,15 +227,12 @@ void gameplay_manager::on_event(engine::event& event)
 	}
 }
 
-/*
-TODO: Add logic for weapons as well, and switching between build and combat mode.
-Refactor duplicated code.
-*/
-//Remove a block at the targeted position (if possible)
+
 void gameplay_manager::mouse1_event_handler()
 {
 	if (!m_wave_active)
 	{
+		//Remove a block at the targeted position (if possible)
 		//Delete Block
 		auto fv = m_camera->front_vector();
 		if (fv.y > 0)
@@ -249,7 +258,7 @@ void gameplay_manager::mouse1_event_handler()
 		}
 	}
 	else {
-		//TODO Fire weapon
+		m_fire_weapon = true;//Signal that the weapon should be fired.		
 	}
 }
 

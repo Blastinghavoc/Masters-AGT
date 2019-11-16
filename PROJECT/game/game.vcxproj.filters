@@ -14,26 +14,8 @@
     <ClCompile Include="src\game_layer.cpp">
       <Filter>layers</Filter>
     </ClCompile>
-    <ClCompile Include="src\player.cpp">
-      <Filter>actors</Filter>
-    </ClCompile>
-    <ClCompile Include="src\pickup.cpp">
-      <Filter>actors</Filter>
-    </ClCompile>
     <ClCompile Include="src\orientation.cpp">
       <Filter>utils</Filter>
-    </ClCompile>
-    <ClCompile Include="src\enemy.cpp">
-      <Filter>actors</Filter>
-    </ClCompile>
-    <ClCompile Include="src\animated_actor.cpp">
-      <Filter>actors</Filter>
-    </ClCompile>
-    <ClCompile Include="src\enemy_manager.cpp">
-      <Filter>ai</Filter>
-    </ClCompile>
-    <ClCompile Include="src\turret.cpp">
-      <Filter>actors</Filter>
     </ClCompile>
     <ClCompile Include="src\gui\hud_manager.cpp">
       <Filter>gui</Filter>
@@ -68,6 +50,33 @@
     <ClCompile Include="src\sfx\sfx_manager.cpp">
       <Filter>sfx</Filter>
     </ClCompile>
+    <ClCompile Include="src\ai\enemy_manager.cpp">
+      <Filter>ai</Filter>
+    </ClCompile>
+    <ClCompile Include="src\entities\animated_actor.cpp">
+      <Filter>entities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\entities\enemy.cpp">
+      <Filter>entities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\entities\pickup.cpp">
+      <Filter>entities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\entities\player.cpp">
+      <Filter>entities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\entities\turret.cpp">
+      <Filter>entities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\entities\grenade.cpp">
+      <Filter>entities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameplay\weapon_manager.cpp">
+      <Filter>gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="src\entities\trigger_box.cpp">
+      <Filter>entities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="layers">
@@ -75,9 +84,6 @@
     </Filter>
     <Filter Include="grid">
       <UniqueIdentifier>{38bf35ae-3694-47f3-a701-2127276694cd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="actors">
-      <UniqueIdentifier>{649d6fd4-5d5b-4072-bf75-92ee59d21b75}</UniqueIdentifier>
     </Filter>
     <Filter Include="utils">
       <UniqueIdentifier>{ddba7242-28d3-44d5-a453-36b1bc531244}</UniqueIdentifier>
@@ -100,6 +106,9 @@
     <Filter Include="physics">
       <UniqueIdentifier>{346c8076-1b7f-43f5-aa20-1a3e86b727f3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="entities">
+      <UniqueIdentifier>{649d6fd4-5d5b-4072-bf75-92ee59d21b75}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\example_layer.h">
@@ -114,26 +123,8 @@
     <ClInclude Include="src\game_layer.h">
       <Filter>layers</Filter>
     </ClInclude>
-    <ClInclude Include="src\player.h">
-      <Filter>actors</Filter>
-    </ClInclude>
-    <ClInclude Include="src\pickup.h">
-      <Filter>actors</Filter>
-    </ClInclude>
     <ClInclude Include="src\orientation.h">
       <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="src\enemy.h">
-      <Filter>actors</Filter>
-    </ClInclude>
-    <ClInclude Include="src\animated_actor.h">
-      <Filter>actors</Filter>
-    </ClInclude>
-    <ClInclude Include="src\enemy_manager.h">
-      <Filter>ai</Filter>
-    </ClInclude>
-    <ClInclude Include="src\turret.h">
-      <Filter>actors</Filter>
     </ClInclude>
     <ClInclude Include="src\gui\hud_manager.h">
       <Filter>gui</Filter>
@@ -174,6 +165,33 @@
     </ClInclude>
     <ClInclude Include="src\sfx\billboard.h">
       <Filter>sfx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ai\enemy_manager.h">
+      <Filter>ai</Filter>
+    </ClInclude>
+    <ClInclude Include="src\entities\animated_actor.h">
+      <Filter>entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\entities\enemy.h">
+      <Filter>entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\entities\grenade.h">
+      <Filter>entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\entities\pickup.h">
+      <Filter>entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\entities\player.h">
+      <Filter>entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\entities\turret.h">
+      <Filter>entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\weapon_manager.h">
+      <Filter>gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\entities\trigger_box.h">
+      <Filter>entities</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

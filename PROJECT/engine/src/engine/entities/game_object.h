@@ -24,6 +24,7 @@ namespace engine
 		float restitution = 0.1f;
 		float friction = 0.9f;
         float rotation_amount = 0.f;
+		float rolling_friction = 0.0f;
         bool is_static = false;
 		glm::vec3 offset{ 0.f };
 	};
@@ -62,6 +63,7 @@ namespace engine
 		float     mass() const { return m_mass; }
 		float	  restitution() const { return m_restitution; }
 		float	  friction() const { return m_friction; }
+		float	  rolling_friction() const { return m_rolling_friction; }
 		int32_t   type() const { return m_type; }
 		glm::vec3 bounding_shape() const { return m_bounding_shape; }
 		const std::vector<ref<mesh>>& meshes() const { return m_meshes; }
@@ -127,6 +129,27 @@ namespace engine
 			update_obb();
 			m_obb.on_render(rgb.x, rgb.y, rgb.z, shader);
 		}
+
+		//Allow enabling/disabling physics
+		void set_active(bool state) { m_physics_active = state;
+			if (m_physics_active)
+			{
+				//Just been activated, reset
+				reset_physics_properties();
+			}
+			else {
+				//Just been deactivated, move to somewhere "off the map"
+				m_position = glm::vec3(-100);
+			}
+		};
+		bool is_active() { return m_physics_active; };
+		void reset_physics_properties() {
+			m_acceleration = glm::vec3(0);
+			m_velocity = glm::vec3(0);
+			m_angular_velocity = glm::vec3(0);
+			m_torque = glm::vec3(0);
+			m_position = glm::vec3(0);
+		};
     public:
         static ref<game_object> create(const game_object_properties& props);
 
@@ -173,6 +196,10 @@ namespace engine
 		float			m_restitution{ 0.1f };
 		// object's friction
 		float			m_friction{ 0.9f };
+
+		// object's rolling friction
+		float			m_rolling_friction{ 0.0f };
+
         // static/non-static object
 		bool			s_static{ false };
 
@@ -190,5 +217,7 @@ namespace engine
 		glm::vec3 m_angular_factor{ 1.f };
 
 		bounding_box m_obb;
+
+		bool m_physics_active = true;
     };
 }

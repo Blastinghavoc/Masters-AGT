@@ -131,13 +131,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\ai\enemy_manager.h" />
     <ClInclude Include="src\ai\pathfinder.h" />
     <ClInclude Include="src\ai\turret_manager.h" />
-    <ClInclude Include="src\animated_actor.h" />
-    <ClInclude Include="src\enemy.h" />
-    <ClInclude Include="src\enemy_manager.h" />
+    <ClInclude Include="src\entities\animated_actor.h" />
+    <ClInclude Include="src\entities\trigger_box.h" />
+    <ClInclude Include="src\entities\enemy.h" />
+    <ClInclude Include="src\entities\grenade.h" />
+    <ClInclude Include="src\entities\pickup.h" />
+    <ClInclude Include="src\entities\player.h" />
+    <ClInclude Include="src\entities\turret.h" />
     <ClInclude Include="src\example_layer.h" />
     <ClInclude Include="src\gameplay\gameplay_manager.h" />
+    <ClInclude Include="src\gameplay\weapon_manager.h" />
     <ClInclude Include="src\game_layer.h" />
     <ClInclude Include="src\grid\grid.h" />
     <ClInclude Include="src\grid\grid_tile.h" />
@@ -149,23 +155,26 @@
     <ClInclude Include="src\lighting\light_manager.h" />
     <ClInclude Include="src\orientation.h" />
     <ClInclude Include="src\physics\physics_manager.h" />
-    <ClInclude Include="src\pickup.h" />
-    <ClInclude Include="src\player.h" />
     <ClInclude Include="src\sfx\billboard.h" />
     <ClInclude Include="src\sfx\camera_jitter.h" />
     <ClInclude Include="src\sfx\cross_fade.h" />
     <ClInclude Include="src\sfx\sfx_manager.h" />
-    <ClInclude Include="src\turret.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\ai\enemy_manager.cpp" />
     <ClCompile Include="src\ai\pathfinder.cpp" />
     <ClCompile Include="src\ai\turret_manager.cpp" />
-    <ClCompile Include="src\animated_actor.cpp" />
-    <ClCompile Include="src\enemy.cpp" />
-    <ClCompile Include="src\enemy_manager.cpp" />
+    <ClCompile Include="src\entities\animated_actor.cpp" />
+    <ClCompile Include="src\entities\trigger_box.cpp" />
+    <ClCompile Include="src\entities\enemy.cpp" />
+    <ClCompile Include="src\entities\grenade.cpp" />
+    <ClCompile Include="src\entities\pickup.cpp" />
+    <ClCompile Include="src\entities\player.cpp" />
+    <ClCompile Include="src\entities\turret.cpp" />
     <ClCompile Include="src\example_layer.cpp" />
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\gameplay\gameplay_manager.cpp" />
+    <ClCompile Include="src\gameplay\weapon_manager.cpp" />
     <ClCompile Include="src\game_layer.cpp" />
     <ClCompile Include="src\grid\grid.cpp" />
     <ClCompile Include="src\grid\grid_tile.cpp" />
@@ -176,13 +185,10 @@
     <ClCompile Include="src\lighting\light_manager.cpp" />
     <ClCompile Include="src\orientation.cpp" />
     <ClCompile Include="src\physics\physics_manager.cpp" />
-    <ClCompile Include="src\pickup.cpp" />
-    <ClCompile Include="src\player.cpp" />
     <ClCompile Include="src\sfx\billboard.cpp" />
     <ClCompile Include="src\sfx\camera_jitter.cpp" />
     <ClCompile Include="src\sfx\cross_fade.cpp" />
     <ClCompile Include="src\sfx\sfx_manager.cpp" />
-    <ClCompile Include="src\turret.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\engine\engine.vcxproj">

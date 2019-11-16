@@ -17,6 +17,7 @@ namespace fs = std::filesystem;
 
 #include "sfx/sfx_manager.h"
 #include "physics/physics_manager.h"
+#include "gameplay/weapon_manager.h"
 
 
 game_layer::game_layer() :
@@ -41,6 +42,10 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	m_audio_manager->load_sound("assets/audio/error_sound.wav",engine::sound_type::event,"error");
 	//Alert from https://freesound.org/people/willy_ineedthatapp_com/sounds/167337/
 	m_audio_manager->load_sound("assets/audio/8_bit_alert.mp3",engine::sound_type::event,"alert");
+	//Sound from https://freesound.org/people/TiesWijnen/sounds/338722/
+	m_audio_manager->load_sound("assets/audio/grenade_explosion.mp3", engine::sound_type::event, "grenade_explosion");
+	//Sound from https://freesound.org/people/LeMudCrab/sounds/163458/
+	m_audio_manager->load_sound("assets/audio/grenade_launch.wav", engine::sound_type::event, "grenade_launch");
 
 	physics_manager::init();
 
@@ -297,6 +302,7 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	enemy_manager::init(m_level_grid);
 	gameplay_manager::init(&m_player,m_text_manager,&m_3d_camera,m_level_grid,m_audio_manager);
 	sfx_manager::init(&m_3d_camera);
+	weapon_manager::init(m_audio_manager);
 
 	m_grid_center = center;
 }
@@ -458,15 +464,8 @@ void game_layer::on_render()
 		engine::renderer::submit(textured_lighting_shader, obj);
 	}
 
-	//Render SFX (specifically the billboards)
-	sfx_manager::on_render(textured_lighting_shader, m_3d_camera);
-
-	//Render Bounding boxes
-	m_player.object()->render_obb({1,0,0},textured_lighting_shader);
-	//m_terrain->render_obb({ 1,0,0 }, textured_lighting_shader);
-	/*for (auto& obj : (*m_level_grid)[glm::vec2(-1, -1)].get_borders()) {
-		obj->render_obb({ 1,0,0 }, textured_lighting_shader);
-	}*/
+	//Render weapons
+	weapon_manager::on_render(textured_lighting_shader);
 
 	engine::renderer::end_scene();
 
@@ -476,6 +475,14 @@ void game_layer::on_render()
 	// Set up material shader. (does not render textures, renders materials instead)
 	const auto textured_material_shader = engine::renderer::shaders_library()->get("mesh_material");
 	engine::renderer::begin_scene(m_3d_camera, textured_material_shader);
+	//update the lighting for this shader
+	light_manager::submit(textured_material_shader);
+
+	//Render Bounding boxes
+	//m_player.object()->render_obb({1,0,0},textured_material_shader);
+	//m_terrain->render_obb({ 1,0,0 }, textured_material_shader);	
+	//enemy_manager::render_trigger_boxes(textured_material_shader);
+	//weapon_manager::render_trigger_boxes(textured_material_shader);
 
 	m_material->submit(textured_material_shader);
 	std::dynamic_pointer_cast<engine::gl_shader>(textured_material_shader)->set_uniform("gEyeWorldPos", m_3d_camera.position());
@@ -493,10 +500,7 @@ void game_layer::on_render()
 		{
 			engine::renderer::submit(textured_material_shader, cube->mesh(), glm::translate(glm::mat4(1.f), sl->Position));
 		}
-	}
-
-	//update the lighting for this shader
-	light_manager::submit(textured_lighting_shader);
+	}	
 
 	//------------
 	// Animated meshes
@@ -516,6 +520,15 @@ void game_layer::on_render()
 	enemy_manager::render(animated_mesh_shader);
 
 	engine::renderer::end_scene();
+
+	//-----
+	//Render anything with transparency
+	//----
+	engine::renderer::begin_scene(m_3d_camera, textured_lighting_shader);
+	//Render SFX (specifically the billboards)
+	sfx_manager::on_render(textured_lighting_shader, m_3d_camera);
+	engine::renderer::end_scene();
+
 
 	//----------
 	// Render text

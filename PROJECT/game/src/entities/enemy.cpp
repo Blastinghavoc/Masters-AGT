@@ -29,7 +29,8 @@ enemy::enemy(int id, glm::vec3 position) :m_id{id}
 		props.scale = glm::vec3(1.f / glm::max(skinned_mesh->size().x, glm::max(skinned_mesh->size().y, skinned_mesh->size().z)));
 		props.type = 0;
 		props.position = position;
-		props.bounding_shape = skinned_mesh->size() / 2.f * props.scale.x;
+		props.bounding_shape = glm::vec3(skinned_mesh->size().x / 4.f,
+			skinned_mesh->size().y / 2.f, skinned_mesh->size().x / 4.f);
 
 		prefab = props;
 		prefab_ready = true;
@@ -45,6 +46,8 @@ enemy::enemy(int id, glm::vec3 position) :m_id{id}
 	m_object->animated_mesh()->set_default_animation(1);
 	m_object->animated_mesh()->switch_animation(m_object->animated_mesh()->default_animation());
 	m_object->set_rotation_axis({ 0,1,0 });
+
+	m_box.set_box(props);
 }
 
 enemy::~enemy()
@@ -58,7 +61,8 @@ void enemy::on_update(const engine::timestep& time_step)
 	{
 		m_waypoints.pop_front();
 	}
-	
+
+	m_box.on_update(m_object->position());
 
 	if (!m_waypoints.empty())
 	{

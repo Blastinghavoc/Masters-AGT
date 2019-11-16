@@ -1,12 +1,11 @@
 #pragma once
 
-#include "enemy.h"
-#include "grid/grid.h"
+#include "../entities/enemy.h"
+#include "../grid/grid.h"
 #include <deque>
-#include "ai/pathfinder.h"
-#include <set>
-#include "gameplay/gameplay_manager.h"
-#include "lighting/light_manager.h"
+#include "../ai/pathfinder.h"
+#include "../gameplay/gameplay_manager.h"
+#include "../lighting/light_manager.h"
 
 //Static class to manage the movement of enemies in the level
 class enemy_manager {
@@ -21,8 +20,14 @@ public:
 
 	static void render(const engine::ref<engine::shader>& shader);
 
+	//For debug purposes only
+	static void render_trigger_boxes(const engine::ref<engine::shader>& shader);
+
 	static int current_active() { return (int)s_current_active_minions.size(); };
 	static int remaining() { return s_current_wave_remaining; };
+
+	//Obtain a vector of the currently active enemies
+	static std::vector<enemy*>& get_active_enemies() { return s_current_active_minions; };
 private:
 	static std::map<int,enemy> s_minions;
 	static int s_next_id;
@@ -31,8 +36,8 @@ private:
 	static int s_current_wave_remaining;
 	static float s_interval_accumulator;
 	static float s_current_wave_interval;
-	static std::stack<int> s_minion_buffer;//Holds the ID of created but inactive minions.
-	static std::set<int> s_current_active_minions;//Holds the IDs of minions currently alive
+	static std::stack<enemy*> s_minion_buffer;//Holds pointers to the created but inactive minions.
+	static std::vector<enemy*> s_current_active_minions;//Holds pointers to the minions currently alive
 
 	//Highlights the furthest forward enemy
 	static engine::ref<engine::SpotLight> m_spot_light;
