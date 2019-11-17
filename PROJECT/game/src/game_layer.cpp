@@ -18,6 +18,7 @@ namespace fs = std::filesystem;
 #include "sfx/sfx_manager.h"
 #include "physics/physics_manager.h"
 #include "gameplay/weapon_manager.h"
+#include "gameplay/pickup_manager.h"
 
 
 game_layer::game_layer() :
@@ -162,8 +163,9 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	m_level_grid->set_corner(max_grid_dimension, 0, orientation::south_east);
 	m_level_grid->set_corner(0, max_grid_dimension, orientation::south_east);
 	m_level_grid->set_corner(max_grid_dimension, max_grid_dimension, orientation::south_east);
-	glm::vec3 center = m_level_grid->grid_to_world_coords(max_grid_dimension/2, max_grid_dimension/2) + glm::vec3(cell_size/2,0,cell_size/2);//The point in the center of the center grid square
-	
+	glm::vec3 center = m_level_grid->center_of(max_grid_dimension / 2, max_grid_dimension / 2);//The point in the center of the center grid square
+	m_grid_center = center;
+
 	m_level_grid->set_gateway(max_grid_dimension-2, max_grid_dimension-1, orientation::north_east);
 	m_level_grid->set_gateway(max_grid_dimension-2, max_grid_dimension-1, orientation::north_west,(float)M_PI);
 	m_level_grid->del_border(max_grid_dimension-2, max_grid_dimension-1, orientation::north);
@@ -197,7 +199,7 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 			place = !place;
 		}
 	}*/
-	//end of grid testing.
+	
 
 	//re-center terrain.
 	m_terrain->set_position({ center.x,-terrain_dimensions.y,center.z });
@@ -231,37 +233,17 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 		m_decorational_objects.push_back(engine::game_object::create(shape_props));
 
 		//hollow cuboid
-		engine::ref<engine::texture_2d> tst_texture = engine::texture_2d::create("assets/textures/funky_cube.png", false);
+		engine::ref<engine::texture_2d> hollow_texture = engine::texture_2d::create("assets/textures/funky_cube.png", false);
 		float size = 1.1f;
-		engine::ref<engine::hollow_cuboid> tst_shape = engine::hollow_cuboid::create({ size,size,size },size/2,2*size);
-		shape_props.meshes = tst_shape->meshes();
-		shape_props.textures = { tst_texture };
+		engine::ref<engine::hollow_cuboid> hollow_shape = engine::hollow_cuboid::create({ size,size,size },size/2,2*size);
+		shape_props.meshes = hollow_shape->meshes();
+		shape_props.textures = { hollow_texture };
 		shape_props.bounding_shape = glm::vec3(5.f);
 		shape_props.position = center + glm::vec3(0, m_big_decor_height,0);
 		shape_props.rotation_amount = (float)M_PI;
 		shape_props.rotation_axis = { 1,1,1 };
 		m_decorational_objects.push_back(engine::game_object::create(shape_props));
 	}
-
-	//Create pickups
-	/*engine::ref <engine::model> pickup_model = engine::model::create("assets/models/static/gold/gold_05_modified.obj");	
-	engine::game_object_properties pickup_props;
-	pickup_props.meshes = pickup_model->meshes();
-	pickup_props.textures = { engine::texture_2d::create("assets/models/static/gold/g_diffuse.tga",false) };
-	float pickup_scale = .5f / glm::max(pickup_model->size().x, glm::max(pickup_model->size().y, pickup_model->size().z));
-	pickup_props.scale = glm::vec3(pickup_scale);
-	pickup_props.bounding_shape = pickup_model->size() / 2.f * pickup_scale;
-	pickup_props.rotation_axis = { 0,1,0 };
-	pickup_props.position = center;
-	m_pickups.push_back(pickup(engine::game_object::create(pickup_props),1.f));
-	pickup_props.position = center + glm::vec3(1, 0, 0);
-	m_pickups.push_back(pickup(engine::game_object::create(pickup_props), -1.f));
-	pickup_props.position = center + glm::vec3(-1, 0, 0);
-	m_pickups.push_back(pickup(engine::game_object::create(pickup_props), -1.f));
-	pickup_props.position = center + glm::vec3(0, 0, 1);
-	m_pickups.push_back(pickup(engine::game_object::create(pickup_props), -1.f));
-	pickup_props.position = center + glm::vec3(0, 0, -1);
-	m_pickups.push_back(pickup(engine::game_object::create(pickup_props), -1.f));*/
 
 	//Create text manager
 	m_text_manager = engine::text_manager::create();
@@ -300,11 +282,11 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	physics_manager::add(m_terrain);		
 
 	enemy_manager::init(m_level_grid);
-	gameplay_manager::init(&m_player,m_text_manager,&m_3d_camera,m_level_grid,m_audio_manager);
+	gameplay_manager::init(&m_player,m_text_manager,&m_3d_camera,m_level_grid,m_audio_manager,&m_decorational_objects);
 	sfx_manager::init(&m_3d_camera);
 	weapon_manager::init(m_audio_manager);
-
-	m_grid_center = center;
+	pickup_manager::init();
+	
 }
 
 game_layer::~game_layer()
@@ -329,12 +311,7 @@ void game_layer::on_update(const engine::timestep& time_step)
 		m_updates_last_interval = m_num_updates;
 		m_num_updates = 0;
 		m_fps_timer.reset();
-	}
-
-	for (auto& pick: m_pickups)
-	{
-		pick.on_update(time_step);
-	}
+	}	
 
 	//Most of the update work does not occur during the intro screen
 	if (intro_screen::active())
@@ -354,7 +331,7 @@ void game_layer::on_update(const engine::timestep& time_step)
 			m_player.update_camera(m_3d_camera);
 			m_player.on_update(time_step);
 		}		
-		//DEBUG off while testing physics
+		pickup_manager::on_update(time_step, m_player.get_trigger_box());
 		gameplay_manager::update(time_step);
 		sfx_manager::on_update(time_step);
 
@@ -400,10 +377,7 @@ void game_layer::on_render()
 	turret_manager::render(textured_lighting_shader);
 
 	//render all pickups
-	for (auto& pick : m_pickups)
-	{
-		engine::renderer::submit(textured_lighting_shader, pick.object());
-	}
+	pickup_manager::render(textured_lighting_shader);
 
 	//Render multiple transformed, scaled and rotated rhombicuboctahedrons in the scene.
 	{
@@ -494,11 +468,15 @@ void game_layer::on_render()
 	{
 		engine::renderer::submit(textured_material_shader, cube->mesh(), glm::translate(glm::mat4(1.f), pl->Position));
 	}
-	//TODO Keep some object following the front-runner enemy, but make it nicer than just a cube.
+
+	//TODO Keep some object following the spotlights, but make it nicer than just a cube?
 	for (auto& sl : light_manager::spot_lights)
 	{
 		if (sl->On)
 		{
+			m_material->set_ambient(sl->Color);
+			m_material->set_diffuse(sl->Color);
+			m_material->submit(textured_material_shader);
 			engine::renderer::submit(textured_material_shader, cube->mesh(), glm::translate(glm::mat4(1.f), sl->Position));
 		}
 	}	
@@ -599,43 +577,6 @@ void game_layer::on_event(engine::event& event)
 			gameplay_manager::on_event(event);
 			
 			m_player.on_event(event);
-		}
-	}
-}
-
-
-
-/*
-Generate gameobjects for all the models in a directory and arrange them in the scene.
-Only used for debug/dev purposes, to visualise all the models together.
-*/
-void game_layer::generate_all_level_pieces(std::vector<engine::ref<engine::game_object>>& level_segments,const std::string& path,const std::string& extn) {
-	std::vector<std::string> models;	
-	get_all_models_in_directory(models, path, extn);
-	for (int i = 0; i < models.size(); i++)
-	{
-		// Load the level segment model. Create object. Set its properties
-		engine::ref <engine::model> model = engine::model::create(path + models[i] + extn);
-		engine::game_object_properties props;
-		props.meshes = model->meshes();
-		props.textures = model->textures();
-		float scale = 1.f / glm::max(model->size().x, glm::max(model->size().y, model->size().z));
-		props.position = { -4 * (i % 6),1.f, -4 * (i / 6) };
-		props.scale = glm::vec3(scale);
-		props.bounding_shape = model->size() / 2.f * scale;
-		level_segments.push_back(engine::game_object::create(props));
-	}
-}
-
-/*
-Populates vec with the names of all files with the given extension in the directory described by path
-REF https://stackoverflow.com/questions/612097/how-can-i-get-the-list-of-files-in-a-directory-using-c-or-c
-*/
-void game_layer::get_all_models_in_directory(std::vector < std::string >& vec,const std::string& path,const std::string& extension) {
-	for (const auto& entry : fs::directory_iterator(path)) {
-		if (extension == entry.path().extension().string())
-		{
-			vec.push_back(entry.path().filename().replace_extension().string());
 		}
 	}
 }

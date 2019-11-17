@@ -6,6 +6,7 @@
 #include "../entities/player.h"
 #include "../gui/hud_manager.h"
 #include "../ai/enemy_manager.h"
+#include "../entities/interactable.h"
 /*
 Static class to manage gameplay elements
 like health, money, score etc, as well as the
@@ -16,17 +17,18 @@ public:
 
 	static void init(player* playr, engine::ref<engine::text_manager> text_manager, engine::perspective_camera* camera,
 		engine::ref<grid> level_grid,
-		engine::ref<engine::audio_manager> audio_manager);
+		engine::ref<engine::audio_manager> audio_manager,
+		std::vector<engine::ref<engine::game_object>>* decorational_objects);
 	static void update(const engine::timestep& ts);
 
 	static int score() { return m_score; };
-	static int health() { return m_health; };
+	static int health() { return (int)m_player_ptr->health(); };
 	static int money() { return m_money; };
 	static int portal_health() { return m_portal_health; };//The health of the portal the player is defending.
 	static int build_time() { return m_max_build_time - (int)m_build_timer.total(); };
 
 	static void damage_portal();
-	static void damange_player();
+	static void damage_player(float amnt = 10.f);
 
 	static void add_score(int amnt) {
 		m_score += (int)(m_score_multiplier*amnt);
@@ -51,15 +53,16 @@ public:
 	static void on_event(engine::event& event);
 
 private:
-	static int m_score, m_health, m_money, m_portal_health;
+	static int m_score, m_money, m_portal_health;
 	static float m_score_multiplier;
 	static engine::timer m_build_timer;
 	static int m_max_build_time;
 	static std::map<std::string, int> m_prices;
 	static player* m_player_ptr;
-	static glm::vec3 m_player_spawnpoint;
-	static engine::ref<text_hud_element> m_top_display, m_score_display, m_money_display, m_health_display,
-		m_portal_health_display,m_tool_display;
+	static engine::ref<text_hud_element> m_top_display, m_score_display,
+		m_money_display, m_health_display,
+		m_portal_health_display,m_tool_display,
+		m_message_display;
 	static bool m_wave_active;
 
 	struct wave_definition {
@@ -78,6 +81,9 @@ private:
 	static constexpr int m_max_turrets = 5;
 	static int m_available_blocks;
 	static bool m_fire_weapon;
+	static engine::timer m_immunity_timer;
+	static constexpr float m_immunity_duration = 1.f;
+	static bool m_hardmode_active;
 
 	enum class tool
 	{
@@ -101,6 +107,8 @@ private:
 
 	static tool m_current_tool;
 
+	static interactable m_hard_mode_switch;
+
 	static void mouse1_event_handler();
 	static void mouse2_event_handler();
 	static void start_combat_phase();
@@ -108,4 +116,9 @@ private:
 	static void remove_block(int x, int z);
 	static void place_turret(int x, int z);
 	static void remove_turret(int x, int z);
+
+	static void kill_player();
+	static void check_player_in_bounds();
+	static void check_enemies_touching_player();
+	static void check_interaction_with_hardmode_switch();
 };

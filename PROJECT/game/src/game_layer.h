@@ -4,7 +4,6 @@
 #include "engine/utils/timer.h"
 #include "grid/grid.h"
 #include "entities/player.h"
-#include "entities/pickup.h"
 #include "ai/enemy_manager.h"
 #include "gui/hud_manager.h"
 #include "lighting/light_manager.h"
@@ -31,8 +30,6 @@ private:
 
 	std::vector<engine::ref<engine::game_object>> m_decorational_objects{};
 	//std::vector<engine::ref<engine::game_object>> m_physical_gameobjects{};
-
-	std::vector<pickup> m_pickups{0};
 
 	engine::ref<engine::material>		m_material{};
 
@@ -66,9 +63,5 @@ private:
 	glm::vec3 m_rhombi_trig_vector{0.f,0.f,0.f};
 	float m_big_decor_height{ 12.f };
 
-	//Currently unused utility functions for displaying all the models in a particular directory.
-	//TODO remove
-	void generate_all_level_pieces(std::vector<engine::ref<engine::game_object>>& level_segments, const std::string& path, const std::string& extn);
-	void get_all_models_in_directory(std::vector<std::string>& vec, const std::string& path, const std::string& extension);
 };
 

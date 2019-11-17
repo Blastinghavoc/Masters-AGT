@@ -3,7 +3,7 @@
 bool animated_enemy::prefab_ready = false;
 engine::game_object_properties animated_enemy::prefab{};
 
-animated_enemy::animated_enemy() :abstract_enemy{-1.f}
+animated_enemy::animated_enemy() :abstract_enemy{-1}
 {
 }
 
@@ -57,6 +57,11 @@ animated_enemy::~animated_enemy()
 void animated_enemy::on_update(const engine::timestep& time_step)
 {
 	abstract_enemy::on_update(time_step);
+
+	if (m_frozen)
+	{
+		return;//can't move if frozen
+	}
 
 	if (!m_waypoints.empty())
 	{

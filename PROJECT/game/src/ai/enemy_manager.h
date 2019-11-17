@@ -12,7 +12,7 @@ class enemy_manager {
 public:
 	static void init(engine::ref<grid> level_grid);
 
-	static void on_update(engine::timestep time_step);
+	static void on_update(const engine::timestep& time_step);
 
 	static engine::ref<abstract_enemy> spawn_minion(glm::vec3 position);
 

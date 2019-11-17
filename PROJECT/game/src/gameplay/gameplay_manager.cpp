@@ -5,10 +5,10 @@
 #include "../ai/turret_manager.h"
 #include "../sfx/sfx_manager.h"
 #include "weapon_manager.h"
+#include "pickup_manager.h"
 
 //Static initializers
 int gameplay_manager::m_score = 0;
-int gameplay_manager::m_health = 100;
 int gameplay_manager::m_money = 100;
 int gameplay_manager::m_portal_health = 100;
 float gameplay_manager::m_score_multiplier = 1.f;
@@ -16,13 +16,13 @@ engine::timer gameplay_manager::m_build_timer{};
 int gameplay_manager::m_max_build_time = 30;
 std::map<std::string, int> gameplay_manager::m_prices{};
 player* gameplay_manager::m_player_ptr;
-glm::vec3  gameplay_manager::m_player_spawnpoint{};
 engine::ref<text_hud_element> gameplay_manager::m_top_display{};
 engine::ref<text_hud_element> gameplay_manager::m_score_display{};
 engine::ref<text_hud_element> gameplay_manager::m_money_display{};
 engine::ref<text_hud_element> gameplay_manager::m_health_display{};
 engine::ref<text_hud_element> gameplay_manager::m_portal_health_display{};
 engine::ref<text_hud_element> gameplay_manager::m_tool_display{};
+engine::ref<text_hud_element> gameplay_manager::m_message_display{};
 bool gameplay_manager::m_wave_active = false;
 std::vector<gameplay_manager::wave_definition> gameplay_manager::m_waves{};
 int gameplay_manager::m_max_waves = 0;
@@ -34,19 +34,37 @@ engine::ref<engine::audio_manager> gameplay_manager::m_audio_manager;
 int gameplay_manager::m_available_blocks = 6;
 gameplay_manager::tool gameplay_manager::m_current_tool = tool::block;
 bool gameplay_manager::m_fire_weapon;
+engine::timer gameplay_manager::m_immunity_timer{};
+interactable gameplay_manager::m_hard_mode_switch{};
+bool gameplay_manager::m_hardmode_active;
 
 void gameplay_manager::init(player* playr,engine::ref<engine::text_manager> text_manager, engine::perspective_camera* camera,
 	engine::ref<grid> level_grid,
-	engine::ref<engine::audio_manager> audio_manager)
+	engine::ref<engine::audio_manager> audio_manager,
+	std::vector<engine::ref<engine::game_object>>* decorational_objects)
 {
 	m_player_ptr = playr;
-	m_player_spawnpoint = m_player_ptr->object()->position();
 
 	m_camera = camera;
 	m_level_grid = level_grid;
 	m_audio_manager = audio_manager;
 
-	//TODO store the crosshair somewhere? Only if I ever need to modify it.
+	engine::ref <engine::model> model = engine::model::create("assets/models/static/dungeon/Lever_Floor.obj");
+	engine::game_object_properties props;
+	props.is_static = true;
+	props.type = 0;
+	props.meshes = model->meshes();
+	props.textures = model->textures();
+	float scale = 1.f/glm::max(model->size().x, glm::max(model->size().y, model->size().z));
+	props.scale = glm::vec3(scale);
+	props.bounding_shape = model->size() / 2.f;
+	props.position = level_grid->center_of(5, 5);
+	auto obj = engine::game_object::create(props);
+	decorational_objects->push_back(obj);//Adding the switch model to the game layer's decorational objects for rendering.
+	m_hard_mode_switch = interactable(obj,"Press E to activate hard mode");
+	m_level_grid->set_state(5, 5, grid_tile::tile_state::border);//Prevent blocks being placed on top of the switch
+
+	//TODO could store the crosshair somewhere? Only if I ever need to modify it.
 	auto y_scale = (float)engine::application::window().width() / (float)engine::application::window().height();
 	auto crosshair = hud_element::create(glm::vec2(.5f, .5f),
 		{ 0.025f,0.025f * y_scale },
@@ -81,6 +99,10 @@ void gameplay_manager::init(player* playr,engine::ref<engine::text_manager> text
 	m_tool_display->hide();
 	m_prices["turret"] = 100;
 
+	m_message_display = text_hud_element::create(text_manager, "", glm::vec2{ 0.4f,0.6f });
+	m_message_display->set_text_size(0.5f);
+	hud_manager::add_element(m_message_display);
+
 	//Adding waves in reverse order
 	m_waves.push_back({ 15,3,30 });
 	m_waves.push_back({ 5,1,10 });
@@ -89,14 +111,27 @@ void gameplay_manager::init(player* playr,engine::ref<engine::text_manager> text
 	m_waves.push_back({5,5,30});
 
 	m_max_waves = (int)m_waves.size();
+
+	m_immunity_timer.start();
 }
 
 void gameplay_manager::update(const engine::timestep& ts)
 {
+	check_player_in_bounds();
+
 	m_money_display->set_text("Money: "+std::to_string(m_money));
-	m_health_display->set_text("Health: " + std::to_string(m_health));
+	m_health_display->set_text("Health: " + std::to_string(health()));
 	m_score_display->set_text("Score: "+ std::to_string(m_score));
 	m_portal_health_display->set_text("Portal Health: " + std::to_string(m_portal_health));
+
+	//Change the lighting based on current difficulty setting
+	if (m_hardmode_active)
+	{
+		light_manager::set_point_light_colour(glm::vec3(.75f, .1f, .1f));
+	}
+	else {
+		light_manager::set_point_light_colour(light_manager::default_light_colour);
+	}
 
 	if (m_wave_active)
 	{
@@ -111,6 +146,8 @@ void gameplay_manager::update(const engine::timestep& ts)
 
 		weapon_manager::update(ts);
 
+		check_enemies_touching_player();
+
 		auto total_enemies_this_wave = m_current_wave_definition.num_enemies;
 		auto spawned_so_far = total_enemies_this_wave - enemy_manager::remaining();
 		auto alive = enemy_manager::current_active();
@@ -120,6 +157,9 @@ void gameplay_manager::update(const engine::timestep& ts)
 		);
 	}
 	else {
+		//The player may wish to press the hardmode switch during a build phase
+		check_interaction_with_hardmode_switch();
+
 		std::string tool_text = "Tool: ";
 		if (m_current_tool == tool::turret)
 		{
@@ -151,10 +191,22 @@ void gameplay_manager::damage_portal()
 	sfx_manager::jitter_effect.activate(0.2f, 0.5f);	
 }
 
-void gameplay_manager::damange_player()
+void gameplay_manager::damage_player(float amnt)
 {
-	m_health -= 10;
-	sfx_manager::cross_fade_effect.activate(1.f);
+	//The player is immune to damage for short time after taking damage, to prevent death in just a few frames
+	if (m_immunity_timer.total() > m_immunity_duration)
+	{
+		m_immunity_timer.reset();
+
+		m_player_ptr->deal_damage(amnt);
+		sfx_manager::cross_fade_effect.activate(1.f);
+		sfx_manager::jitter_effect.activate(0.2f, 0.5f);
+		if (health() <= 0)
+		{
+			kill_player();
+		}
+	}
+
 }
 
 //Begins the next build phase, which will trigger the next wave when it finishes
@@ -170,6 +222,8 @@ void gameplay_manager::next_build_phase()
 		m_build_timer.start();
 		m_tool_display->show();
 		m_wave_active = false;
+		m_hardmode_active = false;//Player has to press the switch again if they still want hardmode
+		m_score_multiplier = 1.f;//Reset global score multiplier
 		m_available_blocks += 4;//TODO make number of blocks awarded determined by wave definition?
 		++m_wave_number;
 	}
@@ -215,6 +269,9 @@ void gameplay_manager::on_event(engine::event& event)
 		case engine::key_codes::KEY_2:
 			m_current_tool = tool::turret;
 			e.handled = true;
+			break;
+		case engine::key_codes::KEY_T:
+			pickup_manager::make_powerup_at(m_player_ptr->object()->position()+glm::vec3(2,0,2));
 			break;
 		//case engine::key_codes::KEY_P:
 		//	damage_portal();//DEBUG
@@ -298,6 +355,13 @@ void gameplay_manager::start_combat_phase()
 	m_build_timer.reset();
 	m_wave_active = true;
 	m_tool_display->hide();
+	m_message_display->hide();
+	if (m_hardmode_active)
+	{
+		//Hardmode makes enemies come twice as fast
+		m_current_wave_definition.enemy_spacing /= 2.f;
+		m_score_multiplier = 1.5f;//Extra points in hardmode
+	}
 
 	enemy_manager::begin_wave(m_current_wave_definition.num_enemies, m_current_wave_definition.enemy_spacing);	
 }
@@ -373,5 +437,54 @@ void gameplay_manager::remove_turret(int x, int z)
 	}
 	else {
 		m_audio_manager->play("error");
+	}
+}
+
+//Kill and respawn the player
+void gameplay_manager::kill_player()
+{
+	add_score(-200);//Reduce the score as a penalty for dying
+	m_player_ptr->set_health(m_player_ptr->max_health());
+	m_player_ptr->object()->set_position(m_player_ptr->spawnpoint());
+}
+
+//Kill and respawn the player if they have fallen off the world
+void gameplay_manager::check_player_in_bounds()
+{
+	if (m_player_ptr->object()->position().y < -20.f)
+	{
+		kill_player();
+	}
+}
+
+/*
+Checks whether any enemies are touching the player, and deals damage to the player if they are
+*/
+void gameplay_manager::check_enemies_touching_player()
+{
+	auto& active_enemies = enemy_manager::get_active_enemies();
+	auto& player_trigger_box = m_player_ptr->get_trigger_box();
+	for (auto& enemy_ptr : active_enemies)
+	{
+		if (enemy_ptr->get_trigger_box().collision(player_trigger_box))
+		{
+			damage_player();
+		}
+	}
+}
+
+void gameplay_manager::check_interaction_with_hardmode_switch()
+{
+	if (!m_hardmode_active && m_hard_mode_switch.in_range_of(m_player_ptr->get_trigger_box()))
+	{
+		m_message_display->set_text(m_hard_mode_switch.message());
+		m_message_display->show();
+		if (engine::input::key_pressed(engine::key_codes::KEY_E))
+		{
+			m_hardmode_active = true;
+		}
+	}
+	else {
+		m_message_display->hide();
 	}
 }

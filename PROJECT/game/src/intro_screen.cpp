@@ -19,17 +19,16 @@ void intro_screen::active(bool b)
 void intro_screen::render(engine::ref<engine::text_manager>& text_manager)
 {
 	float x_pos = (float)engine::application::window().width() / 2 - 80.f;
-	float y_pos = (float)(engine::application::window().height()) * (5.f / 6.f);
+	float y_pos = (float)(engine::application::window().height()) * (.95f);
 
-	glm::vec4 text_colour = glm::vec4(0.f, 0.5f, 0.5f, 1.f);
+	glm::vec4 text_colour = glm::vec4(.5f, 1.f, 0.5f, 1.f);
 	const auto text_shader = engine::renderer::shaders_library()->get("text_2D");
 	text_manager->render_text(text_shader, "3D_TD", x_pos, y_pos, 1.f, text_colour);
 	text_manager->render_text(text_shader, "Press ENTER to continue", x_pos -100.f, y_pos -50.f, .75f, text_colour);
 
 	//Render controls list
 	x_pos = 10.f;
-	y_pos = (float)(engine::application::window().height()) * (3.f / 5.f);
-	text_colour = glm::vec4(.5f, 1.f, 0.5f, 1.f);
+	y_pos = (float)(engine::application::window().height()) * (3.f / 5.f);	
 	text_manager->render_text(text_shader, "Controls:", x_pos, y_pos, .5f,text_colour);
 	//Not all controls actually functional yet
 	std::vector<std::string> content{

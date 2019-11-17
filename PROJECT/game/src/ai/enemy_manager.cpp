@@ -1,5 +1,6 @@
 #include "enemy_manager.h"
 #include "../entities/animated_enemy.h"
+#include "../gameplay/pickup_manager.h"
 
 //Static initializers
 std::map<int, engine::ref<abstract_enemy>> enemy_manager::s_minions;
@@ -36,7 +37,7 @@ void enemy_manager::init(engine::ref<grid> level_grid)
 	light_manager::spot_lights.push_back(m_spot_light);
 }
 
-void enemy_manager::on_update(engine::timestep time_step)
+void enemy_manager::on_update(const engine::timestep& time_step)
 {
 	if (s_current_wave_remaining > 0)
 	{
@@ -55,6 +56,7 @@ void enemy_manager::on_update(engine::timestep time_step)
 			}
 
 			new_minion->set_health(new_minion->max_health());
+			new_minion->set_frozen(false);
 			new_minion->set_path(s_current_path);
 			s_current_active_minions.push_back(new_minion);	
 			s_interval_accumulator -= s_current_wave_interval;
@@ -84,9 +86,11 @@ void enemy_manager::on_update(engine::timestep time_step)
 
 			}
 			else if (current_minion->health() <= 0) {
-				//If the minion has died, deactivate it and signal the gameplay manager
+				//If the minion has died, deactivate it and add some score
 				s_minion_buffer.push(current_minion);
-				gameplay_manager::add_score(current_minion->max_health());
+				gameplay_manager::add_score((int)current_minion->max_health());
+				pickup_manager::roll_for_powerup(current_minion->position());//Maybe drop a powerup
+
 				minion_iterator = s_current_active_minions.erase(minion_iterator);//Erase and return next.
 			}
 			else {

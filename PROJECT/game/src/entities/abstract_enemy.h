@@ -46,10 +46,14 @@ public:
 		return e1->is_closer_to_goal_than(*e2);
 	}
 
+	void set_frozen(bool val) { m_frozen = val; };
+	bool is_frozen() { return m_frozen; };
+
 protected:	
 	std::deque<glm::vec3> m_waypoints{};
 	int m_id;//Unique enemy id
 	trigger_box m_box{};
 	float m_health{100.f};
 	float m_max_health{ 100.f };
+	bool m_frozen = false;
 };

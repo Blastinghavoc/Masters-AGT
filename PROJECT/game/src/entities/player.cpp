@@ -40,7 +40,10 @@ player::player(glm::vec3 position):
 	m_object->set_forward(glm::vec3(0.f, 0.f, 1.f));
 	m_object->animated_mesh()->set_default_animation(1);
 	m_object->animated_mesh()->switch_animation(m_object->animated_mesh()->default_animation());
-	m_object->set_rotation_axis(m_rotation_axis);	
+	m_object->set_rotation_axis(m_rotation_axis);
+
+	m_box.set_box(props);
+	m_spawn_point = position;
 }
 
 player::~player()
@@ -49,6 +52,8 @@ player::~player()
 
 void player::on_update(const engine::timestep& time_step)
 {
+	m_box.on_update(m_object->position());
+
 	bool jumping = false;
 
 	//Update the jump timer

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "animated_actor.h"
+#include "trigger_box.h"
 
 /*
 Class to represnt the player character and the controls it has.
@@ -25,6 +26,18 @@ public:
 	//Respond to events, specifically the mouse scroll event
 	void on_event(engine::event& e);
 
+	trigger_box& get_trigger_box() { return m_box; };
+
+	void set_health(float amount) { m_health = amount; };
+
+	const float& health() { return m_health; };
+
+	const float& max_health() { return m_max_health; };
+
+	void deal_damage(float amount) { m_health -= amount; };
+
+	const glm::vec3& spawnpoint() { return m_spawn_point; };
+
 private:
 	const float m_walk_speed{ 1.f };
 	const float m_run_speed{ 2.f };
@@ -36,5 +49,11 @@ private:
 	//camera details (distance behind the player to put the camera)
 	const float camera_backoff_distance_default{1.f};
 	float m_camera_backoff_distance;
-	const float m_camera_elevation{ .5f };	
+	const float m_camera_elevation{ .5f };
+
+	//Gameplay stats
+	trigger_box m_box{};
+	float m_health{ 100.f };
+	float m_max_health{ 100.f };
+	glm::vec3 m_spawn_point{ 0.f };
 };

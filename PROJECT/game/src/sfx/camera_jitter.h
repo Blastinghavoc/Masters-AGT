@@ -3,6 +3,13 @@
 #include "engine.h"
 #include <random>
 
+/*
+Creates camera jitter by adding a uniform random vector to the front vector of the camera.
+
+A more advanced random number generator than the typical "rand()" is used to guarantee
+a uniform jitter. To be honest, the difference is likely unnoticeable, but I just wanted
+to use a "proper" random number generator for once.
+*/
 class camera_jitter {
 public:
 	camera_jitter(engine::perspective_camera* camera) :m_camera{camera} {

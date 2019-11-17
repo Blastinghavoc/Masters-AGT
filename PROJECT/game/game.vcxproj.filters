@@ -83,6 +83,12 @@
     <ClCompile Include="src\entities\abstract_enemy.cpp">
       <Filter>entities</Filter>
     </ClCompile>
+    <ClCompile Include="src\entities\interactable.cpp">
+      <Filter>entities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameplay\pickup_manager.cpp">
+      <Filter>gameplay</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="layers">
@@ -204,6 +210,12 @@
     </ClInclude>
     <ClInclude Include="src\entities\animated_enemy.h">
       <Filter>entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\entities\interactable.h">
+      <Filter>entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\pickup_manager.h">
+      <Filter>gameplay</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

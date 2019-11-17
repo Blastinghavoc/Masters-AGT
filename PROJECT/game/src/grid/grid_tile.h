@@ -11,7 +11,7 @@ public:
 	//The state of a tile
 	enum class tile_state {
 		maze, //Indicates tile is part of the player-built maze
-		empty, //Indicates tile can be pathed through in some way
+		empty, //Indicates tile can be pathed through in some way, and is a valid position to place a block
 		start, //The start position of enemies
 		end, //The goal position of enemies
 		border //tile cannot be modified or pathed through

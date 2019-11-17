@@ -10,6 +10,7 @@ std::vector<engine::ref<engine::SpotLight>> light_manager::spot_lights;
 float light_manager::m_sun_angle = 0.f;
 float light_manager::day_duration = 60.f;
 bool light_manager::m_sun_underground = false;
+const glm::vec3 light_manager::default_light_colour{ .25f, .75f, .5f };
 
 void light_manager::init(engine::DirectionalLight* sun)
 {
@@ -53,5 +54,12 @@ void light_manager::submit(engine::ref<engine::shader> shader)
 	//Spot lights have their own behaviour, and can be on during the day
 	for (auto& spot_light : spot_lights) {
 		spot_light->submit(shader, tmp_spot++);
+	}
+}
+
+void light_manager::set_point_light_colour(const glm::vec3& colour)
+{
+	for (auto& point_light : point_lights) {
+		point_light->Color = colour;
 	}
 }
