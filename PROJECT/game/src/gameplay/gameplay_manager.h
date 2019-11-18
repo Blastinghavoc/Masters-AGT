@@ -7,6 +7,8 @@
 #include "../gui/hud_manager.h"
 #include "../ai/enemy_manager.h"
 #include "../entities/interactable.h"
+#include "../entities/enemy_type.h"
+#include "wave_definition.h"
 /*
 Static class to manage gameplay elements
 like health, money, score etc, as well as the
@@ -65,13 +67,7 @@ private:
 		m_message_display;
 	static bool m_wave_active;
 
-	struct wave_definition {
-		int num_enemies;
-		float enemy_spacing;
-		int prep_time;
-	};
-
-	static std::vector<wave_definition> m_waves;
+	static std::deque<wave_definition> m_waves;
 	static int m_max_waves;
 	static int m_wave_number;
 	static engine::perspective_camera* m_camera;

@@ -2,12 +2,14 @@
 
 #include "abstract_actor.h"
 #include "trigger_box.h"
+#include "enemy_type.h"
 
 //Represents the abstract capabilities of an enemy.
 class abstract_enemy : public virtual abstract_actor{
-public:
-	abstract_enemy() : m_id{-1} {};
-	abstract_enemy(int id) : m_id{id} {};
+public:	
+
+	abstract_enemy() : m_id{ -1 }, m_type{enemy_type::robot1} {};
+	abstract_enemy(int id) : m_id{id}, m_type{ enemy_type::robot1 } {};
 	virtual ~abstract_enemy() {};
 
 	virtual void on_update(const engine::timestep& time_step) override;
@@ -22,9 +24,11 @@ public:
 
 	glm::vec3 next_waypoint() const;
 
-	float square_distance_to_next_waypoint() const;
+	virtual float square_distance_to_next_waypoint() const;
 
 	glm::vec3 position() const { return m_object->position(); };
+
+	virtual glm::vec3 ground_position() const { return position(); };
 
 	trigger_box& get_trigger_box() { return m_box; };
 
@@ -49,6 +53,8 @@ public:
 	void set_frozen(bool val) { m_frozen = val; };
 	bool is_frozen() { return m_frozen; };
 
+	enemy_type type() { return m_type; };
+
 protected:	
 	std::deque<glm::vec3> m_waypoints{};
 	int m_id;//Unique enemy id
@@ -56,4 +62,8 @@ protected:
 	float m_health{100.f};
 	float m_max_health{ 100.f };
 	bool m_frozen = false;
+	float m_movement_speed = 1.f;
+	enemy_type m_type;
+
+	static bool close_enough(glm::vec3 v1, glm::vec3 v2);
 };

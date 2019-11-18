@@ -5,7 +5,7 @@
 void abstract_enemy::on_update(const engine::timestep& time_step)
 {	
 	//Remove any waypoints from the front of the queue if we're already there.
-	while (!m_waypoints.empty() && m_object->position() == m_waypoints.front())
+	while (!m_waypoints.empty() && close_enough(m_object->position(),m_waypoints.front()))
 	{
 		m_waypoints.pop_front();
 	}
@@ -44,4 +44,10 @@ bool abstract_enemy::is_closer_to_goal_than(const abstract_enemy& e2) const
 		
 	}
 	return false;
+}
+
+//For use in pathfinding to waypoints, an enemy only needs to be visually close enough.
+bool abstract_enemy::close_enough(glm::vec3 v1, glm::vec3 v2)
+{
+	return glm::distance2(v1, v2) < 0.000001f;//Distance of 1 milimeter or less
 }

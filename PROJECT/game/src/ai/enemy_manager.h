@@ -4,8 +4,8 @@
 #include "../grid/grid.h"
 #include <deque>
 #include "../ai/pathfinder.h"
-#include "../gameplay/gameplay_manager.h"
 #include "../lighting/light_manager.h"
+#include "../gameplay/wave_definition.h"
 
 //Static class to manage the movement of enemies in the level
 class enemy_manager {
@@ -14,11 +14,13 @@ public:
 
 	static void on_update(const engine::timestep& time_step);
 
-	static engine::ref<abstract_enemy> spawn_minion(glm::vec3 position);
+	static engine::ref<abstract_enemy> spawn_minion(enemy_type type,glm::vec3 position);
 
-	static void begin_wave(int amnt,float spacing = 2.f);
+	static void begin_wave(wave_definition wave_def);
 
-	static void render(const engine::ref<engine::shader>& shader);
+	static void render_animated(const engine::ref<engine::shader>& shader);
+
+	static void render_static(const engine::ref<engine::shader>& shader);
 
 	//For debug purposes only
 	static void render_trigger_boxes(const engine::ref<engine::shader>& shader);
@@ -36,8 +38,11 @@ private:
 	static int s_current_wave_remaining;
 	static float s_interval_accumulator;
 	static float s_current_wave_interval;
-	static std::stack<engine::ref<abstract_enemy>> s_minion_buffer;//Holds pointers to the created but inactive minions.
+	//Holds pointers to the created but inactive minions of various types.
+	static std::multimap<enemy_type,engine::ref<abstract_enemy>> s_minion_buffer;
 	static std::vector<engine::ref<abstract_enemy>> s_current_active_minions;//Holds pointers to the minions currently alive
+	//Holds the amount and type of enemies to spawn for a given wave.
+	static std::deque<std::pair<int, enemy_type>> s_spawn_sequence;
 
 	//Highlights the furthest forward enemy
 	static engine::ref<engine::SpotLight> m_spot_light;

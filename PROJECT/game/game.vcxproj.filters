@@ -89,6 +89,9 @@
     <ClCompile Include="src\gameplay\pickup_manager.cpp">
       <Filter>gameplay</Filter>
     </ClCompile>
+    <ClCompile Include="src\entities\static_enemy.cpp">
+      <Filter>entities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="layers">
@@ -216,6 +219,15 @@
     </ClInclude>
     <ClInclude Include="src\gameplay\pickup_manager.h">
       <Filter>gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\entities\static_enemy.h">
+      <Filter>entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\wave_definition.h">
+      <Filter>gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\entities\enemy_type.h">
+      <Filter>entities</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

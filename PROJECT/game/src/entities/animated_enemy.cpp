@@ -5,10 +5,12 @@ engine::game_object_properties animated_enemy::prefab{};
 
 animated_enemy::animated_enemy() :abstract_enemy{-1}
 {
+	m_type = enemy_type::animated_humanoid;
 }
 
 animated_enemy::animated_enemy(int id, glm::vec3 position) : abstract_enemy{id}
 {
+	m_type = enemy_type::animated_humanoid;
 	engine::game_object_properties props;
 	if (prefab_ready)
 	{
@@ -24,7 +26,6 @@ animated_enemy::animated_enemy(int id, glm::vec3 position) : abstract_enemy{id}
 		skinned_mesh->LoadAnimationFile("assets/models/animated/mannequin/jump.dae");
 		skinned_mesh->LoadAnimationFile("assets/models/animated/mannequin/standard_run.dae");
 		skinned_mesh->switch_root_movement(false);
-		props;
 		props.animated_mesh = skinned_mesh;
 		props.scale = glm::vec3(1.f / glm::max(skinned_mesh->size().x, glm::max(skinned_mesh->size().y, skinned_mesh->size().z)));
 		props.type = 0;
@@ -46,6 +47,8 @@ animated_enemy::animated_enemy(int id, glm::vec3 position) : abstract_enemy{id}
 	m_object->animated_mesh()->set_default_animation(1);
 	m_object->animated_mesh()->switch_animation(m_object->animated_mesh()->default_animation());
 	m_object->set_rotation_axis({ 0,1,0 });
+
+	m_movement_speed = 2.f;
 
 	m_box.set_box(props);
 }
@@ -75,10 +78,9 @@ void animated_enemy::on_update(const engine::timestep& time_step)
 		}
 
 		auto line = target - m_object->position();
-		auto direction = glm::normalize( line );
-		float speed = 2.f;
+		auto direction = glm::normalize( line );		
 
-		move(direction,speed,time_step,glm::length(line));
+		move(direction, m_movement_speed,time_step,glm::length(line));
 
 	}
 	else {

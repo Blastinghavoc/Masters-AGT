@@ -22,9 +22,9 @@ namespace fs = std::filesystem;
 
 
 game_layer::game_layer() :
-//m_2d_camera(-1.6f, 1.6f, -0.9f, 0.9f),
-m_2d_camera(0, (float)engine::application::window().width(), 0, (float)engine::application::window().height()),
-m_3d_camera((float)engine::application::window().width(), (float)engine::application::window().height(),45.f,0.1f,200.f)
+	//m_2d_camera(-1.6f, 1.6f, -0.9f, 0.9f),
+	m_2d_camera(0, (float)engine::application::window().width(), 0, (float)engine::application::window().height()),
+	m_3d_camera((float)engine::application::window().width(), (float)engine::application::window().height(), 45.f, 0.1f, 200.f)
 {
 	//Initialise the level grid.
 	m_level_grid = std::make_shared<grid>(2.f, 0.01f);
@@ -40,9 +40,9 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	m_audio_manager->load_sound("assets/audio/ambience.wav", engine::sound_type::track, "music");
 	m_audio_manager->play("music");
 	//Error sound from https://freesound.org/people/Autistic%20Lucario/sounds/142608/
-	m_audio_manager->load_sound("assets/audio/error_sound.wav",engine::sound_type::event,"error");
+	m_audio_manager->load_sound("assets/audio/error_sound.wav", engine::sound_type::event, "error");
 	//Alert from https://freesound.org/people/willy_ineedthatapp_com/sounds/167337/
-	m_audio_manager->load_sound("assets/audio/8_bit_alert.mp3",engine::sound_type::event,"alert");
+	m_audio_manager->load_sound("assets/audio/8_bit_alert.mp3", engine::sound_type::event, "alert");
 	//Sound from https://freesound.org/people/TiesWijnen/sounds/338722/
 	m_audio_manager->load_sound("assets/audio/grenade_explosion.mp3", engine::sound_type::event, "grenade_explosion");
 	//Sound from https://freesound.org/people/LeMudCrab/sounds/163458/
@@ -99,7 +99,7 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	std::string skybox_path = "assets/textures/skyboxes/blue/";
 	std::string skybox_extn = ".png";
 	m_skybox = engine::skybox::create(100.f,
-		{ engine::texture_2d::create(skybox_path+"bkg1_front"+skybox_extn,true),
+		{ engine::texture_2d::create(skybox_path + "bkg1_front" + skybox_extn,true),
 		  engine::texture_2d::create(skybox_path + "bkg1_right" + skybox_extn,true),
 		  engine::texture_2d::create(skybox_path + "bkg1_back" + skybox_extn,true),
 		  engine::texture_2d::create(skybox_path + "bkg1_left" + skybox_extn,true),
@@ -113,7 +113,7 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	// Load the terrain texture and create a terrain mesh. Create a terrain object. Set its properties
 	// Using my tiled_cuboid instead of the original terrain shape in order to have tiled textures.
 	std::vector<engine::ref<engine::texture_2d>> terrain_textures = { engine::texture_2d::create("assets/textures/terrain_grid.bmp",false) };//Texture by me
-	glm::vec3 terrain_dimensions{ max_grid_dimension + 2* cell_size, 1.f, max_grid_dimension + 2 * cell_size };
+	glm::vec3 terrain_dimensions{ max_grid_dimension + 2 * cell_size, 1.f, max_grid_dimension + 2 * cell_size };
 	engine::ref<engine::tiled_cuboid> terrain_shape = engine::tiled_cuboid::create(terrain_dimensions, false, m_level_grid->cell_size());
 	engine::game_object_properties terrain_props;
 	terrain_props.meshes = { terrain_shape->mesh() };
@@ -126,16 +126,17 @@ m_3d_camera((float)engine::application::window().width(), (float)engine::applica
 	m_terrain = engine::game_object::create(terrain_props);
 
 	//Testing
-	/*engine::ref <engine::model> test_model = engine::model::create("assets/models/static/turrets/modified/base.obj");	
-	engine::game_object_properties test_props;
-	test_props.meshes = test_model->meshes();
-	test_props.textures = test_model->textures();
-	float test_scale = 1.f / glm::max(test_model->size().x, glm::max(test_model->size().y, test_model->size().z));
-	test_props.position = { -4.f,0.f, -5.f };
-	test_props.scale = glm::vec3(test_scale);
-	test_props.bounding_shape = test_model->size() / 2.f * test_scale;
-	m_decorational_objects.push_back( engine::game_object::create(test_props));*/
-
+	/*engine::ref<engine::skinned_mesh> skinned_mesh = engine::skinned_mesh::create("assets/models/animated/BaseMesh_Anim.fbx");
+	skinned_mesh->switch_root_movement(false);
+	engine::game_object_properties props;
+	props.animated_mesh = skinned_mesh;
+	props.scale = glm::vec3(1.f / glm::max(skinned_mesh->size().x, glm::max(skinned_mesh->size().y, skinned_mesh->size().z)));
+	props.type = 0;
+	props.position = {0, 0, 0};
+	props.bounding_shape = glm::vec3(skinned_mesh->size().x / 4.f,
+		skinned_mesh->size().y / 2.f, skinned_mesh->size().x / 4.f);
+	m_test_obj = engine::game_object::create(props);
+	LOG_INFO("Num animations {}", skinned_mesh->animations().size());*/
 
 	//TODO move into a function?
 	//Populate level grid
@@ -431,6 +432,9 @@ void game_layer::on_render()
 
 	}
 
+	//Render non-animated enemies
+	enemy_manager::render_static(textured_lighting_shader);
+
 	//Render test object
 	/*engine::renderer::submit(textured_lighting_shader,m_test_obj);*/
 
@@ -495,8 +499,8 @@ void game_layer::on_render()
 	//Render the player object
 	engine::renderer::submit(animated_mesh_shader, m_player.object());
 
-	//Render enemies
-	enemy_manager::render(animated_mesh_shader);
+	//Render animated enemies
+	enemy_manager::render_animated(animated_mesh_shader);
 
 	engine::renderer::end_scene();
 

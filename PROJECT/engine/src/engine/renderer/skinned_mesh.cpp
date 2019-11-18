@@ -105,7 +105,7 @@ bool engine::skinned_mesh::LoadMesh(const std::string& Filename)
 
 	//m_pScene = m_Importer.ReadFile(Filename.c_str(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace);
 	
-	if (&m_pScene) {
+	if (m_pScene) {
 		m_GlobalInverseTransform = glm::inverse(Assimp::ToGlm(m_pScene->mRootNode->mTransformation));
 		Ret = InitFromScene(m_pScene, Filename);
 	}

@@ -24,12 +24,12 @@ engine::ref<text_hud_element> gameplay_manager::m_portal_health_display{};
 engine::ref<text_hud_element> gameplay_manager::m_tool_display{};
 engine::ref<text_hud_element> gameplay_manager::m_message_display{};
 bool gameplay_manager::m_wave_active = false;
-std::vector<gameplay_manager::wave_definition> gameplay_manager::m_waves{};
+std::deque<wave_definition> gameplay_manager::m_waves{};
 int gameplay_manager::m_max_waves = 0;
 int gameplay_manager::m_wave_number = 0;
 engine::perspective_camera* gameplay_manager::m_camera;
 engine::ref<grid> gameplay_manager::m_level_grid;
-gameplay_manager::wave_definition gameplay_manager::m_current_wave_definition;
+wave_definition gameplay_manager::m_current_wave_definition;
 engine::ref<engine::audio_manager> gameplay_manager::m_audio_manager;
 int gameplay_manager::m_available_blocks = 6;
 gameplay_manager::tool gameplay_manager::m_current_tool = tool::block;
@@ -103,12 +103,31 @@ void gameplay_manager::init(player* playr,engine::ref<engine::text_manager> text
 	m_message_display->set_text_size(0.5f);
 	hud_manager::add_element(m_message_display);
 
-	//Adding waves in reverse order
-	m_waves.push_back({ 15,3,30 });
-	m_waves.push_back({ 5,1,10 });
-	m_waves.push_back({ 10,3,30 });
-	m_waves.push_back({ 10,5,30 });
-	m_waves.push_back({5,5,30});
+	//Utility function to compute total enemies in wave so that it doesn't have to be recomputed in other places.
+	auto total_enemies = [](std::deque<std::pair<int, enemy_type>>& wave_enemies) {
+		int count = 0;
+		for (auto& item : wave_enemies) {
+			count += item.first;
+		}
+		return count;
+	};
+
+	//Adding waves
+	std::deque<std::pair<int, enemy_type>> wave_enemies;
+	wave_enemies = { {5,enemy_type::robot1},{1,enemy_type::animated_humanoid} };//1st wave
+	m_waves.push_back({ total_enemies(wave_enemies),5,30, wave_enemies});
+
+	wave_enemies = { {5,enemy_type::robot1},{2,enemy_type::flyer1} };
+	m_waves.push_back({ total_enemies(wave_enemies),3,30, wave_enemies});
+
+	wave_enemies = { {2,enemy_type::robot1},{2,enemy_type::flyer1},{2,enemy_type::robot1},{1,enemy_type::robot2} };
+	m_waves.push_back({ total_enemies(wave_enemies),3,30,wave_enemies });
+
+	wave_enemies = { {2,enemy_type::animated_humanoid},{2,enemy_type::robot1},{1,enemy_type::robot2},{2,enemy_type::flyer2} };
+	m_waves.push_back({ total_enemies(wave_enemies),2,30, wave_enemies });
+
+	wave_enemies = { {2,enemy_type::animated_humanoid},{3,enemy_type::robot1},{2,enemy_type::robot2},{2,enemy_type::flyer2},{2,enemy_type::flyer1} };//Last wave
+	m_waves.push_back({ total_enemies(wave_enemies),1,30,wave_enemies });
 
 	m_max_waves = (int)m_waves.size();
 
@@ -214,8 +233,8 @@ void gameplay_manager::next_build_phase()
 {
 	if (!m_waves.empty())
 	{
-		auto wave_config = m_waves.back();
-		m_waves.pop_back();
+		auto wave_config = m_waves.front();
+		m_waves.pop_front();
 		m_current_wave_definition = wave_config;
 		m_max_build_time = wave_config.prep_time;
 		//Start build phase
@@ -224,7 +243,11 @@ void gameplay_manager::next_build_phase()
 		m_wave_active = false;
 		m_hardmode_active = false;//Player has to press the switch again if they still want hardmode
 		m_score_multiplier = 1.f;//Reset global score multiplier
-		m_available_blocks += 4;//TODO make number of blocks awarded determined by wave definition?
+
+		//TODO make number of blocks and money awarded determined by wave definition?
+		m_available_blocks += 4;
+		m_money += 50;
+
 		++m_wave_number;
 	}
 	else {
@@ -363,7 +386,7 @@ void gameplay_manager::start_combat_phase()
 		m_score_multiplier = 1.5f;//Extra points in hardmode
 	}
 
-	enemy_manager::begin_wave(m_current_wave_definition.num_enemies, m_current_wave_definition.enemy_spacing);	
+	enemy_manager::begin_wave(m_current_wave_definition);	
 }
 
 void gameplay_manager::place_block(int x, int z)

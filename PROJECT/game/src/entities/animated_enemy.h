@@ -1,7 +1,6 @@
 #pragma once
 
 #include "animated_actor.h"
-#include "trigger_box.h"
 #include "abstract_enemy.h"
 
 class animated_enemy: public animated_actor, public abstract_enemy {
@@ -18,5 +17,5 @@ public:
 
 private:
 	static engine::game_object_properties prefab;
-	static bool prefab_ready;
+	static bool prefab_ready;	
 };

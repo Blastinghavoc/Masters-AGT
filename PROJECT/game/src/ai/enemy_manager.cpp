@@ -1,6 +1,8 @@
 #include "enemy_manager.h"
 #include "../entities/animated_enemy.h"
 #include "../gameplay/pickup_manager.h"
+#include "../entities/static_enemy.h"
+#include "../gameplay/gameplay_manager.h"
 
 //Static initializers
 std::map<int, engine::ref<abstract_enemy>> enemy_manager::s_minions;
@@ -10,17 +12,18 @@ std::deque<glm::vec3> enemy_manager::s_current_path{};
 int enemy_manager::s_current_wave_remaining = 0;
 float enemy_manager::s_interval_accumulator = 0;
 float enemy_manager::s_current_wave_interval = 2.f;
-std::stack<engine::ref<abstract_enemy>> enemy_manager::s_minion_buffer{};
+std::multimap<enemy_type, engine::ref<abstract_enemy>> enemy_manager::s_minion_buffer{};
 std::vector<engine::ref<abstract_enemy>> enemy_manager::s_current_active_minions{};
 engine::ref<engine::SpotLight> enemy_manager::m_spot_light{};
+std::deque<std::pair<int, enemy_type>> enemy_manager::s_spawn_sequence;
 
 void enemy_manager::init(engine::ref<grid> level_grid)
 {
 	s_level_grid = level_grid;
 
 	//Add one enemy to the buffer, allowing the enemy prefab to be initialised.
-	auto minion = spawn_minion({ 0,0,0 });
-	s_minion_buffer.push(minion);
+	auto minion = spawn_minion(enemy_type::animated_humanoid,{ 0,0,0 });
+	s_minion_buffer.emplace(enemy_type::animated_humanoid,minion);
 
 	m_spot_light = std::make_shared<engine::SpotLight>();
 	m_spot_light->Color = glm::vec3(.75f, .1f, .1f);
@@ -44,21 +47,16 @@ void enemy_manager::on_update(const engine::timestep& time_step)
 		s_interval_accumulator += time_step;
 		if (s_interval_accumulator > s_current_wave_interval)
 		{
-			engine::ref<abstract_enemy> new_minion;
-			if (s_minion_buffer.empty())
-			{
-				new_minion = spawn_minion(s_current_path.front());
-			}
-			else {
-				new_minion = s_minion_buffer.top();
-				new_minion->object()->set_position(s_current_path.front());
-				s_minion_buffer.pop();
-			}
+			//Spawn minion 
+			auto& spawn_instruction = s_spawn_sequence.front();
+			if (spawn_instruction.first <= 0)
+			{//If we've spawned all the enemies in one instruction, get the next
+				s_spawn_sequence.pop_front();
+				spawn_instruction = s_spawn_sequence.front();
+			}			
 
-			new_minion->set_health(new_minion->max_health());
-			new_minion->set_frozen(false);
-			new_minion->set_path(s_current_path);
-			s_current_active_minions.push_back(new_minion);	
+			s_current_active_minions.push_back(spawn_minion(spawn_instruction.second, s_current_path.front()));
+			--spawn_instruction.first;//Spawned one of the enemies
 			s_interval_accumulator -= s_current_wave_interval;
 			--s_current_wave_remaining;
 		}
@@ -78,18 +76,20 @@ void enemy_manager::on_update(const engine::timestep& time_step)
 			auto& current_minion = *minion_iterator;
 			current_minion->on_update(time_step);
 			//If the minion has reached the goal, deactivate it and signal the gameplay manager.
-			if (current_minion->object()->position() == s_current_path.back())
+			if (current_minion->waypoints_remaining() == 0)
 			{
-				s_minion_buffer.push(current_minion);
+				s_minion_buffer.emplace(current_minion->type(),current_minion);
+
 				minion_iterator = s_current_active_minions.erase(minion_iterator);//Erase and return next.
 				gameplay_manager::damage_portal();
 
 			}
 			else if (current_minion->health() <= 0) {
 				//If the minion has died, deactivate it and add some score
-				s_minion_buffer.push(current_minion);
+				s_minion_buffer.emplace(current_minion->type(), current_minion);
+
 				gameplay_manager::add_score((int)current_minion->max_health());
-				pickup_manager::roll_for_powerup(current_minion->position());//Maybe drop a powerup
+				pickup_manager::roll_for_powerup(current_minion->ground_position());//Maybe drop a powerup
 
 				minion_iterator = s_current_active_minions.erase(minion_iterator);//Erase and return next.
 			}
@@ -116,24 +116,69 @@ void enemy_manager::on_update(const engine::timestep& time_step)
 	}
 }
 
-engine::ref<abstract_enemy> enemy_manager::spawn_minion(glm::vec3 position)
+engine::ref<abstract_enemy> enemy_manager::spawn_minion(enemy_type type, glm::vec3 position)
 {
-	s_minions[s_next_id] = animated_enemy::create(s_next_id, position);
-	return s_minions[s_next_id++];
+
+	engine::ref<abstract_enemy> new_minion;
+	if (s_minion_buffer.count(type) <1)
+	{
+		switch (type)
+		{		
+		case enemy_type::animated_humanoid:
+			new_minion = animated_enemy::create(s_next_id, position);
+			break;
+		default:
+			new_minion = static_enemy::create(s_next_id, position,type);
+			break;
+		}
+		s_minions[s_next_id] = new_minion;
+		++s_next_id;
+	}
+	else {
+		//remove enemy of correct type from buffer.
+		auto iterator = s_minion_buffer.find(type);
+		new_minion = iterator->second;
+		new_minion->object()->set_position(position);
+		s_minion_buffer.erase(iterator);
+	}
+
+	//Set minion health and path
+	new_minion->set_health(new_minion->max_health());
+	new_minion->set_frozen(false);
+	new_minion->set_path(s_current_path);	
+	
+	return new_minion;
 }
 
-void enemy_manager::begin_wave(int amnt, float spacing)
+void enemy_manager::begin_wave(wave_definition wave_def)
 {
-	s_current_wave_remaining = amnt;
-	s_current_wave_interval = spacing;
+	s_current_wave_remaining = wave_def.num_enemies;
+	s_current_wave_interval = wave_def.enemy_spacing;
+	s_spawn_sequence = wave_def.enemies;
 	s_current_path = pathfinder::find_path(*s_level_grid);
 }
 
-void enemy_manager::render(const engine::ref<engine::shader>& shader)
+void enemy_manager::render_animated(const engine::ref<engine::shader>& shader)
 {
-	//Render only minions that are currently active
+	//Render only minions that are currently active, and are animated
 	for (auto& minion_ptr : s_current_active_minions) {
-		engine::renderer::submit(shader, minion_ptr->object());
+		if (minion_ptr->type() == enemy_type::animated_humanoid)
+		{
+			engine::renderer::submit(shader, minion_ptr->object());
+			minion_ptr->object()->render_obb(glm::vec3(.5f), shader);
+		}
+	}
+}
+
+void enemy_manager::render_static(const engine::ref<engine::shader>& shader)
+{
+	//Render active static enemies
+	for (auto& minion_ptr : s_current_active_minions) {
+		if (minion_ptr->type() != enemy_type::animated_humanoid)
+		{
+			engine::renderer::submit(shader, minion_ptr->object());
+			minion_ptr->object()->render_obb(glm::vec3(.5f), shader);
+		}
 	}
 }
 
