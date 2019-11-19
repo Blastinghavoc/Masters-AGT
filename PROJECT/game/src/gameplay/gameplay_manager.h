@@ -64,7 +64,8 @@ private:
 	static engine::ref<text_hud_element> m_top_display, m_score_display,
 		m_money_display, m_health_display,
 		m_portal_health_display,m_tool_display,
-		m_message_display;
+		m_message_display,
+		m_weapon_charge_display;
 	static bool m_wave_active;
 
 	static std::deque<wave_definition> m_waves;
@@ -76,7 +77,7 @@ private:
 	static engine::ref<engine::audio_manager> m_audio_manager;
 	static constexpr int m_max_turrets = 5;
 	static int m_available_blocks;
-	static bool m_fire_weapon;
+	static bool m_fire_weapon;//Indicates whether the weapon should be fired this update
 	static engine::timer m_immunity_timer;
 	static constexpr float m_immunity_duration = 1.f;
 	static bool m_hardmode_active;
@@ -105,7 +106,7 @@ private:
 
 	static interactable m_hard_mode_switch;
 
-	static void mouse1_event_handler();
+	static void mouse1_event_handler(bool press);
 	static void mouse2_event_handler();
 	static void start_combat_phase();
 	static void place_block(int x, int z);

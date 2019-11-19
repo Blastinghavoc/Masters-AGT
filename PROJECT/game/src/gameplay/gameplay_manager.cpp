@@ -16,6 +16,8 @@ engine::timer gameplay_manager::m_build_timer{};
 int gameplay_manager::m_max_build_time = 30;
 std::map<std::string, int> gameplay_manager::m_prices{};
 player* gameplay_manager::m_player_ptr;
+
+//HUD elements
 engine::ref<text_hud_element> gameplay_manager::m_top_display{};
 engine::ref<text_hud_element> gameplay_manager::m_score_display{};
 engine::ref<text_hud_element> gameplay_manager::m_money_display{};
@@ -23,6 +25,8 @@ engine::ref<text_hud_element> gameplay_manager::m_health_display{};
 engine::ref<text_hud_element> gameplay_manager::m_portal_health_display{};
 engine::ref<text_hud_element> gameplay_manager::m_tool_display{};
 engine::ref<text_hud_element> gameplay_manager::m_message_display{};
+engine::ref<text_hud_element> gameplay_manager::m_weapon_charge_display{};
+
 bool gameplay_manager::m_wave_active = false;
 std::deque<wave_definition> gameplay_manager::m_waves{};
 int gameplay_manager::m_max_waves = 0;
@@ -32,8 +36,8 @@ engine::ref<grid> gameplay_manager::m_level_grid;
 wave_definition gameplay_manager::m_current_wave_definition;
 engine::ref<engine::audio_manager> gameplay_manager::m_audio_manager;
 int gameplay_manager::m_available_blocks = 6;
+bool gameplay_manager::m_fire_weapon = false;
 gameplay_manager::tool gameplay_manager::m_current_tool = tool::block;
-bool gameplay_manager::m_fire_weapon;
 engine::timer gameplay_manager::m_immunity_timer{};
 interactable gameplay_manager::m_hard_mode_switch{};
 bool gameplay_manager::m_hardmode_active;
@@ -103,6 +107,11 @@ void gameplay_manager::init(player* playr,engine::ref<engine::text_manager> text
 	m_message_display->set_text_size(0.5f);
 	hud_manager::add_element(m_message_display);
 
+	m_weapon_charge_display = text_hud_element::create(text_manager, "", glm::vec2{ 0.75f,0.05f });
+	m_weapon_charge_display->set_text_size(1.f);
+	m_weapon_charge_display->set_colour(glm::vec4(0.8f,.1f,.1f,1.f));
+	hud_manager::add_element(m_weapon_charge_display);
+
 	//Utility function to compute total enemies in wave so that it doesn't have to be recomputed in other places.
 	auto total_enemies = [](std::deque<std::pair<int, enemy_type>>& wave_enemies) {
 		int count = 0;
@@ -158,15 +167,16 @@ void gameplay_manager::update(const engine::timestep& ts)
 		{
 			auto launch_position = m_player_ptr->object()->position();
 			launch_position.x += m_camera->front_vector().x;
-			launch_position.z += m_camera->front_vector().z;
-			weapon_manager::launch_grenade(launch_position, m_camera->front_vector(),10.f * (1/ts.seconds()) );
-			m_fire_weapon = false;			
+			launch_position.z += m_camera->front_vector().z;			
+			weapon_manager::launch_charged(launch_position, m_camera->front_vector(),ts);
+			m_fire_weapon = false;
 		}
 
 		weapon_manager::update(ts);
 
 		check_enemies_touching_player();
 
+		//Update wave-only HUD
 		auto total_enemies_this_wave = m_current_wave_definition.num_enemies;
 		auto spawned_so_far = total_enemies_this_wave - enemy_manager::remaining();
 		auto alive = enemy_manager::current_active();
@@ -174,6 +184,9 @@ void gameplay_manager::update(const engine::timestep& ts)
 			+ " | Enemies: " + std::to_string(spawned_so_far) + " of " +
 			std::to_string(total_enemies_this_wave) + " alive: " +std::to_string(alive)
 		);
+
+		int num_bars = 20 * weapon_manager::charge_percentage();
+		m_weapon_charge_display->set_text(std::string(num_bars,'|'));
 	}
 	else {
 		//The player may wish to press the hardmode switch during a build phase
@@ -237,9 +250,12 @@ void gameplay_manager::next_build_phase()
 		m_waves.pop_front();
 		m_current_wave_definition = wave_config;
 		m_max_build_time = wave_config.prep_time;
-		//Start build phase
+
+		//Toggle relevant HUD
 		m_build_timer.start();
 		m_tool_display->show();
+		m_weapon_charge_display->hide();
+
 		m_wave_active = false;
 		m_hardmode_active = false;//Player has to press the switch again if they still want hardmode
 		m_score_multiplier = 1.f;//Reset global score multiplier
@@ -263,7 +279,7 @@ void gameplay_manager::on_event(engine::event& event)
 		switch (e.mouse_button())
 		{
 		case engine::mouse_button_codes::MOUSE_BUTTON_1:
-			mouse1_event_handler();
+			mouse1_event_handler(true);
 			e.handled = true;
 			break;
 		case engine::mouse_button_codes::MOUSE_BUTTON_2:
@@ -272,6 +288,16 @@ void gameplay_manager::on_event(engine::event& event)
 			break;
 		default:
 			break;
+		}
+	}
+
+	//Listen for release event for weapon charge/release
+	if (!event.handled && event.event_type() == engine::event_type_e::mouse_button_released)
+	{
+		auto& e = dynamic_cast<engine::mouse_button_released_event&>(event);
+		if (e.mouse_button()== engine::mouse_button_codes::MOUSE_BUTTON_1)
+		{
+			mouse1_event_handler(false);
 		}
 	}
 
@@ -308,8 +334,11 @@ void gameplay_manager::on_event(engine::event& event)
 	}
 }
 
-
-void gameplay_manager::mouse1_event_handler()
+/*
+Handles mouse button 1 events, with a boolean flag to indicate whether the event is a press,
+or a release.
+*/
+void gameplay_manager::mouse1_event_handler(bool press)
 {
 	if (!m_wave_active)
 	{
@@ -339,7 +368,13 @@ void gameplay_manager::mouse1_event_handler()
 		}
 	}
 	else {
-		m_fire_weapon = true;//Signal that the weapon should be fired.		
+		if (press)
+		{
+			weapon_manager::start_charging();
+		}
+		else {
+			m_fire_weapon = true;
+		}
 	}
 }
 
@@ -379,6 +414,7 @@ void gameplay_manager::start_combat_phase()
 	m_wave_active = true;
 	m_tool_display->hide();
 	m_message_display->hide();
+	m_weapon_charge_display->show();
 	if (m_hardmode_active)
 	{
 		//Hardmode makes enemies come twice as fast
