@@ -20,11 +20,13 @@ void projectile_manager::launch_projectile(bool is_enemy, glm::vec3 start_positi
 	m_active_projectiles.push_back(proj);
 }
 
-void projectile_manager::on_update(const engine::timestep& time_step)
+void projectile_manager::on_update(const engine::timestep& ts)
 {
 	auto& active_enemies = enemy_manager::get_active_enemies();
 	for (auto it = begin(m_active_projectiles); it != end(m_active_projectiles);) {
 		//TODO
+		//TESTING
+		(*it)->on_update(ts);
 	}
 }
 
@@ -32,7 +34,7 @@ void projectile_manager::on_render(const engine::ref<engine::shader>& shader)
 {
 	for (auto& proj : m_active_projectiles) {
 		engine::renderer::submit(shader, proj->object());
-		proj->get_trigger_box().on_render(shader);
+		proj->get_trigger_box().on_render(shader);//TODO
 	}
 }
 

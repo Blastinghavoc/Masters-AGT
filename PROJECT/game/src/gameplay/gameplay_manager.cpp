@@ -6,6 +6,7 @@
 #include "../sfx/sfx_manager.h"
 #include "weapon_manager.h"
 #include "pickup_manager.h"
+#include "projectile_manager.h"//TESTING
 
 //Static initializers
 int gameplay_manager::m_score = 0;
@@ -328,6 +329,9 @@ void gameplay_manager::on_event(engine::event& event)
 		/*case engine::key_codes::KEY_E:
 			sfx_manager::explode_at(m_player_ptr->object()->position());
 			sfx_manager::explode_at(m_player_ptr->object()->position()+ glm::vec3(2,0,2));*/
+		case engine::key_codes::KEY_G:
+			projectile_manager::launch_projectile(false, m_player_ptr->object()->position() + glm::vec3(.5f, 0, 0),glm::vec3(1,0,0));
+
 		default:
 			break;
 		}

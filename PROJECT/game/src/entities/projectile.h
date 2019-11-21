@@ -1,6 +1,7 @@
 #pragma once
 #include "abstract_actor.h"
 #include "trigger_box.h"
+#include "engine/utils/timer.h"
 
 /*
 Class representing the projectiles fired by NPCs
@@ -22,9 +23,15 @@ public:
 	}
 
 	trigger_box& get_trigger_box() { return m_box; };
+
+	void reset();
+
 private:
 	bool m_is_enemy;//Flag indicating whether the projectile is affiliated with enemies or allies
 	trigger_box m_box;
+	engine::timer m_lifetimer;
+	float m_max_lifetime = { 5.f };
+	bool m_active = true;
 
 	static bool m_ally_prefab_ready;
 	static bool m_enemy_prefab_ready;

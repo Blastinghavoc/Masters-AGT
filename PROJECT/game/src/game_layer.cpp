@@ -19,6 +19,7 @@ namespace fs = std::filesystem;
 #include "physics/physics_manager.h"
 #include "gameplay/weapon_manager.h"
 #include "gameplay/pickup_manager.h"
+#include "gameplay/projectile_manager.h"
 
 
 game_layer::game_layer() :
@@ -287,7 +288,7 @@ game_layer::game_layer() :
 	sfx_manager::init(&m_3d_camera);
 	weapon_manager::init(m_audio_manager);
 	pickup_manager::init();
-	
+	projectile_manager::init();	
 }
 
 game_layer::~game_layer()
@@ -336,7 +337,9 @@ void game_layer::on_update(const engine::timestep& time_step)
 		gameplay_manager::update(time_step);
 		sfx_manager::on_update(time_step);
 
-		physics_manager::update(time_step);		
+		projectile_manager::on_update(time_step);
+
+		physics_manager::update(time_step);
 	}
 }
 
@@ -442,6 +445,8 @@ void game_layer::on_render()
 	for (auto& obj : m_decorational_objects) {		
 		engine::renderer::submit(textured_lighting_shader, obj);
 	}
+
+	projectile_manager::on_render(textured_lighting_shader);
 
 	//Render weapons
 	weapon_manager::on_render(textured_lighting_shader);
