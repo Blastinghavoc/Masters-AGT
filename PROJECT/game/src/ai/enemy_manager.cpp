@@ -165,7 +165,7 @@ void enemy_manager::render_animated(const engine::ref<engine::shader>& shader)
 		if (minion_ptr->type() == enemy_type::animated_humanoid)
 		{
 			engine::renderer::submit(shader, minion_ptr->object());
-			minion_ptr->object()->render_obb(glm::vec3(.5f), shader);
+			//minion_ptr->get_trigger_box().on_render(shader);
 		}
 	}
 }
@@ -177,7 +177,7 @@ void enemy_manager::render_static(const engine::ref<engine::shader>& shader)
 		if (minion_ptr->type() != enemy_type::animated_humanoid)
 		{
 			engine::renderer::submit(shader, minion_ptr->object());
-			minion_ptr->object()->render_obb(glm::vec3(.5f), shader);
+			//minion_ptr->get_trigger_box().on_render(shader);
 		}
 	}
 }

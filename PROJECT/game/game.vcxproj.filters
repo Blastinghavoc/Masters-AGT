@@ -92,6 +92,12 @@
     <ClCompile Include="src\entities\static_enemy.cpp">
       <Filter>entities</Filter>
     </ClCompile>
+    <ClCompile Include="src\gameplay\projectile_manager.cpp">
+      <Filter>gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="src\entities\projectile.cpp">
+      <Filter>entities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="layers">
@@ -227,6 +233,12 @@
       <Filter>gameplay</Filter>
     </ClInclude>
     <ClInclude Include="src\entities\enemy_type.h">
+      <Filter>entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\projectile_manager.h">
+      <Filter>gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\entities\projectile.h">
       <Filter>entities</Filter>
     </ClInclude>
   </ItemGroup>

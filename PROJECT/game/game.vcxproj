@@ -139,6 +139,7 @@
     <ClInclude Include="src\entities\animated_actor.h" />
     <ClInclude Include="src\entities\enemy_type.h" />
     <ClInclude Include="src\entities\interactable.h" />
+    <ClInclude Include="src\entities\projectile.h" />
     <ClInclude Include="src\entities\static_enemy.h" />
     <ClInclude Include="src\entities\trigger_box.h" />
     <ClInclude Include="src\entities\animated_enemy.h" />
@@ -149,6 +150,7 @@
     <ClInclude Include="src\example_layer.h" />
     <ClInclude Include="src\gameplay\gameplay_manager.h" />
     <ClInclude Include="src\gameplay\pickup_manager.h" />
+    <ClInclude Include="src\gameplay\projectile_manager.h" />
     <ClInclude Include="src\gameplay\wave_definition.h" />
     <ClInclude Include="src\gameplay\weapon_manager.h" />
     <ClInclude Include="src\game_layer.h" />
@@ -175,6 +177,7 @@
     <ClCompile Include="src\entities\abstract_enemy.cpp" />
     <ClCompile Include="src\entities\animated_actor.cpp" />
     <ClCompile Include="src\entities\interactable.cpp" />
+    <ClCompile Include="src\entities\projectile.cpp" />
     <ClCompile Include="src\entities\static_enemy.cpp" />
     <ClCompile Include="src\entities\trigger_box.cpp" />
     <ClCompile Include="src\entities\animated_enemy.cpp" />
@@ -186,6 +189,7 @@
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\gameplay\gameplay_manager.cpp" />
     <ClCompile Include="src\gameplay\pickup_manager.cpp" />
+    <ClCompile Include="src\gameplay\projectile_manager.cpp" />
     <ClCompile Include="src\gameplay\weapon_manager.cpp" />
     <ClCompile Include="src\game_layer.cpp" />
     <ClCompile Include="src\grid\grid.cpp" />
