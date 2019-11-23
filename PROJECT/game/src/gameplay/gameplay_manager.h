@@ -56,32 +56,50 @@ public:
 
 	static player const* get_player() { return m_player_ptr; };
 
+	//Provide access to audo facilities to any client of this class.
+	static engine::ref<engine::audio_manager> audio_manager() { return m_audio_manager; };
+
 private:
 	static int m_score, m_money, m_portal_health;
 	static float m_score_multiplier;
+
 	static engine::timer m_build_timer;
 	static int m_max_build_time;
+
 	static std::map<std::string, int> m_prices;
+
 	static player* m_player_ptr;
+
 	static engine::ref<text_hud_element> m_top_display, m_score_display,
 		m_money_display, m_health_display,
 		m_portal_health_display,m_tool_display,
 		m_message_display,
 		m_weapon_charge_display;
+
 	static bool m_wave_active;
 
 	static std::deque<wave_definition> m_waves;
 	static int m_max_waves;
 	static int m_wave_number;
+
 	static engine::perspective_camera* m_camera;
+
 	static engine::ref<grid> m_level_grid;
+
 	static wave_definition m_current_wave_definition;
+
 	static engine::ref<engine::audio_manager> m_audio_manager;
+
 	static constexpr int m_max_turrets = 5;
+
 	static int m_available_blocks;
+
 	static bool m_fire_weapon;//Indicates whether the weapon should be fired this update
+
+	//Provide the player with brief immunity so they aren't killed instantaneously on contact.
 	static engine::timer m_immunity_timer;
 	static constexpr float m_immunity_duration = 1.f;
+
 	static bool m_hardmode_active;
 
 	enum class tool
@@ -108,6 +126,7 @@ private:
 
 	static interactable m_hard_mode_switch;
 
+	//Private helper methods
 	static void mouse1_event_handler(bool press);
 	static void mouse2_event_handler();
 	static void start_combat_phase();

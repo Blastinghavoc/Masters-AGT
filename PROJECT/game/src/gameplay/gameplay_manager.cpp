@@ -330,8 +330,12 @@ void gameplay_manager::on_event(engine::event& event)
 		/*case engine::key_codes::KEY_E:
 			sfx_manager::explode_at(m_player_ptr->object()->position());
 			sfx_manager::explode_at(m_player_ptr->object()->position()+ glm::vec3(2,0,2));*/
-		case engine::key_codes::KEY_G:
+		/*case engine::key_codes::KEY_G:
 			projectile_manager::launch_projectile(true, m_player_ptr->object()->position() + glm::vec3(5, 5, 0),glm::vec3(-0.01f, -0.01f,0));
+			break;*/
+		case engine::key_codes::KEY_B:
+			sfx_manager::make_beam(m_player_ptr->object()->position(), m_player_ptr->object()->position() + glm::vec3(0, 5, 0), glm::vec3(.9f, .1f, .1f),
+				20.f, 100.f,30);
 			break;
 		default:
 			break;

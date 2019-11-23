@@ -107,6 +107,9 @@
     <ClCompile Include="src\ai\flyer_ai.cpp">
       <Filter>ai</Filter>
     </ClCompile>
+    <ClCompile Include="src\sfx\beam.cpp">
+      <Filter>sfx</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="layers">
@@ -258,6 +261,9 @@
     </ClInclude>
     <ClInclude Include="src\ai\flyer_ai.h">
       <Filter>ai</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sfx\beam.h">
+      <Filter>sfx</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

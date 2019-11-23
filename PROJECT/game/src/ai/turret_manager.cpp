@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "turret_manager.h"
 #include "enemy_manager.h"
+#include "../gameplay/gameplay_manager.h"
 
 std::map<turret_manager::vec3, engine::ref<turret>> turret_manager::m_turrets{};
 std::vector<engine::ref<turret>> turret_manager::m_buffer;
@@ -67,7 +68,12 @@ void turret_manager::update(const engine::timestep& ts)
 			{
 				current_turret->face(enemy->position());
 				current_turret->update(ts);//Update the turret's cooldown
-				enemy->deal_damage(current_turret->fire());//Deals damage to the enemy if the turret is not on cooldown.
+				auto damage = current_turret->fire();
+				if (damage > 0)//Positive damage indicates turret fired successfully
+				{
+					enemy->deal_damage(damage);//Deals damage to the enemy if the turret is not on cooldown.
+					gameplay_manager::audio_manager()->play("laser");
+				}
 				break;
 			}
 		}

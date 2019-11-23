@@ -48,6 +48,8 @@ game_layer::game_layer() :
 	m_audio_manager->load_sound("assets/audio/grenade_explosion.mp3", engine::sound_type::event, "grenade_explosion");
 	//Sound from https://freesound.org/people/LeMudCrab/sounds/163458/
 	m_audio_manager->load_sound("assets/audio/grenade_launch.wav", engine::sound_type::event, "grenade_launch");
+	//Sound from https://freesound.org/people/wcoltd/sounds/417731/
+	m_audio_manager->load_sound("assets/audio/laser.wav", engine::sound_type::event, "laser");
 
 	physics_manager::init();
 
@@ -513,8 +515,13 @@ void game_layer::on_render()
 	//Render anything with transparency
 	//----
 	engine::renderer::begin_scene(m_3d_camera, textured_lighting_shader);
-	//Render SFX (specifically the billboards)
-	sfx_manager::on_render(textured_lighting_shader, m_3d_camera);
+	//Render textured SFX
+	sfx_manager::on_render_textured(textured_lighting_shader, m_3d_camera);
+	engine::renderer::end_scene();
+
+	engine::renderer::begin_scene(m_3d_camera, textured_material_shader);
+	//Render materialed SFX
+	sfx_manager::on_render_material(textured_material_shader);
 	engine::renderer::end_scene();
 
 

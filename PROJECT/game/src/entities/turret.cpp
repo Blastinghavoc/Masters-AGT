@@ -4,11 +4,12 @@
 
 turret::turret(glm::vec3 position)
 {
+	float scale_multiplier = 1.5f;
 	engine::ref <engine::model> model = engine::model::create("assets/models/static/turrets/modified/base.obj");
 	engine::game_object_properties props;
 	props.meshes = model->meshes();
 	props.textures = model->textures();
-	float scale = 1.f / glm::max(model->size().x, glm::max(model->size().y, model->size().z));
+	float scale = scale_multiplier / glm::max(model->size().x, glm::max(model->size().y, model->size().z));
 	props.position = position;
 	props.scale = glm::vec3(scale);
 	props.bounding_shape = model->size() / 2.f * scale;
@@ -18,12 +19,12 @@ turret::turret(glm::vec3 position)
 	props = {};
 	props.meshes = model->meshes();
 	props.textures = model->textures();
-	props.position = position + glm::vec3(0,m_base_height,0);
+	props.position = position + glm::vec3(0, scale_multiplier * m_base_height,0);
 	props.scale = glm::vec3(scale);
 	props.bounding_shape = model->size() / 2.f * scale;
 	m_swivel = engine::game_object::create(props);
 
-	m_barrel_position = position + glm::vec3(0, m_swivel_height, 0);
+	m_barrel_position = position + glm::vec3(0, scale_multiplier * m_swivel_height, 0);
 	model = engine::model::create("assets/models/static/turrets/modified/barrel.obj");
 	props = {};
 	props.meshes = model->meshes();

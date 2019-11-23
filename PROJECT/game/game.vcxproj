@@ -167,6 +167,7 @@
     <ClInclude Include="src\lighting\light_manager.h" />
     <ClInclude Include="src\orientation.h" />
     <ClInclude Include="src\physics\physics_manager.h" />
+    <ClInclude Include="src\sfx\beam.h" />
     <ClInclude Include="src\sfx\billboard.h" />
     <ClInclude Include="src\sfx\camera_jitter.h" />
     <ClInclude Include="src\sfx\cross_fade.h" />
@@ -207,6 +208,7 @@
     <ClCompile Include="src\lighting\light_manager.cpp" />
     <ClCompile Include="src\orientation.cpp" />
     <ClCompile Include="src\physics\physics_manager.cpp" />
+    <ClCompile Include="src\sfx\beam.cpp" />
     <ClCompile Include="src\sfx\billboard.cpp" />
     <ClCompile Include="src\sfx\camera_jitter.cpp" />
     <ClCompile Include="src\sfx\cross_fade.cpp" />
