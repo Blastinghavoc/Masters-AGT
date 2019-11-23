@@ -20,7 +20,8 @@ engine::game_object::game_object(const game_object_properties& props)
     s_static(props.is_static),
     m_type(props.type),
     m_bounding_shape(props.bounding_shape),
-	m_offset(props.offset)
+	m_offset(props.offset),
+	m_gravity_scale(props.gravity_scale)
 {
 	m_obb.set_box(props.bounding_shape.x * 2.f * props.scale.x,
 		props.bounding_shape.y * 2.f * props.scale.y,

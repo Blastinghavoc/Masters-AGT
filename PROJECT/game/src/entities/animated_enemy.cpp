@@ -48,8 +48,6 @@ animated_enemy::animated_enemy(int id, glm::vec3 position) : abstract_enemy{id}
 	m_object->animated_mesh()->switch_animation(m_object->animated_mesh()->default_animation());
 	m_object->set_rotation_axis({ 0,1,0 });
 
-	m_movement_speed = 2.f;
-
 	m_box.set_box(props);
 }
 

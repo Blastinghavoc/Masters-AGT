@@ -137,10 +137,12 @@
     <ClInclude Include="src\entities\abstract_actor.h" />
     <ClInclude Include="src\entities\abstract_enemy.h" />
     <ClInclude Include="src\entities\animated_actor.h" />
+    <ClInclude Include="src\entities\enemy_factory.h" />
     <ClInclude Include="src\entities\enemy_type.h" />
     <ClInclude Include="src\entities\interactable.h" />
     <ClInclude Include="src\entities\projectile.h" />
     <ClInclude Include="src\entities\static_enemy.h" />
+    <ClInclude Include="src\entities\static_flying_enemy.h" />
     <ClInclude Include="src\entities\trigger_box.h" />
     <ClInclude Include="src\entities\animated_enemy.h" />
     <ClInclude Include="src\entities\grenade.h" />
@@ -176,9 +178,11 @@
     <ClCompile Include="src\entities\abstract_actor.cpp" />
     <ClCompile Include="src\entities\abstract_enemy.cpp" />
     <ClCompile Include="src\entities\animated_actor.cpp" />
+    <ClCompile Include="src\entities\enemy_factory.cpp" />
     <ClCompile Include="src\entities\interactable.cpp" />
     <ClCompile Include="src\entities\projectile.cpp" />
     <ClCompile Include="src\entities\static_enemy.cpp" />
+    <ClCompile Include="src\entities\static_flying_enemy.cpp" />
     <ClCompile Include="src\entities\trigger_box.cpp" />
     <ClCompile Include="src\entities\animated_enemy.cpp" />
     <ClCompile Include="src\entities\grenade.cpp" />

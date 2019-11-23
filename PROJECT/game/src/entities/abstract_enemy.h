@@ -34,9 +34,15 @@ public:
 
 	void set_health(float amount) { m_health = amount; };
 
+	void set_max_health(float amount) { m_max_health = amount; };
+
 	const float& health() { return m_health; };
 
 	const float& max_health() { return m_max_health; };
+
+	void set_movement_speed(float speed) { m_movement_speed = speed; };
+
+	const float& movement_speed() { return m_movement_speed; };
 
 	void deal_damage(float amount) { m_health -= amount; };
 

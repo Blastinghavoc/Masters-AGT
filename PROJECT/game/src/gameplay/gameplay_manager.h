@@ -54,6 +54,8 @@ public:
 
 	static void on_event(engine::event& event);
 
+	static player const* get_player() { return m_player_ptr; };
+
 private:
 	static int m_score, m_money, m_portal_health;
 	static float m_score_multiplier;

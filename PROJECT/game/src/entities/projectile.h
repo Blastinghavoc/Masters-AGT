@@ -22,16 +22,24 @@ public:
 		return std::make_shared<projectile>(is_enemy);
 	}
 
+	void render(const engine::ref<engine::shader>& shader);
+
 	trigger_box& get_trigger_box() { return m_box; };
 
 	void reset();
+
+	bool is_active() { return m_active; };
+
+	void deactivate();
 
 private:
 	bool m_is_enemy;//Flag indicating whether the projectile is affiliated with enemies or allies
 	trigger_box m_box;
 	engine::timer m_lifetimer;
-	float m_max_lifetime = { 5.f };
+	float m_max_lifetime = { 50.f };
 	bool m_active = true;
+
+	glm::mat4 m_transform{};//Custom transform for rendering
 
 	static bool m_ally_prefab_ready;
 	static bool m_enemy_prefab_ready;

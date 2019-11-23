@@ -1,8 +1,7 @@
 #include "enemy_manager.h"
-#include "../entities/animated_enemy.h"
 #include "../gameplay/pickup_manager.h"
-#include "../entities/static_enemy.h"
 #include "../gameplay/gameplay_manager.h"
+#include "../entities/enemy_factory.h"
 
 //Static initializers
 std::map<int, engine::ref<abstract_enemy>> enemy_manager::s_minions;
@@ -122,15 +121,7 @@ engine::ref<abstract_enemy> enemy_manager::spawn_minion(enemy_type type, glm::ve
 	engine::ref<abstract_enemy> new_minion;
 	if (s_minion_buffer.count(type) <1)
 	{
-		switch (type)
-		{		
-		case enemy_type::animated_humanoid:
-			new_minion = animated_enemy::create(s_next_id, position);
-			break;
-		default:
-			new_minion = static_enemy::create(s_next_id, position,type);
-			break;
-		}
+		new_minion = enemy_factory::create(s_next_id, position, type);
 		s_minions[s_next_id] = new_minion;
 		++s_next_id;
 	}

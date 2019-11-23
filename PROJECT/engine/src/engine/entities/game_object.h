@@ -27,6 +27,7 @@ namespace engine
 		float rolling_friction = 0.0f;
         bool is_static = false;
 		glm::vec3 offset{ 0.f };
+		float gravity_scale = 1.f;
 	};
 
 
@@ -142,7 +143,9 @@ namespace engine
 				m_position = glm::vec3(-100);
 			}
 		};
+
 		bool is_active() { return m_physics_active; };
+
 		void reset_physics_properties() {
 			m_acceleration = glm::vec3(0);
 			m_velocity = glm::vec3(0);
@@ -150,6 +153,8 @@ namespace engine
 			m_torque = glm::vec3(0);
 			m_position = glm::vec3(0);
 		};
+
+		float gravity_scale() { return m_gravity_scale; };
     public:
         static ref<game_object> create(const game_object_properties& props);
 
@@ -219,5 +224,8 @@ namespace engine
 		bounding_box m_obb;
 
 		bool m_physics_active = true;
+
+		//Lifetime constant representing how much this object is affected by gravity
+		float m_gravity_scale = 1.f;		
     };
 }

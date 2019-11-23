@@ -210,7 +210,8 @@ void gameplay_manager::update(const engine::timestep& ts)
 		{
 			m_top_display->set_text("Time: "+ std::to_string(time_remaining));
 		}
-		else {			
+		else {
+			//DISABLED FOR TESTING
 			start_combat_phase();
 		}
 	}
@@ -330,8 +331,8 @@ void gameplay_manager::on_event(engine::event& event)
 			sfx_manager::explode_at(m_player_ptr->object()->position());
 			sfx_manager::explode_at(m_player_ptr->object()->position()+ glm::vec3(2,0,2));*/
 		case engine::key_codes::KEY_G:
-			projectile_manager::launch_projectile(false, m_player_ptr->object()->position() + glm::vec3(.5f, 0, 0),glm::vec3(1,0,0));
-
+			projectile_manager::launch_projectile(true, m_player_ptr->object()->position() + glm::vec3(5, 5, 0),glm::vec3(-0.01f, -0.01f,0));
+			break;
 		default:
 			break;
 		}
