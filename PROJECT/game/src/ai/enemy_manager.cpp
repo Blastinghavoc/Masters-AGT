@@ -71,9 +71,14 @@ void enemy_manager::on_update(const engine::timestep& time_step)
 
 	if (!s_current_active_minions.empty())
 	{
+		/*
+		Two pass algorithm: first remove any minions that have died or reached the goal,
+		then update all minions that are still active.
+		This has the advantage that minion AI can always have access to an up-to-date
+		set of all the other active minions.
+		*/
 		for (auto& minion_iterator = begin(s_current_active_minions); minion_iterator != end(s_current_active_minions);) {
-			auto& current_minion = *minion_iterator;
-			current_minion->on_update(time_step);
+			auto& current_minion = *minion_iterator;			
 			//If the minion has reached the goal, deactivate it and signal the gameplay manager.
 			if (current_minion->waypoints_remaining() == 0)
 			{
@@ -98,7 +103,17 @@ void enemy_manager::on_update(const engine::timestep& time_step)
 			}
 		}
 
-		//If there's still minions left active, highlight the furthest forward, and sort them by distance for use elsewhere
+		//Update general data for AI before individual updates
+		{
+			flyer_ai::update_shared_data();
+		}
+
+		//Second pass, update each active minion
+		for (auto& current_minion: s_current_active_minions) {
+			current_minion->on_update(time_step);
+		}
+
+		//If there's still minions left active, highlight the furthest forward, and sort them by estimated distance from the goal
 		if (!s_current_active_minions.empty())
 		{
 			std::sort(begin(s_current_active_minions), end(s_current_active_minions), &abstract_enemy::is_closer_to_goal);

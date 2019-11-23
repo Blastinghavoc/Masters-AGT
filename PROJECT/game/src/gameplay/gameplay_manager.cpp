@@ -123,7 +123,8 @@ void gameplay_manager::init(player* playr,engine::ref<engine::text_manager> text
 	};
 
 	//Adding waves
-	std::deque<std::pair<int, enemy_type>> wave_enemies;
+	std::deque<std::pair<int, enemy_type>> wave_enemies;	
+
 	wave_enemies = { {5,enemy_type::robot1},{1,enemy_type::animated_humanoid} };//1st wave
 	m_waves.push_back({ total_enemies(wave_enemies),5,30, wave_enemies});
 
@@ -210,8 +211,7 @@ void gameplay_manager::update(const engine::timestep& ts)
 		{
 			m_top_display->set_text("Time: "+ std::to_string(time_remaining));
 		}
-		else {
-			//DISABLED FOR TESTING
+		else {			
 			start_combat_phase();
 		}
 	}
@@ -222,7 +222,7 @@ void gameplay_manager::damage_portal()
 {
 	m_portal_health -= 10;
 	m_audio_manager->play("alert");
-	sfx_manager::jitter_effect.activate(0.2f, 0.5f);	
+	sfx_manager::jitter_effect.activate(0.2f, 0.5f);
 }
 
 void gameplay_manager::damage_player(float amnt)
@@ -231,7 +231,7 @@ void gameplay_manager::damage_player(float amnt)
 	if (m_immunity_timer.total() > m_immunity_duration)
 	{
 		m_immunity_timer.reset();
-
+		
 		m_player_ptr->deal_damage(amnt);
 		sfx_manager::cross_fade_effect.activate(1.f);
 		sfx_manager::jitter_effect.activate(0.2f, 0.5f);

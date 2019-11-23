@@ -8,8 +8,8 @@ engine::game_object_properties projectile::m_enemy_prefab;
 
 projectile::projectile(bool enemy) :m_is_enemy{ enemy }
 {
-	glm::vec3 projectile_size(.1f, .1f, .2f);
-	glm::vec3 collision_shape(.1f,.1f,.1f);//Uniform collision shape to make rotation irrelevant.
+	glm::vec3 projectile_size(.05f, .05f, .2f);
+	glm::vec3 collision_shape(.05f, .05f, .05f);//Uniform collision shape to make rotation irrelevant.
 	engine::game_object_properties props;
 	engine::ref<engine::texture_2d> tex;
 
@@ -70,10 +70,6 @@ void projectile::on_update(const engine::timestep& time_step)
 	else {
 		//orient in direction of travel. Same technique as for turrets, see turret.cpp
 		auto dir = glm::normalize(m_object->velocity());
-
-		//float yaw = atan2(dir.x, dir.z);
-		//m_object->set_rotation_axis({ 0,1,0 });
-		//m_object->set_rotation_amount(yaw);//rotate the physics object in the one axis we can
 
 		auto position = m_object->position() - m_object->offset() * m_object->scale();
 

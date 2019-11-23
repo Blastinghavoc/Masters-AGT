@@ -104,6 +104,9 @@
     <ClCompile Include="src\entities\static_flying_enemy.cpp">
       <Filter>entities</Filter>
     </ClCompile>
+    <ClCompile Include="src\ai\flyer_ai.cpp">
+      <Filter>ai</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="layers">
@@ -252,6 +255,9 @@
     </ClInclude>
     <ClInclude Include="src\entities\enemy_factory.h">
       <Filter>entities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ai\flyer_ai.h">
+      <Filter>ai</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

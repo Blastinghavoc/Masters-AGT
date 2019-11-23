@@ -132,6 +132,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\ai\enemy_manager.h" />
+    <ClInclude Include="src\ai\flyer_ai.h" />
     <ClInclude Include="src\ai\pathfinder.h" />
     <ClInclude Include="src\ai\turret_manager.h" />
     <ClInclude Include="src\entities\abstract_actor.h" />
@@ -173,6 +174,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ai\enemy_manager.cpp" />
+    <ClCompile Include="src\ai\flyer_ai.cpp" />
     <ClCompile Include="src\ai\pathfinder.cpp" />
     <ClCompile Include="src\ai\turret_manager.cpp" />
     <ClCompile Include="src\entities\abstract_actor.cpp" />

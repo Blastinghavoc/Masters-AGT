@@ -1,6 +1,7 @@
 #pragma once
 
 #include "static_enemy.h"
+#include "../ai/flyer_ai.h"
 
 class static_flying_enemy :public static_enemy {
 public:
@@ -18,5 +19,7 @@ public:
 
 private:
 	float m_y_offset = 0.f;//Used to correctly position flying enemies
+	friend class flyer_ai;
+	flyer_ai m_brain;
 };
 
