@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "beam.h"
+#include <gl\GL.h>
 
 beam::beam():
 	m_material{ 0.0f, glm::vec3(1.0f), glm::vec3(0.f), glm::vec3(0.f), 0.0f }
@@ -34,6 +35,16 @@ void beam::on_update(const engine::timestep& ts)
 	}
 }
 
+
+/*
+NOTE:
+It turns out that line_width is (via glLineWidth) is limited to quite a low value (10 on my machine).
+This means that this method is not appropriate for thick beams, which would probably require some
+3D mesh (a capsule would be a good choice) instead. For now though, this is sufficient.
+
+This also means that there is no point in nesting beams more than two times, as the effect becomes
+unnoticeable.
+*/
 void beam::on_render(engine::ref<engine::shader> shader)
 {
 	if (m_active)
@@ -44,7 +55,21 @@ void beam::on_render(engine::ref<engine::shader> shader)
 
 		m_material.set_ambient(m_colour);
 
-		float additional_width = m_width / m_nesting;
+		engine::renderer_api::line_width(0.2f*m_width);
+		m_material.set_transparency(0.8f);
+		m_material.submit(shader);
+		m_line->va()->bind();
+		engine::renderer_api::draw_indexed_lines(m_line->va());
+
+		m_material.set_ambient(m_colour*0.8f);
+		engine::renderer_api::line_width(m_width);
+		m_material.set_transparency(0.4f);
+		m_material.submit(shader);
+		m_line->va()->bind();
+		engine::renderer_api::draw_indexed_lines(m_line->va());		
+
+
+		/*float additional_width = m_width / m_nesting;
 		float current_width = additional_width;
 		for (int i = 1; i <= m_nesting; ++i) {
 			engine::renderer_api::line_width(current_width);
@@ -55,7 +80,7 @@ void beam::on_render(engine::ref<engine::shader> shader)
 
 			m_line->va()->bind();
 			engine::renderer_api::draw_indexed_lines(m_line->va());
-		}
+		}*/
 
 		std::dynamic_pointer_cast<engine::gl_shader>(shader)->set_uniform("lighting_on", true);
 	}

@@ -2,6 +2,7 @@
 #include "turret_manager.h"
 #include "enemy_manager.h"
 #include "../gameplay/gameplay_manager.h"
+#include "../sfx/sfx_manager.h"
 
 std::map<turret_manager::vec3, engine::ref<turret>> turret_manager::m_turrets{};
 std::vector<engine::ref<turret>> turret_manager::m_buffer;
@@ -73,6 +74,7 @@ void turret_manager::update(const engine::timestep& ts)
 				{
 					enemy->deal_damage(damage);//Deals damage to the enemy if the turret is not on cooldown.
 					gameplay_manager::audio_manager()->play("laser");
+					sfx_manager::make_beam(current_turret->barrel_position(), enemy->targetting_point(), glm::vec3(.9f, .1f, .1f), 0.25f);
 				}
 				break;
 			}

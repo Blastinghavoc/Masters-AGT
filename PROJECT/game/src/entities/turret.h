@@ -26,6 +26,8 @@ public:
 
 	bool is_in_range(glm::vec3 target);
 
+	const glm::vec3& barrel_position() { return m_barrel_position; };
+
 private:
 	glm::vec3 m_barrel_position;
 

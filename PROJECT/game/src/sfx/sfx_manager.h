@@ -28,7 +28,7 @@ public:
 	static void on_render_textured(engine::ref<engine::shader> shader,const engine::perspective_camera& camera);
 	static void on_render_material(engine::ref<engine::shader> shader);
 
-	static void make_beam(glm::vec3 start, glm::vec3 end, glm::vec3 rgb, float duration, float width, int nesting = 2);
+	static void make_beam(glm::vec3 start, glm::vec3 end, glm::vec3 rgb, float duration, float width = 10.f, int nesting = 2);
 
 private:
 	static std::vector<engine::ref<billboard>> m_active_explosions;

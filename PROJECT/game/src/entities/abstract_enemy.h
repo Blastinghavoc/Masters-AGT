@@ -61,6 +61,10 @@ public:
 
 	enemy_type type() { return m_type; };
 
+	//Used to determine where on the enemy a turret should aim.
+	glm::vec3 targetting_point() { return position() + m_targetting_offset; };
+	void set_targetting_offset(glm::vec3 offset) { m_targetting_offset = offset; };
+
 protected:	
 	std::deque<glm::vec3> m_waypoints{};
 	int m_id;//Unique enemy id
@@ -70,6 +74,7 @@ protected:
 	bool m_frozen = false;
 	float m_movement_speed = 1.f;
 	enemy_type m_type;
+	glm::vec3 m_targetting_offset;
 
 	static bool close_enough(glm::vec3 v1, glm::vec3 v2);
 };

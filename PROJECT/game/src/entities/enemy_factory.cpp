@@ -16,6 +16,7 @@ engine::ref<abstract_enemy> enemy_factory::create(int id, glm::vec3 position, en
 	float scale_modifier = 1.f;
 	float altitude = 0.f;
 	float speed = 1.f;
+	glm::vec3 targetting_offset = { 0,0,0 };
 
 	bool is_flyer = false;
 	switch (type)
@@ -45,6 +46,7 @@ engine::ref<abstract_enemy> enemy_factory::create(int id, glm::vec3 position, en
 		model_path = "assets/models/static/rts_models/Robot.obj";
 		texture_path = "assets/models/static/rts_models/textures/Robot1.png";//Both robots have the same model, but different textures
 		health = 100.f;
+		targetting_offset.y = .7f;
 	}
 	break;
 	case enemy_type::robot2:
@@ -53,12 +55,14 @@ engine::ref<abstract_enemy> enemy_factory::create(int id, glm::vec3 position, en
 		texture_path = "assets/models/static/rts_models/textures/Robot2.png";
 		health = 250.f;
 		scale_modifier = 1.25f;
+		targetting_offset.y = scale_modifier* .7f;
 	}
 	break;
 	case enemy_type::animated_humanoid:
 		new_enemy = animated_enemy::create(id);
 		health = 100.f;
 		speed = 2.f;
+		targetting_offset.y = .7f;
 		break;
 	default:
 		throw std::runtime_error("Cannot create static enemy of requested type");
@@ -100,6 +104,7 @@ engine::ref<abstract_enemy> enemy_factory::create(int id, glm::vec3 position, en
 	new_enemy->set_max_health(health);
 	new_enemy->set_movement_speed(speed);
 	new_enemy->object()->set_position(position);
+	new_enemy->set_targetting_offset(targetting_offset);
 
 	return new_enemy;
 }

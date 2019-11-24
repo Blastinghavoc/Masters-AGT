@@ -8,7 +8,8 @@ public:
 	beam();
 	~beam() {};
 
-	void activate(glm::vec3 start, glm::vec3 end, glm::vec3 rgb, float duration, float width, int nesting = 2);
+	//See note in on_render for why these defaults exist
+	void activate(glm::vec3 start, glm::vec3 end, glm::vec3 rgb, float duration, float width = 10.f, int nesting = 2);
 
 	void on_update(const engine::timestep& ts);
 

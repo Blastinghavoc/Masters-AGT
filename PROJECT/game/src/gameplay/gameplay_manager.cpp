@@ -10,7 +10,7 @@
 
 //Static initializers
 int gameplay_manager::m_score = 0;
-int gameplay_manager::m_money = 100;
+int gameplay_manager::m_money = 50;
 int gameplay_manager::m_portal_health = 100;
 float gameplay_manager::m_score_multiplier = 1.f;
 engine::timer gameplay_manager::m_build_timer{};
@@ -335,7 +335,7 @@ void gameplay_manager::on_event(engine::event& event)
 			break;*/
 		case engine::key_codes::KEY_B:
 			sfx_manager::make_beam(m_player_ptr->object()->position(), m_player_ptr->object()->position() + glm::vec3(0, 5, 0), glm::vec3(.9f, .1f, .1f),
-				20.f, 100.f,30);
+				20.f);
 			break;
 		default:
 			break;
