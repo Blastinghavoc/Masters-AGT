@@ -8,7 +8,8 @@
 #include "pickup_manager.h"
 #include "projectile_manager.h"//TESTING
 
-//Static initializers
+//---Static initializers
+
 int gameplay_manager::m_score = 0;
 int gameplay_manager::m_money = 50;
 int gameplay_manager::m_portal_health = 100;
@@ -39,7 +40,10 @@ engine::ref<engine::audio_manager> gameplay_manager::m_audio_manager;
 int gameplay_manager::m_available_blocks = 6;
 bool gameplay_manager::m_fire_weapon = false;
 gameplay_manager::tool gameplay_manager::m_current_tool = tool::block;
+
 engine::timer gameplay_manager::m_immunity_timer{};
+bool gameplay_manager::m_invincible;
+
 interactable gameplay_manager::m_hard_mode_switch{};
 bool gameplay_manager::m_hardmode_active;
 
@@ -227,6 +231,11 @@ void gameplay_manager::damage_portal()
 
 void gameplay_manager::damage_player(float amnt)
 {
+	if (m_invincible)
+	{
+		return;//Cannot harm invincible player
+	}
+
 	//The player is immune to damage for short time after taking damage, to prevent death in just a few frames
 	if (m_immunity_timer.total() > m_immunity_duration)
 	{

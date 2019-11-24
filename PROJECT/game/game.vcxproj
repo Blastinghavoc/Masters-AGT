@@ -150,7 +150,6 @@
     <ClInclude Include="src\entities\pickup.h" />
     <ClInclude Include="src\entities\player.h" />
     <ClInclude Include="src\entities\turret.h" />
-    <ClInclude Include="src\example_layer.h" />
     <ClInclude Include="src\gameplay\gameplay_manager.h" />
     <ClInclude Include="src\gameplay\pickup_manager.h" />
     <ClInclude Include="src\gameplay\projectile_manager.h" />
@@ -192,7 +191,6 @@
     <ClCompile Include="src\entities\pickup.cpp" />
     <ClCompile Include="src\entities\player.cpp" />
     <ClCompile Include="src\entities\turret.cpp" />
-    <ClCompile Include="src\example_layer.cpp" />
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\gameplay\gameplay_manager.cpp" />
     <ClCompile Include="src\gameplay\pickup_manager.cpp" />

@@ -59,6 +59,8 @@ public:
 	//Provide access to audo facilities to any client of this class.
 	static engine::ref<engine::audio_manager> audio_manager() { return m_audio_manager; };
 
+	static void set_player_invincible(bool flag) { m_invincible = flag; };
+
 private:
 	static int m_score, m_money, m_portal_health;
 	static float m_score_multiplier;
@@ -99,6 +101,7 @@ private:
 	//Provide the player with brief immunity so they aren't killed instantaneously on contact.
 	static engine::timer m_immunity_timer;
 	static constexpr float m_immunity_duration = 1.f;
+	static bool m_invincible;//Allows the player to be made invincible
 
 	static bool m_hardmode_active;
 

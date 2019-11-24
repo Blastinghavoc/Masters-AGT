@@ -2,6 +2,7 @@
 #include "../entities/pickup.h"
 #include "engine/utils/timer.h"
 #include "../lighting/light_manager.h"
+#include "../gui/hud_manager.h"
 
 /*
 Static class to manage the gameplay effects of pickups
@@ -23,6 +24,7 @@ public:
 
 private:
 	static pickup m_freeze_time_pickup;
+	static pickup m_invincibility_pickup;
 
 	static bool m_powerup_active;
 
@@ -30,12 +32,19 @@ private:
 	static constexpr float m_freeze_duration = 10.f;
 	static bool m_freeze_active;
 
+	static engine::timer m_invincibility_timer;
+	static constexpr float m_invincibility_duration = 10.f;
+	static bool m_invincibility_active;
+	static engine::ref<hud_element> m_invincibility_overlay;
+
 	//Percentage probability to create a powerup when roll_for_powerup is called
-	static constexpr int m_powerup_probability = 5;
+	static constexpr int m_powerup_probability = 8;
 
 
 	static void freeze_enemies();
 	static void unfreeze_enemies();
+
+	static void set_invincibility(bool flag);
 
 	//Highlights the active powerup
 	static engine::ref<engine::SpotLight> m_spot_light;

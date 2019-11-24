@@ -2,9 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="src\game.cpp" />
-    <ClCompile Include="src\example_layer.cpp">
-      <Filter>layers</Filter>
-    </ClCompile>
     <ClCompile Include="src\grid\grid.cpp">
       <Filter>grid</Filter>
     </ClCompile>
@@ -42,7 +39,6 @@
     <ClCompile Include="src\sfx\camera_jitter.cpp">
       <Filter>sfx</Filter>
     </ClCompile>
-    <ClCompile Include="src\sfx\cross_fade.cpp" />
     <ClCompile Include="src\physics\physics_manager.cpp" />
     <ClCompile Include="src\sfx\billboard.cpp">
       <Filter>sfx</Filter>
@@ -110,6 +106,9 @@
     <ClCompile Include="src\sfx\beam.cpp">
       <Filter>sfx</Filter>
     </ClCompile>
+    <ClCompile Include="src\sfx\cross_fade.cpp">
+      <Filter>sfx</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="layers">
@@ -144,9 +143,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\example_layer.h">
-      <Filter>layers</Filter>
-    </ClInclude>
     <ClInclude Include="src\grid\grid.h">
       <Filter>grid</Filter>
     </ClInclude>
