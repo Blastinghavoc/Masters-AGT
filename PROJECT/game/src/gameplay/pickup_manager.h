@@ -29,7 +29,7 @@ private:
 	static bool m_powerup_active;
 
 	static engine::timer m_freeze_timer;
-	static constexpr float m_freeze_duration = 10.f;
+	static constexpr float m_freeze_duration = 5.f;
 	static bool m_freeze_active;
 
 	static engine::timer m_invincibility_timer;

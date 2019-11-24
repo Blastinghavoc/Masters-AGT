@@ -39,7 +39,6 @@
     <ClCompile Include="src\sfx\camera_jitter.cpp">
       <Filter>sfx</Filter>
     </ClCompile>
-    <ClCompile Include="src\physics\physics_manager.cpp" />
     <ClCompile Include="src\sfx\billboard.cpp">
       <Filter>sfx</Filter>
     </ClCompile>
@@ -108,6 +107,9 @@
     </ClCompile>
     <ClCompile Include="src\sfx\cross_fade.cpp">
       <Filter>sfx</Filter>
+    </ClCompile>
+    <ClCompile Include="src\physics\physics_manager.cpp">
+      <Filter>physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

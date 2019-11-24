@@ -36,9 +36,13 @@ void intro_screen::render(engine::ref<engine::text_manager>& text_manager)
 		"Sprint->L_SHIFT",
 		"Jump->SPACE",
 		"Shoot/Place block->LMB",
+		"Charge shot->hold LMB",
 		"Remove block->RMB",		
 		"Switch blocks->1,2",
-		"Zoom->L_CTRL + SCROLL"
+		"Zoom->L_CTRL + SCROLL",
+		"Freecam->F2",
+		"Interact->E",
+		"Skip build phase->ENTER"
 	};
 
 	for (auto str : content)

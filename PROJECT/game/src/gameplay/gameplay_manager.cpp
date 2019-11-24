@@ -318,8 +318,11 @@ void gameplay_manager::on_event(engine::event& event)
 		switch (e.key_code())
 		{		
 		case engine::key_codes::KEY_ENTER:
-			//Allows build phase to be skipped early.			
-			start_combat_phase();
+			//Allows build phase to be skipped early.
+			if (!m_wave_active)
+			{
+				start_combat_phase();
+			}
 			e.handled = true;
 			break;
 		case engine::key_codes::KEY_1:

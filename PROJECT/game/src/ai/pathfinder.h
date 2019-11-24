@@ -1,9 +1,17 @@
 #pragma once
 #include "../grid/grid.h"
 
+/*
+Class containing an implementation of the A star algorithm operating on
+the tiles of a grid object.
+*/
 class pathfinder {
 	typedef std::pair<int, int> index;
 
+	/*
+	Definition of a node in the graph. f,g and h have their usual meanings for the
+	A star algorithm
+	*/
 	struct node {
 		index pos{0,0};
 		int f{0};
@@ -15,6 +23,9 @@ class pathfinder {
 		~node() {};
 	};
 
+	/*
+	Allows sorting of nodes according to their f cost, for use in a priority queue
+	*/
 	struct node_comparator {
 		bool operator()(node& a, node& b) { return a.f > b.f; };
 	};

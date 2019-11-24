@@ -123,6 +123,11 @@ void flyer_ai::update_state(static_flying_enemy& body)
 
 void flyer_ai::on_update(const engine::timestep& time_step, static_flying_enemy& body)
 {
+	if (body.m_frozen)
+	{
+		return;//can't do anything if frozen!
+	}
+
 	update_state(body);
 
 	switch (m_state)
@@ -157,12 +162,7 @@ void flyer_ai::follow_path(const engine::timestep& time_step, static_flying_enem
 	while (!body.m_waypoints.empty() && body.close_enough(body.ground_position(), body.m_waypoints.front()))
 	{
 		body.m_waypoints.pop_front();
-	}
-
-	if (body.m_frozen)
-	{
-		return;//can't move if frozen
-	}
+	}	
 
 	if (!body.m_waypoints.empty())
 	{

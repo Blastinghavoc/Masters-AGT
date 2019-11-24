@@ -16,7 +16,7 @@ m_y_offset{altitude}
 
 void static_flying_enemy::on_update(const engine::timestep& time_step)
 {
-	m_brain.on_update(time_step, (*this));
+	m_brain.on_update(time_step, (*this));//Delegate control to the "brain"
 }
 
 

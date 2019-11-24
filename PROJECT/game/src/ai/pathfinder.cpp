@@ -14,16 +14,20 @@ std::deque<glm::vec3> pathfinder::find_path(const grid& level_grid)
 	std::set<index> closed_list;
 	std::map<index, node> current_values;
 
+	//shorthand function
 	auto closed_contains = [&closed_list](const index& i) {return closed_list.count(i) > 0; };
-	//manhattan distance
+
+	//manhattan distance calculation
 	auto distance = [](const index& i, const index& j) {return abs(j.first - i.first) + abs(j.second - i.second); };
 
+	//utility function to create a child of a node
 	auto init_child = [&distance,&end](const node& parent, const index& child_index) {
 		auto g_child = parent.g + 1;
 		auto h_child = distance(child_index, end);
 		return node(child_index,g_child+h_child,g_child,h_child,parent.pos);
 	};
 
+	//obtain all valid (pathable) children of the input node
 	auto get_all_children = [&level_grid,&closed_contains,&init_child](const node& nd) {
 		std::vector<node> children;
 		int x = nd.pos.first;
@@ -39,6 +43,9 @@ std::deque<glm::vec3> pathfinder::find_path(const grid& level_grid)
 		return children;
 	};
 
+	/*Function to obtain the final path as a series of positions once the goal has been found.
+	Only includes turning points on the path to reduce the size of the resulting deque.
+	*/
 	auto get_path = [&current_values,&end,&start,&level_grid]() {
 		std::deque<glm::vec3> path;
 		auto tmp_node = current_values[end];
@@ -64,6 +71,7 @@ std::deque<glm::vec3> pathfinder::find_path(const grid& level_grid)
 		return path;
 	};
 
+	//Actual algorithm
 	if (start != end)
 	{
 

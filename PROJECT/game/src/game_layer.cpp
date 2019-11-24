@@ -128,19 +128,6 @@ game_layer::game_layer() :
 	terrain_props.position = { 0,-terrain_dimensions.y,0 };
 	m_terrain = engine::game_object::create(terrain_props);
 
-	//Testing
-	/*engine::ref<engine::skinned_mesh> skinned_mesh = engine::skinned_mesh::create("assets/models/animated/BaseMesh_Anim.fbx");
-	skinned_mesh->switch_root_movement(false);
-	engine::game_object_properties props;
-	props.animated_mesh = skinned_mesh;
-	props.scale = glm::vec3(1.f / glm::max(skinned_mesh->size().x, glm::max(skinned_mesh->size().y, skinned_mesh->size().z)));
-	props.type = 0;
-	props.position = {0, 0, 0};
-	props.bounding_shape = glm::vec3(skinned_mesh->size().x / 4.f,
-		skinned_mesh->size().y / 2.f, skinned_mesh->size().x / 4.f);
-	m_test_obj = engine::game_object::create(props);
-	LOG_INFO("Num animations {}", skinned_mesh->animations().size());*/
-
 	//TODO move into a function?
 	//Populate level grid
 	for (int i = 0; i < max_grid_dimension; i++)
@@ -150,11 +137,8 @@ game_layer::game_layer() :
 		m_level_grid->set_border(i, 0, orientation::south);
 		m_level_grid->set_border(i, max_grid_dimension-1, orientation::north);
 
-		//m_level_grid->set_corner(0, i, orientation::south_east);
-		//m_level_grid->set_corner(max_grid_dimension-1, i, orientation::south_west);
 		m_level_grid->set_state(max_grid_dimension, i, grid_tile::tile_state::border,true);
-		//m_level_grid->set_corner(i, 0, orientation::south_east);
-		//m_level_grid->set_corner(i, max_grid_dimension-1, orientation::north_east);
+
 		m_level_grid->set_state(i,max_grid_dimension, grid_tile::tile_state::border,true);
 		
 		for (int j = 0; j < max_grid_dimension; j++)
@@ -190,20 +174,7 @@ game_layer::game_layer() :
 		}
 	}
 
-	m_level_grid->bake_tiles();
-
-	/*bool place = false;
-	for (int i = 0; i < max_grid_dimension; ++i)
-	{
-		for (int j = 0; j < max_grid_dimension; ++j) {
-			if (place)
-			{
-				m_level_grid->place_block(i, j);
-			}
-			place = !place;
-		}
-	}*/
-	
+	m_level_grid->bake_tiles();	
 
 	//re-center terrain.
 	m_terrain->set_position({ center.x,-terrain_dimensions.y,center.z });
