@@ -18,6 +18,9 @@ public:
 	*/
 	float square_distance_to_next_waypoint() const override;
 
+	//Extend reset to also reset AI
+	void reset()override;
+
 private:
 	float m_y_offset = 0.f;//Used to correctly position flying enemies
 	friend class flyer_ai;

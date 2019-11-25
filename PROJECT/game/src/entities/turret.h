@@ -53,6 +53,6 @@ private:
 	float m_cooldown_remaining{ 0.f };
 	const float m_cooldown_time = 1.f;
 
-	const float m_damage = 20.f;
+	const float m_damage = 10.f;
 
 };

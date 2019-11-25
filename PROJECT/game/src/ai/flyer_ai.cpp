@@ -33,6 +33,7 @@ flyer_ai::flyer_ai()
 	m_decision_timer.start();
 }
 
+//Handle transitions between states
 void flyer_ai::update_state(static_flying_enemy& body)
 {	
 	auto playr = gameplay_manager::get_player();
@@ -43,6 +44,7 @@ void flyer_ai::update_state(static_flying_enemy& body)
 	//For the purposes of agro, the player and flyer are considered to be on the same level
 	float distance2_to_player = glm::distance2(player_position, adjusted_position);
 
+	//Have to compute force, just in case the state we're in needs it for a transition
 	m_flock_force = compute_flock_forces(body);
 	
 	switch (m_state)
@@ -130,6 +132,7 @@ void flyer_ai::on_update(const engine::timestep& time_step, static_flying_enemy&
 
 	update_state(body);
 
+	//Behaviours based on state
 	switch (m_state)
 	{
 	case flyer_state::following_path:
@@ -152,7 +155,7 @@ void flyer_ai::on_update(const engine::timestep& time_step, static_flying_enemy&
 	}	
 }
 
-
+//The usual path following behaviour that other enemies do
 void flyer_ai::follow_path(const engine::timestep& time_step, static_flying_enemy& body)
 {
 	body.update_waypoints();
@@ -171,6 +174,7 @@ void flyer_ai::follow_path(const engine::timestep& time_step, static_flying_enem
 	}
 }
 
+//Aim at the player and fire a projectile
 void flyer_ai::shoot(static_flying_enemy& body)
 {
 	auto playr = gameplay_manager::get_player();
@@ -263,6 +267,11 @@ void flyer_ai::pursue(const engine::timestep& time_step, static_flying_enemy& bo
 	body.move(player_direction,body.m_movement_speed,time_step,length);
 }
 
+/*
+Compute the influence of all other flyers on this one.
+Anything further away than the desired flock separation is disregarded,
+anything closer applies a force.
+*/
 glm::vec3 flyer_ai::compute_flock_forces(static_flying_enemy& body)
 {
 	auto& my_position = body.position();
@@ -288,6 +297,7 @@ glm::vec3 flyer_ai::compute_flock_forces(static_flying_enemy& body)
 	return force;
 }
 
+//Compute a vector towards the player, maintaining altitude
 glm::vec3 flyer_ai::lateral_vector_to_player(static_flying_enemy& body)
 {
 	auto playr = gameplay_manager::get_player();

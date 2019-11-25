@@ -27,7 +27,7 @@ bool turret_manager::place_turret(glm::vec3 position)
 	auto map_pos = from_glm(position);
 	if (m_turrets.count(map_pos) > 0)
 	{
-		return false;//can't place turrets on top of each other
+		return false;//can't place turrets on top of each other.
 	}
 
 	if (m_buffer.empty())

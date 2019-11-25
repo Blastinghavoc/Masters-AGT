@@ -59,6 +59,12 @@ public:
 	glm::vec3 targetting_point() { return position() + m_targetting_offset; };
 	void set_targetting_offset(glm::vec3 offset) { m_targetting_offset = offset; };
 
+	//Restore gameplay statistics to default
+	virtual void reset() {
+		m_health = m_max_health;
+		m_frozen = false;
+	};
+
 protected:	
 	std::deque<glm::vec3> m_waypoints{};
 	int m_id;//Unique enemy id

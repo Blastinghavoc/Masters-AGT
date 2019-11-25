@@ -25,6 +25,12 @@ public:
 
 	static void update_shared_data();
 
+	//Reset AI state to default, for use when a flyer is respawned.
+	void reset() {
+		m_state = flyer_state::following_path;
+		m_previous_state = flyer_state::following_path;
+	};
+
 private:
 	flyer_state m_state{flyer_state::following_path};
 	flyer_state m_previous_state{ flyer_state::following_path };

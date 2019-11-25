@@ -27,6 +27,13 @@ float static_flying_enemy::square_distance_to_next_waypoint() const
 	return glm::distance2(ground_position(), next_waypoint());;
 }
 
+//Extension of reset to also reset the AI
+void static_flying_enemy::reset()
+{
+	abstract_enemy::reset();
+	m_brain.reset();
+}
+
 /*
 Overriden to acount for altitude. Flying enemies count as being at a waypoint
 if they are above it at their correct altitude.

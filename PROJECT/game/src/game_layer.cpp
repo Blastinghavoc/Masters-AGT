@@ -257,6 +257,7 @@ game_layer::game_layer() :
 	physics_manager::add(m_player.object());
 	physics_manager::add(m_terrain);		
 
+	turret_manager::init();
 	enemy_manager::init(m_level_grid);
 	gameplay_manager::init(&m_player,m_text_manager,&m_3d_camera,m_level_grid,m_audio_manager,&m_decorational_objects);
 	sfx_manager::init(&m_3d_camera);

@@ -1,6 +1,12 @@
 #include "pch.h"
 #include "light.h"
 
+/*
+NOTE: Despite setting intensities to 0, lights (spotlights specifically) still appear to give off
+a very very faint glow. It's not really noticeable if you're not looking for it, but it's slightly
+inconvenient. Not sure why this is.
+*/
+
 void engine::DirectionalLight::submit(const engine::ref<engine::shader> shader)
 {
 	auto effective_ambient = AmbientIntensity;

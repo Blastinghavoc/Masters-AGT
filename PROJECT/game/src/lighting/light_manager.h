@@ -2,7 +2,9 @@
 
 #include "engine.h"
 
-//Static class for lighting
+/*Static class for lighting
+See also modifications to engine/renderer/light.cpp
+*/
 class light_manager {
 public:
 
