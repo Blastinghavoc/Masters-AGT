@@ -31,6 +31,7 @@ private:
 	static engine::timer m_freeze_timer;
 	static constexpr float m_freeze_duration = 5.f;
 	static bool m_freeze_active;
+	static engine::ref<hud_element> m_freeze_overlay;
 
 	static engine::timer m_invincibility_timer;
 	static constexpr float m_invincibility_duration = 10.f;

@@ -6,7 +6,6 @@
 #include "../sfx/sfx_manager.h"
 #include "weapon_manager.h"
 #include "pickup_manager.h"
-#include "projectile_manager.h"//TESTING
 
 //---Static initializers
 
@@ -33,10 +32,12 @@ bool gameplay_manager::m_wave_active = false;
 std::deque<wave_definition> gameplay_manager::m_waves{};
 int gameplay_manager::m_max_waves = 0;
 int gameplay_manager::m_wave_number = 0;
+wave_definition gameplay_manager::m_current_wave_definition;
+
 engine::perspective_camera* gameplay_manager::m_camera;
 engine::ref<grid> gameplay_manager::m_level_grid;
-wave_definition gameplay_manager::m_current_wave_definition;
 engine::ref<engine::audio_manager> gameplay_manager::m_audio_manager;
+
 int gameplay_manager::m_available_blocks = 6;
 bool gameplay_manager::m_fire_weapon = false;
 gameplay_manager::tool gameplay_manager::m_current_tool = tool::block;
@@ -46,6 +47,8 @@ bool gameplay_manager::m_invincible;
 
 interactable gameplay_manager::m_hard_mode_switch{};
 bool gameplay_manager::m_hardmode_active;
+
+bool gameplay_manager::m_game_over = false;
 
 void gameplay_manager::init(player* playr,engine::ref<engine::text_manager> text_manager, engine::perspective_camera* camera,
 	engine::ref<grid> level_grid,
@@ -151,6 +154,7 @@ void gameplay_manager::init(player* playr,engine::ref<engine::text_manager> text
 
 void gameplay_manager::update(const engine::timestep& ts)
 {
+
 	check_player_in_bounds();
 
 	m_money_display->set_text("Money: "+std::to_string(m_money));
@@ -165,6 +169,11 @@ void gameplay_manager::update(const engine::timestep& ts)
 	}
 	else {
 		light_manager::set_point_light_colour(light_manager::default_light_colour);
+	}
+
+	if (m_game_over)
+	{
+		return;//everything else stops updating when the game is over.
 	}
 
 	if (m_wave_active)
@@ -227,6 +236,11 @@ void gameplay_manager::damage_portal()
 	m_portal_health -= 10;
 	m_audio_manager->play("alert");
 	sfx_manager::jitter_effect.activate(0.2f, 0.5f);
+
+	if (m_portal_health <= 0)
+	{
+		end_game(false);//Lose if the portal is destroyed
+	}
 }
 
 void gameplay_manager::damage_player(float amnt)
@@ -271,19 +285,24 @@ void gameplay_manager::next_build_phase()
 		m_hardmode_active = false;//Player has to press the switch again if they still want hardmode
 		m_score_multiplier = 1.f;//Reset global score multiplier
 
-		//TODO make number of blocks and money awarded determined by wave definition?
+		//TODO could make number of blocks and money awarded determined by wave definition?
 		m_available_blocks += 4;
 		m_money += 50;
 
 		++m_wave_number;
 	}
 	else {
-		//TODO display victory
+		end_game(true);
 	}
 }
 
 void gameplay_manager::on_event(engine::event& event)
 {
+	if (m_game_over)
+	{
+		return;//No point handling events if the game has finished
+	}
+
 	if (event.event_type() == engine::event_type_e::mouse_button_pressed)
 	{
 		auto& e = dynamic_cast<engine::mouse_button_pressed_event&>(event);
@@ -333,21 +352,10 @@ void gameplay_manager::on_event(engine::event& event)
 			m_current_tool = tool::turret;
 			e.handled = true;
 			break;
+
+			//Debug tool left active for easy demonstration
 		case engine::key_codes::KEY_T:
 			pickup_manager::make_powerup_at(m_player_ptr->object()->position()+glm::vec3(2,0,2));
-			break;
-		//case engine::key_codes::KEY_P:
-		//	damage_portal();//DEBUG
-		//	break;
-		/*case engine::key_codes::KEY_E:
-			sfx_manager::explode_at(m_player_ptr->object()->position());
-			sfx_manager::explode_at(m_player_ptr->object()->position()+ glm::vec3(2,0,2));*/
-		/*case engine::key_codes::KEY_G:
-			projectile_manager::launch_projectile(true, m_player_ptr->object()->position() + glm::vec3(5, 5, 0),glm::vec3(-0.01f, -0.01f,0));
-			break;*/
-		case engine::key_codes::KEY_B:
-			sfx_manager::make_beam(m_player_ptr->object()->position(), m_player_ptr->object()->position() + glm::vec3(0, 5, 0), glm::vec3(.9f, .1f, .1f),
-				20.f);
 			break;
 		default:
 			break;
@@ -467,6 +475,10 @@ void gameplay_manager::place_block(int x, int z)
 			--m_available_blocks;
 		}
 	}
+	else {
+		//Failure
+		m_audio_manager->play("error");
+	}
 }
 
 void gameplay_manager::remove_block(int x, int z)
@@ -475,7 +487,10 @@ void gameplay_manager::remove_block(int x, int z)
 	if (succeeded)
 	{
 		++m_available_blocks;
-	}	
+	}
+	else {
+		m_audio_manager->play("error");
+	}
 }
 
 void gameplay_manager::place_turret(int x, int z)
@@ -567,4 +582,25 @@ void gameplay_manager::check_interaction_with_hardmode_switch()
 	else {
 		m_message_display->hide();
 	}
+}
+
+void gameplay_manager::end_game(bool win)
+{
+	m_game_over = true;
+	auto colour = text_hud_element::default_colour;
+	std::string text;
+	if (win)
+	{
+		text = "You WIN! Score: ";
+	}
+	else {
+		colour = { .9f,.1f,.1f,1.f };
+		text = "You LOSE! Score: ";
+	}
+	text += std::to_string(m_score);
+	m_message_display->set_colour(colour);
+	m_message_display->set_text(text);
+	m_message_display->set_text_size(1.f);
+	m_message_display->show();
+
 }

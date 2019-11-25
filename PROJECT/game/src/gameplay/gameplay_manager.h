@@ -62,38 +62,50 @@ public:
 	static void set_player_invincible(bool flag) { m_invincible = flag; };
 
 private:
+	//Basic gameplay stats
 	static int m_score, m_money, m_portal_health;
+
+	//Global multiplier for score aquired (or lost!)
 	static float m_score_multiplier;
 
-	static engine::timer m_build_timer;
-	static int m_max_build_time;
+	static engine::timer m_build_timer;//Counts time during build phase
+	static int m_max_build_time;//Build phase duration in seconds
 
+	//Prices for things. Currently rather overkill, as only the turret can be bought
 	static std::map<std::string, int> m_prices;
 
+	//Pointer to the player instance
 	static player* m_player_ptr;
 
+	//HUD elements for displaying various information
 	static engine::ref<text_hud_element> m_top_display, m_score_display,
 		m_money_display, m_health_display,
 		m_portal_health_display,m_tool_display,
 		m_message_display,
 		m_weapon_charge_display;
 
+	//True if a wave is currently active, false during build phase
 	static bool m_wave_active;
 
+	//Wave information
 	static std::deque<wave_definition> m_waves;
 	static int m_max_waves;
 	static int m_wave_number;
-
-	static engine::perspective_camera* m_camera;
-
-	static engine::ref<grid> m_level_grid;
-
 	static wave_definition m_current_wave_definition;
 
+	//Pointer to main cameras
+	static engine::perspective_camera* m_camera;
+
+	//Reference to the level grid
+	static engine::ref<grid> m_level_grid;
+
+	//Reference to the audio manager
 	static engine::ref<engine::audio_manager> m_audio_manager;
 
+	//Maximum number of turrets player can have at once.
 	static constexpr int m_max_turrets = 5;
 
+	//Number of blocks available to the player to place.
 	static int m_available_blocks;
 
 	static bool m_fire_weapon;//Indicates whether the weapon should be fired this update
@@ -105,12 +117,16 @@ private:
 
 	static bool m_hardmode_active;
 
+	//True if the game has ended; in victory or defeat.
+	static bool m_game_over;
+
 	enum class tool
 	{
 		block,
 		turret
 	};
 
+	//Utility function to get string representations for any tool
 	static std::string string_of(tool t) {
 		switch (t)
 		{
@@ -142,4 +158,5 @@ private:
 	static void check_player_in_bounds();
 	static void check_enemies_touching_player();
 	static void check_interaction_with_hardmode_switch();
+	static void end_game(bool win);
 };

@@ -128,8 +128,7 @@ game_layer::game_layer() :
 	terrain_props.position = { 0,-terrain_dimensions.y,0 };
 	m_terrain = engine::game_object::create(terrain_props);
 
-	//TODO move into a function?
-	//Populate level grid
+	//---Populate level grid
 	for (int i = 0; i < max_grid_dimension; i++)
 	{
 		m_level_grid->set_border(0,i,orientation::east);
@@ -164,7 +163,7 @@ game_layer::game_layer() :
 	m_level_grid->del_border(1, 0, orientation::south);
 	m_level_grid->set_end(1, -1);	
 
-	//Physics
+	//Add collision objects
 	for (int i = 0; i < max_grid_dimension; i++)
 	{
 		for (int j = 0; j < max_grid_dimension; j++) {
@@ -174,7 +173,9 @@ game_layer::game_layer() :
 		}
 	}
 
-	m_level_grid->bake_tiles();	
+	//Save initial state of tiles
+	m_level_grid->bake_tiles();
+
 
 	//re-center terrain.
 	m_terrain->set_position({ center.x,-terrain_dimensions.y,center.z });

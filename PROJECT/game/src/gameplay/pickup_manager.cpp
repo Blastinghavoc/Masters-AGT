@@ -7,6 +7,7 @@ bool pickup_manager::m_powerup_active;
 pickup pickup_manager::m_freeze_time_pickup;
 engine::timer pickup_manager::m_freeze_timer{};
 bool pickup_manager::m_freeze_active = false;
+engine::ref<hud_element> pickup_manager::m_freeze_overlay;
 
 pickup pickup_manager::m_invincibility_pickup;
 engine::timer pickup_manager::m_invincibility_timer{};
@@ -33,11 +34,17 @@ void pickup_manager::init()
 	props.textures = { tex };
 	m_invincibility_pickup = pickup(engine::game_object::create(props), .4f);
 
-	auto overlay = hud_element::create({ .5f,.5f }, { 1,1 }, engine::texture_2d::create("assets/textures/invincibility_overlay.png", true));
-	hud_manager::add_element(overlay);	
-	overlay->set_z_order(0.11f);//Just a little bit ahead of the rest of the HUD so that it appears over all of it.
-	overlay->hide();
-	m_invincibility_overlay = overlay;
+	auto invin_overlay = hud_element::create({ .5f,.5f }, { 1,1 }, engine::texture_2d::create("assets/textures/invincibility_overlay.png", true));
+	hud_manager::add_element(invin_overlay);	
+	invin_overlay->set_z_order(0.11f);//Just a little bit ahead of the rest of the HUD so that it appears over all of it.
+	invin_overlay->hide();
+	m_invincibility_overlay = invin_overlay;
+
+	auto freeze_overlay = hud_element::create({ .5f,.5f }, { 1,1 }, engine::texture_2d::create("assets/textures/freeze_overlay.png", true));
+	hud_manager::add_element(freeze_overlay);
+	freeze_overlay->set_z_order(0.11f);//Just a little bit ahead of the rest of the HUD so that it appears over all of it.
+	freeze_overlay->hide();
+	m_freeze_overlay = freeze_overlay;
 
 	srand(time(nullptr));//Initialise random number generator.
 
@@ -165,6 +172,7 @@ void pickup_manager::freeze_enemies()
 	}
 	m_freeze_timer.start();
 	m_freeze_active = true;
+	m_freeze_overlay->show();
 }
 
 void pickup_manager::unfreeze_enemies()
@@ -174,6 +182,7 @@ void pickup_manager::unfreeze_enemies()
 		enem->set_frozen(false);
 	}
 	m_freeze_active = false;
+	m_freeze_overlay->hide();
 }
 
 void pickup_manager::set_invincibility(bool flag)
