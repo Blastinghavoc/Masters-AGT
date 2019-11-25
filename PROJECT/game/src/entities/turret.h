@@ -1,7 +1,13 @@
 #pragma once
 #include <engine.h>
 
-/*Class representing a defensive turret*/
+/*
+Class representing a defensive turret.
+Does NOT extend abstract_actor, because it doesn't have a
+single game_object (it has three). The abstract base class
+could probably be adjusted to be even more general, but no benefit
+is gained from that in this case.
+*/
 class turret {
 public:
 	turret(glm::vec3 position = {0,0,0});

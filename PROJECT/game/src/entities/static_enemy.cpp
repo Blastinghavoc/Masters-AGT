@@ -16,7 +16,7 @@ static_enemy::static_enemy(int id, engine::ref<engine::game_object> obj, enemy_t
 
 void static_enemy::on_update(const engine::timestep& time_step)
 {
-	abstract_enemy::on_update(time_step);
+	abstract_enemy::update_waypoints();
 
 	if (m_frozen)
 	{
@@ -34,5 +34,7 @@ void static_enemy::on_update(const engine::timestep& time_step)
 		move(direction, m_movement_speed, time_step, glm::length(line));
 
 	}
-	
+
+
+	update_trigger_box();
 }

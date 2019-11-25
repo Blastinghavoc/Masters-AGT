@@ -93,7 +93,8 @@ engine::ref<abstract_enemy> enemy_factory::create(int id, glm::vec3 position, en
 
 		if (is_flyer)
 		{
-			new_enemy = std::make_shared<static_flying_enemy>(id, engine::game_object::create(props), altitude, type);		
+			new_enemy = std::make_shared<static_flying_enemy>(id, engine::game_object::create(props), altitude, type);
+			position.y = altitude;//Ensure flyer is created at correct height.
 		}
 		else {
 			new_enemy = std::make_shared<static_enemy>(id, engine::game_object::create(props), type);

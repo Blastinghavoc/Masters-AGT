@@ -149,26 +149,19 @@ void flyer_ai::on_update(const engine::timestep& time_step, static_flying_enemy&
 		break;
 	default:
 		break;
-	}
-
-	//Update trigger box after any movments
-	body.m_box.on_update(body.m_object->position());
+	}	
 }
 
 
 void flyer_ai::follow_path(const engine::timestep& time_step, static_flying_enemy& body)
 {
-	//Modified from abstract_enemy
-	while (!body.m_waypoints.empty() && body.close_enough(body.ground_position(), body.m_waypoints.front()))
-	{
-		body.m_waypoints.pop_front();
-	}	
+	body.update_waypoints();
 
 	if (!body.m_waypoints.empty())
 	{
 		//Try to go towards the first waypoint that we aren't already at
 		auto target = body.m_waypoints.front();
-		target.y += body.m_y_offset;//Account for the fact that this object may be flying
+		target.y += body.m_y_offset;//Account for the fact that this object is flying
 
 		auto line = target - body.m_object->position();
 		auto direction = glm::normalize(line);

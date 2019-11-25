@@ -12,6 +12,7 @@ public:
 	virtual void on_update(const engine::timestep& time_step) override;
 
 	glm::vec3 ground_position() const override;
+
 	/*
 	Override the distance metric to account for the y offset
 	*/
@@ -21,5 +22,8 @@ private:
 	float m_y_offset = 0.f;//Used to correctly position flying enemies
 	friend class flyer_ai;
 	flyer_ai m_brain;
+
+protected:
+	void update_waypoints() override;
 };
 

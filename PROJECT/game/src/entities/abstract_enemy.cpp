@@ -2,15 +2,16 @@
 #include "abstract_enemy.h"
 #include <glm/gtx/norm.hpp>
 
-void abstract_enemy::on_update(const engine::timestep& time_step)
-{	
+/*
+Updates the waypoints based on the current position.
+*/
+void abstract_enemy::update_waypoints()
+{
 	//Remove any waypoints from the front of the queue if we're already there.
-	while (!m_waypoints.empty() && close_enough(m_object->position(),m_waypoints.front()))
+	while (!m_waypoints.empty() && close_enough(m_object->position(), m_waypoints.front()))
 	{
 		m_waypoints.pop_front();
-	}
-
-	m_box.on_update(m_object->position());	
+	}	
 }
 
 glm::vec3 abstract_enemy::next_waypoint() const

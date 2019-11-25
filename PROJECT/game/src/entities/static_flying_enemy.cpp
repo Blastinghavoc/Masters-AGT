@@ -15,8 +15,9 @@ m_y_offset{altitude}
 }
 
 void static_flying_enemy::on_update(const engine::timestep& time_step)
-{
+{	
 	m_brain.on_update(time_step, (*this));//Delegate control to the "brain"
+	update_trigger_box();//Update trigger box after any movements.
 }
 
 
@@ -24,6 +25,18 @@ void static_flying_enemy::on_update(const engine::timestep& time_step)
 float static_flying_enemy::square_distance_to_next_waypoint() const
 {
 	return glm::distance2(ground_position(), next_waypoint());;
+}
+
+/*
+Overriden to acount for altitude. Flying enemies count as being at a waypoint
+if they are above it at their correct altitude.
+*/
+void static_flying_enemy::update_waypoints()
+{
+	while (!m_waypoints.empty() && close_enough(ground_position(), m_waypoints.front()))
+	{
+		m_waypoints.pop_front();
+	}
 }
 
 glm::vec3 static_flying_enemy::ground_position() const

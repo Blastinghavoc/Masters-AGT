@@ -57,7 +57,7 @@ animated_enemy::~animated_enemy()
 
 void animated_enemy::on_update(const engine::timestep& time_step)
 {
-	abstract_enemy::on_update(time_step);
+	abstract_enemy::update_waypoints();
 
 	if (m_frozen)
 	{
@@ -92,4 +92,6 @@ void animated_enemy::on_update(const engine::timestep& time_step)
 
 	//Increment animation
 	m_object->animated_mesh()->on_update(time_step);
+
+	update_trigger_box();
 }

@@ -12,8 +12,6 @@ public:
 	abstract_enemy(int id) : m_id{id}, m_type{ enemy_type::robot1 } {};
 	virtual ~abstract_enemy() {};
 
-	virtual void on_update(const engine::timestep& time_step) override;
-
 	void add_waypoint(glm::vec3 point) { m_waypoints.push_back(point); };
 
 	void set_path(std::deque<glm::vec3> path) { m_waypoints = path; };
@@ -48,10 +46,6 @@ public:
 
 	bool is_closer_to_goal_than(const abstract_enemy& e2) const;
 
-	/*static bool is_closer_to_goal(const abstract_enemy& e1, const abstract_enemy& e2) {
-		return e1.is_closer_to_goal_than(e2);
-	}*/
-
 	static bool is_closer_to_goal(const engine::ref<abstract_enemy>& e1, const engine::ref<abstract_enemy>& e2) {
 		return e1->is_closer_to_goal_than(*e2);
 	}
@@ -74,7 +68,11 @@ protected:
 	bool m_frozen = false;
 	float m_movement_speed = 1.f;
 	enemy_type m_type;
-	glm::vec3 m_targetting_offset;
+	glm::vec3 m_targetting_offset{0};
+
+	//Functions useful in derived classes implementing on_update behaviours
+	virtual void update_waypoints();
+	void update_trigger_box() { m_box.on_update(m_object->position()); };
 
 	static bool close_enough(glm::vec3 v1, glm::vec3 v2);
 };
