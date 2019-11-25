@@ -12,14 +12,14 @@ namespace engine
 	class stepped_pyramid
 	{
 	public:
-		stepped_pyramid(float height,float top_radius,float bottom_radius,int num_steps, float border_fraction = 0.f, int num_sides = 4);
+		stepped_pyramid(float height, float top_radius, float bottom_radius, int num_steps, float border_fraction = 0.f, int num_sides = 4, float tex_size = 1.f);
 
 		~stepped_pyramid();
 
 		//This shape has separate meshes for the faces and borders (if any) so that they can be independently textured.
 		std::vector < ref<engine::mesh>> meshes() const { return m_meshes; }
 
-		static ref<stepped_pyramid> create(float height, float top_radius, float bottom_radius, int num_steps,float border_fraction = 0.f, int num_sides = 4);
+		static ref<stepped_pyramid> create(float height, float top_radius, float bottom_radius, int num_steps,float border_fraction = 0.f, int num_sides = 4, float tex_size = 1.f);
 	private:
 		std::vector< ref<engine::mesh>> m_meshes{};
 

@@ -3,7 +3,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-engine::stepped_pyramid::stepped_pyramid(float height, float top_radius, float bottom_radius, int num_steps,float border_fraction,int num_sides)
+engine::stepped_pyramid::stepped_pyramid(float height, float top_radius, float bottom_radius, int num_steps,float border_fraction,int num_sides, float tex_size)
 {
 	if (height <= 0.f || top_radius <= 0.f || bottom_radius<= 0.f)
 	{
@@ -33,7 +33,7 @@ engine::stepped_pyramid::stepped_pyramid(float height, float top_radius, float b
 		}
 		make_border = true;
 		border_width = step_height * border_fraction;
-	}
+	}	
 
 	//Change in radius for each step
 	const float delta_radius = (top_radius - bottom_radius) / num_steps;
@@ -81,36 +81,40 @@ engine::stepped_pyramid::stepped_pyramid(float height, float top_radius, float b
 
 		x = current_half_length;
 		z = current_radius;
-		next_x = next_half_length;
 		next_y = next_height;
 		if (make_border)
 		{
 			x -= border_width;
-			next_x -= border_width;
 			next_y -= border_width;
 			z -= border_width;
 		}
 		x_prime = z * tan(theta);
+
+		auto tex_x = (2 * x) / tex_size;
+		auto tex_x_prime = (2 * x_prime) / tex_size;
+		auto tex_y = step_height / tex_size;
+		auto tex_z = (z-next_radius) / tex_size;
+		auto tex_x_upward = (x_prime - next_half_length) / tex_size;
 
 		//---Sides
 
 		norm={ 0,0,1 };
 		
 		bl={ {-x, current_height, current_radius}, norm, { 0,0 } };
-		br={ {x, current_height, current_radius}, norm, { 0,1 } };
-		tr={ {x, next_y, current_radius}, norm, { 1,1 } };
-		tl={ {-x, next_y, current_radius}, norm, { 1,0 } };
+		br={ {x, current_height, current_radius}, norm, { tex_x,0 } };
+		tr={ {x, next_y, current_radius}, norm, { tex_x,tex_y } };
+		tl={ {-x, next_y, current_radius}, norm, { 0,tex_y } };
 		tmp_vertices={ bl,br,tr,tl };
 
 		shape_utils::add_quads(num_sides, two_theta, tmp_vertices, face_vertices, face_indices, face_index, axis_of_symmetry);
 
-		//---Top faces (trapezium shaped)	
+		//---Top faces (trapezium shaped)			
 
 		norm = { 0,1,0 };//Normal now facing up
-		bl={ {-x_prime, next_height, z}, norm, { 0,0 } };
-		br={ {x_prime, next_height, z}, norm, { 0,1 } };
-		tr={ {next_half_length, next_height, next_radius}, norm, { 1,1 } };
-		tl={ {-next_half_length, next_height, next_radius}, norm, { 1,0 } };
+		bl = { {-x_prime, next_height, z}, norm, { 0,0 } };
+		br = { {x_prime, next_height, z}, norm, { tex_x_prime,0 } };
+		tr = { {next_half_length, next_height, next_radius}, norm, { tex_x_prime- tex_x_upward,tex_z } };		
+		tl = { {-next_half_length, next_height, next_radius}, norm, { tex_x_upward,tex_z } };		
 		tmp_vertices={ bl,br,tr,tl };
 		shape_utils::add_quads(num_sides, two_theta, tmp_vertices, face_vertices, face_indices, face_index, axis_of_symmetry);
 
@@ -118,6 +122,9 @@ engine::stepped_pyramid::stepped_pyramid(float height, float top_radius, float b
 		/*
 		Each side face has 3 border strips: the right, left and top edges.
 		Each upward face has one border strip, the step edge.
+
+		No texture mapping done for these; they are designed to be used with a texture
+		that is just a single colour.
 		*/
 		if (make_border)
 		{
@@ -163,19 +170,25 @@ engine::stepped_pyramid::stepped_pyramid(float height, float top_radius, float b
 	}
 
 	//The peak upward face of the pyramid, which is an N-gon where N is num_sides
+	auto prev_tex_x_upward = (x_prime - next_half_length) / tex_size;
+	auto prev_tex_x_prime = (2 * x_prime) / tex_size;
+	auto prev_tex_z = (z - next_radius) / tex_size;
+	auto prev_radius = current_radius;
+	auto half_length = next_half_length;
+	auto tex_z = ((prev_radius) / tex_size)+prev_tex_z;
 	norm = { 0,1,0 };
-	bl = { {-x, next_height, z}, norm, { 0,0 } };
-	br = { {x, next_height, z}, norm, { 0,1 } };
-	tr = { {0, next_height, 0}, norm, { .5f,.5f } };
+	bl = { {-half_length, next_height, prev_radius}, norm, { prev_tex_x_upward,prev_tex_z } };
+	br = { {half_length, next_height, prev_radius}, norm, { prev_tex_x_prime - prev_tex_x_upward,prev_tex_z} };
+	tr = { {0, next_height, 0}, norm, { 0.5f* prev_tex_x_prime,tex_z } };
 	tmp_vertices = { bl,br,tr };
-	shape_utils::add_tris(num_sides, two_theta, tmp_vertices, face_vertices, face_indices, face_index, axis_of_symmetry);
+	shape_utils::add_tris(num_sides, two_theta, tmp_vertices, face_vertices, face_indices, face_index, axis_of_symmetry);	
 
 	//The bottom face
 	auto bottom_h_len = bottom_radius * tan(theta);
 	norm = { 0,-1,0 };//Inverted normal and opposite winding so that it faces down.
 	bl = { {-bottom_h_len, 0, bottom_radius}, norm, { 0,0 } };
-	br = { {0, 0, 0}, norm, { 0.5f,.5f } };
-	tr = { {bottom_h_len, 0, bottom_radius}, norm, { 0,1 } };
+	br = { {0, 0, 0}, norm, { bottom_h_len/tex_size,bottom_radius/tex_size } };
+	tr = { {bottom_h_len, 0, bottom_radius}, norm, { 2*bottom_h_len / tex_size,0 } };
 	tmp_vertices = { bl,br,tr };
 	shape_utils::add_tris(num_sides, two_theta, tmp_vertices, face_vertices, face_indices, face_index, axis_of_symmetry);
 
@@ -187,7 +200,7 @@ engine::stepped_pyramid::~stepped_pyramid()
 {
 }
 
-engine::ref<engine::stepped_pyramid> engine::stepped_pyramid::create(float height, float top_radius, float bottom_radius, int num_steps,float border_width,int num_sides)
+engine::ref<engine::stepped_pyramid> engine::stepped_pyramid::create(float height, float top_radius, float bottom_radius, int num_steps,float border_width,int num_sides, float tex_size)
 {
-	return  std::make_shared<stepped_pyramid>(height, top_radius, bottom_radius,num_steps,border_width,num_sides);
+	return  std::make_shared<stepped_pyramid>(height, top_radius, bottom_radius,num_steps,border_width,num_sides,tex_size);
 }

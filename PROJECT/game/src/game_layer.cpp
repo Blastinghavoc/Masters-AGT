@@ -196,9 +196,9 @@ game_layer::game_layer() :
 		m_rhombi = engine::game_object::create(shape_props);
 
 		//stepped pyramid
-		engine::ref<engine::texture_2d> pyr_texture = engine::texture_2d::create("assets/textures/pyramid_face.png", true);
+		engine::ref<engine::texture_2d> pyr_texture = engine::texture_2d::create("assets/textures/pale_brick.png", false);
 		engine::ref<engine::texture_2d> pyr_texture_border = engine::texture_2d::create("assets/textures/pyramid_border.png", true);
-		engine::ref<engine::stepped_pyramid> pyr_shape = engine::stepped_pyramid::create(15.f, 1.f, terrain_dimensions.x, 8,0.1f,8);
+		engine::ref<engine::stepped_pyramid> pyr_shape = engine::stepped_pyramid::create(15.f, 1.f, terrain_dimensions.x, 8,0.1f,8,4.f);
 		shape_props.meshes = pyr_shape->meshes();
 		shape_props.textures = { pyr_texture, pyr_texture_border };
 		shape_props.bounding_shape = glm::vec3(5.f);
@@ -435,31 +435,29 @@ void game_layer::on_render()
 	//update the lighting for this shader
 	light_manager::submit(textured_material_shader);
 
+	m_material->submit(textured_material_shader);
+	std::dynamic_pointer_cast<engine::gl_shader>(textured_material_shader)->set_uniform("gEyeWorldPos", m_3d_camera.position());
+
 	//Render Bounding boxes
 	//m_player.object()->render_obb({1,0,0},textured_material_shader);
 	//m_terrain->render_obb({ 1,0,0 }, textured_material_shader);	
 	//enemy_manager::render_trigger_boxes(textured_material_shader);
 	//weapon_manager::render_trigger_boxes(textured_material_shader);
 
-	m_material->submit(textured_material_shader);
-	std::dynamic_pointer_cast<engine::gl_shader>(textured_material_shader)->set_uniform("gEyeWorldPos", m_3d_camera.position());
-
-	//DEBUG rendering positions of lights
-	auto cube = engine::cuboid::create({ .1f,.1f,.1f }, false);
-	for (auto& pl : light_manager::point_lights)
-	{
-		engine::renderer::submit(textured_material_shader, cube->mesh(), glm::translate(glm::mat4(1.f), pl->Position));
-	}
-
-	//TODO Keep some object following the spotlights, but make it nicer than just a cube?
+	//Use a small rhombi as a marker for spotlights
 	for (auto& sl : light_manager::spot_lights)
 	{
 		if (sl->On)
 		{
+			glm::mat4 transform(1.0f);
+			//positioned slightly under the light so it is illuminated nicely
+			transform = glm::translate(transform, sl->Position - glm::vec3(0,0.6f,0));
+			transform = glm::scale(transform, 0.125f * glm::vec3(1.f));
+
 			m_material->set_ambient(sl->Color);
 			m_material->set_diffuse(sl->Color);
 			m_material->submit(textured_material_shader);
-			engine::renderer::submit(textured_material_shader, cube->mesh(), glm::translate(glm::mat4(1.f), sl->Position));
+			engine::renderer::submit(textured_material_shader,transform, m_rhombi);
 		}
 	}	
 
