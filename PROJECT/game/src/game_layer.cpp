@@ -220,13 +220,16 @@ game_layer::game_layer() :
 		shape_props.rotation_axis = { 1,1,1 };
 		m_decorational_objects.push_back(engine::game_object::create(shape_props));
 
-		//TESTING WIP
-		/*engine::ref < engine::archway > archway_shape = engine::archway::create(2, 2, 1, 0.5f);
-		shape_props.meshes = { archway_shape->mesh() };
-		shape_props.position = { 3,0,0 };
+		//Arch portals		
+		engine::ref<engine::texture_2d> arch_tex = engine::texture_2d::create("assets/textures/portal.png", true);
+		engine::ref < engine::arch_pane > arch_shape = engine::arch_pane::create(2, 2.2f, 1.2f);
+		shape_props.meshes = { arch_shape->mesh() };
+		shape_props.position = m_level_grid->center_of(m_level_grid->get_start()) + glm::vec3(0,0,-m_level_grid->cell_size()/2);
 		shape_props.rotation_amount = 0;
-		shape_props.textures = {};
-		m_test_obj = engine::game_object::create(shape_props);*/
+		shape_props.textures = {arch_tex};
+		m_transparent_decorational_objects.push_back({0.7f ,engine::game_object::create(shape_props) });
+		shape_props.position = m_level_grid->center_of(m_level_grid->get_end()) + glm::vec3(0,0,m_level_grid->cell_size()/2);
+		m_transparent_decorational_objects.push_back({0.7f ,engine::game_object::create(shape_props) });
 	}
 
 	//Create text manager
@@ -323,6 +326,7 @@ void game_layer::on_update(const engine::timestep& time_step)
 		projectile_manager::on_update(time_step);
 
 		physics_manager::update(time_step);
+		//Update for 3D audio effects
 		m_audio_manager->update_with_camera(m_3d_camera);
 	}
 }
@@ -422,9 +426,6 @@ void game_layer::on_render()
 	//Render non-animated enemies
 	enemy_manager::render_static(textured_lighting_shader);
 
-	//Render test object
-	/*engine::renderer::submit(textured_lighting_shader,m_test_obj);*/
-
 	//Render decorational objects
 	for (auto& obj : m_decorational_objects) {		
 		engine::renderer::submit(textured_lighting_shader, obj);
@@ -497,14 +498,19 @@ void game_layer::on_render()
 	engine::renderer::begin_scene(m_3d_camera, textured_lighting_shader);
 	//Render textured SFX
 	sfx_manager::on_render_textured(textured_lighting_shader, m_3d_camera);
+
+	//Transparent decor
+	for (auto& pair : m_transparent_decorational_objects) {
+		std::dynamic_pointer_cast<engine::gl_shader>(textured_lighting_shader)->set_uniform("transparency", pair.first);
+		engine::renderer::submit(textured_lighting_shader, pair.second);
+	}
+	std::dynamic_pointer_cast<engine::gl_shader>(textured_lighting_shader)->set_uniform("transparency", 1.f);
+
 	engine::renderer::end_scene();
 
 	engine::renderer::begin_scene(m_3d_camera, textured_material_shader);
 	//Render materialed SFX
-	sfx_manager::on_render_material(textured_material_shader);
-
-	//TESTING
-	/*engine::renderer::submit(textured_material_shader, m_test_obj);*/
+	sfx_manager::on_render_material(textured_material_shader);	
 
 	engine::renderer::end_scene();
 

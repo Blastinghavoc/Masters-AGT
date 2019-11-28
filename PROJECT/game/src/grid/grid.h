@@ -37,8 +37,10 @@ public:
 		m_end_index = std::pair(x, z);
 	};
 
+	//The index that ENEMIES start from, not the player
 	std::pair<int,int> get_start() const { return m_start_index; };
 
+	//The index that enemies try to get to.
 	std::pair<int, int> get_end() const { return m_end_index; };
 
 	//Checks if given index is a maze block
@@ -84,9 +86,12 @@ public:
 
 	//Conversions between grid indices and world coordinates.
 	glm::vec3 grid_to_world_coords(int x, int z) const;
+	glm::vec3 grid_to_world_coords(std::pair<int, int> index) const { return grid_to_world_coords(index.first, index.second); };
 	std::pair<int,int> world_to_grid_coords(glm::vec3 vec) const;
+
 	//Obtain coordinate in the center of a grid square
 	glm::vec3 center_of(int x, int z) const { return grid_to_world_coords(x, z) + glm::vec3(m_cell_size / 2, 0, m_cell_size / 2); };
+	glm::vec3 center_of(std::pair<int,int> p) const { return center_of(p.first,p.second); };
 
 	//Simple getters
 	const float& cell_size() const { return m_cell_size; };

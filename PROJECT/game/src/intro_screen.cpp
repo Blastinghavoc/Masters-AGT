@@ -29,20 +29,20 @@ void intro_screen::render(engine::ref<engine::text_manager>& text_manager)
 	//Render controls list
 	x_pos = 10.f;
 	y_pos = (float)(engine::application::window().height()) * (3.f / 5.f);	
-	text_manager->render_text(text_shader, "Controls:", x_pos, y_pos, .5f,text_colour);
-	//Not all controls actually functional yet
+	text_manager->render_text(text_shader, "Controls:", x_pos, y_pos+25, .7f,text_colour);
+	
 	std::vector<std::string> content{
-		"Movement->W,A,S,D",
-		"Sprint->L_SHIFT",
-		"Jump->SPACE",
-		"Shoot/Place block->LMB",
-		"Charge shot->hold LMB",
-		"Remove block->RMB",		
-		"Switch blocks->1,2",
-		"Zoom->L_CTRL + SCROLL",
-		"Freecam->F2",
-		"Interact->E",
-		"Skip build phase->ENTER"
+		"Movement: W,A,S,D",
+		"Sprint: LSHIFT",
+		"Jump: SPACE",
+		"Shoot/Break Block: LMB",
+		"Charge shot: hold LMB",
+		"Place block: RMB",		
+		"Switch blocks: 1,2",
+		"Zoom: LCTRL + SCROLL",
+		"Freecam: F2",
+		"Interact: E",
+		"Skip build phase: ENTER"
 	};
 
 	for (auto str : content)

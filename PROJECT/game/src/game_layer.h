@@ -26,10 +26,13 @@ private:
 	engine::ref<engine::skybox>			m_skybox{};
 	engine::ref<engine::game_object>	m_terrain{};
 
+	//Used only for testing new models.
 	engine::ref < engine::game_object > m_test_obj{};
 
+	//Holds objects that are purely decorational.
 	std::vector<engine::ref<engine::game_object>> m_decorational_objects{};
-	//std::vector<engine::ref<engine::game_object>> m_physical_gameobjects{};
+	//As above, but also holds a float representing the transparency of the object
+	std::vector<std::pair<float, engine::ref<engine::game_object>>> m_transparent_decorational_objects{};
 
 	engine::ref<engine::material>		m_material{};
 

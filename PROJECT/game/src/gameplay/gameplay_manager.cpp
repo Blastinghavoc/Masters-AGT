@@ -371,6 +371,11 @@ void gameplay_manager::mouse1_event_handler(bool press)
 {
 	if (!m_wave_active)
 	{
+		if (!press)
+		{
+			//Does nothing on mouse button released
+			return;
+		}
 		//Remove a block at the targeted position (if possible)
 		//Delete Block
 		auto fv = m_camera->front_vector();
