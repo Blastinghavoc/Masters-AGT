@@ -220,12 +220,13 @@ game_layer::game_layer() :
 		shape_props.rotation_axis = { 1,1,1 };
 		m_decorational_objects.push_back(engine::game_object::create(shape_props));
 
-		engine::ref < engine::archway > archway_shape = engine::archway::create(2, 2, 1, 0.5f);
+		//TESTING WIP
+		/*engine::ref < engine::archway > archway_shape = engine::archway::create(2, 2, 1, 0.5f);
 		shape_props.meshes = { archway_shape->mesh() };
 		shape_props.position = { 3,0,0 };
 		shape_props.rotation_amount = 0;
 		shape_props.textures = {};
-		m_test_obj = engine::game_object::create(shape_props);
+		m_test_obj = engine::game_object::create(shape_props);*/
 	}
 
 	//Create text manager
@@ -502,7 +503,7 @@ void game_layer::on_render()
 	sfx_manager::on_render_material(textured_material_shader);
 
 	//TESTING
-	engine::renderer::submit(textured_material_shader, m_test_obj);
+	/*engine::renderer::submit(textured_material_shader, m_test_obj);*/
 
 	engine::renderer::end_scene();
 
@@ -560,7 +561,16 @@ void game_layer::on_event(engine::event& event)
 				gameplay_manager::next_build_phase();//Start the game!
 				event.handled = true;
 			}
-			break;			
+			break;
+
+			//TODO remove
+		case engine::key_codes::KEY_6://Testing
+			m_audio_manager->play("laser");
+			break;
+		case engine::key_codes::KEY_7://Testing
+			m_audio_manager->play("grenade_explosion");
+			break;
+		
 		default:
 			break;
 		}		
