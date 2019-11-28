@@ -1296,9 +1296,6 @@
     <ClInclude Include="src\engine\utils\assimp_extensions.h">
       <Filter>src\engine\utils</Filter>
     </ClInclude>
-    <ClInclude Include="src\engine\utils\audio_manager.h">
-      <Filter>src\engine\utils</Filter>
-    </ClInclude>
     <ClInclude Include="src\engine\utils\bullet_manager.h">
       <Filter>src\engine\utils</Filter>
     </ClInclude>
@@ -1388,6 +1385,9 @@
     </ClInclude>
     <ClInclude Include="src\engine\entities\shapes\archway.h">
       <Filter>src\engine\entities\shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\engine\utils\audio_manager.h">
+      <Filter>src\engine\utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -10,7 +10,7 @@ making it go further.
 */
 class weapon_manager {
 public:
-	static void init(engine::ref<engine::audio_manager> audio_manager);
+	static void init();
 
 
 	static int remaining_grenades() { return (int)m_grenades.size(); };
@@ -29,7 +29,6 @@ private:
 	static void launch_grenade(glm::vec3 start, glm::vec3 direction, const engine::timestep& ts, float force = m_base_launch_force);
 	static std::vector<engine::ref<grenade>> m_grenades;//Pool of grenades
 	static std::vector<engine::ref<grenade>> m_active_grenades;
-	static engine::ref<engine::audio_manager> m_audio_manager;
 
 	static constexpr float m_grenade_damage = 25.f;
 

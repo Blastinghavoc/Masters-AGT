@@ -16,6 +16,20 @@ namespace engine
 		bool play() override;
 
 	};
+
+	/// \brief Short lasting sound, generally paired up with events
+	class spatialised_sound : public event_sound
+	{
+
+	public:
+		spatialised_sound() = default;
+		spatialised_sound(const std::string& name);
+		~spatialised_sound() = default;
+
+		bool load(const std::string& file_path);
+		bool play(glm::vec3 position, float min_distance = 1.0f);
+
+	};
 }
 
 

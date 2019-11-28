@@ -17,16 +17,21 @@ bool engine::track::load(const std::string& file_path)
 
 bool engine::track::play()
 {
-	FMOD::Channel *channel = NULL;
-	auto result = engine::audio_manager::system()->playSound(m_sound, NULL, false, &channel);
+	auto result = engine::audio_manager::system()->playSound(m_sound, NULL, false, &m_channel);
 	engine::audio_manager::fmod_error_check(result);
 	return result == FMOD_OK;
 }
 
 bool engine::track::pause()
 {
-	FMOD::Channel *channel = NULL;
-	auto result = engine::audio_manager::system()->playSound(m_sound, NULL, true, &channel);
+	auto result = m_channel->setPaused(true);
+	engine::audio_manager::fmod_error_check(result);
+	return result == FMOD_OK;
+}
+
+bool engine::track::unpause()
+{
+	auto result = m_channel->setPaused(false);
 	engine::audio_manager::fmod_error_check(result);
 	return result == FMOD_OK;
 }
@@ -53,3 +58,18 @@ bool engine::track::loop(bool shouldLoop) const
 	engine::audio_manager::fmod_error_check(result);
 	return result == FMOD_OK;
 }
+
+bool engine::track::add_dsp_high(FMOD::DSP* dsp_high_pass) const
+{
+	auto result = m_channel->addDSP(0, dsp_high_pass);
+	engine::audio_manager::fmod_error_check(result);
+	return result == FMOD_OK;
+}
+
+bool engine::track::add_dsp_low(FMOD::DSP* dsp_low_pass) const
+{
+	auto result = m_channel->addDSP(0, dsp_low_pass);
+	engine::audio_manager::fmod_error_check(result);
+	return result == FMOD_OK;
+}
+

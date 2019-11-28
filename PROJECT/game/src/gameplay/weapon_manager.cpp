@@ -3,17 +3,16 @@
 #include "../physics/physics_manager.h"
 #include "../sfx/sfx_manager.h"
 #include "../ai/enemy_manager.h"
+#include "gameplay_manager.h"
 
 std::vector<engine::ref<grenade>> weapon_manager::m_grenades{};
 std::vector<engine::ref<grenade>> weapon_manager::m_active_grenades{};
-engine::ref<engine::audio_manager> weapon_manager::m_audio_manager;
 engine::timer weapon_manager::m_grenade_cooldown_timer;
 engine::timer weapon_manager::m_charge_timer;
 bool weapon_manager::m_is_charging = false;
 
-void weapon_manager::init(engine::ref<engine::audio_manager> audio_manager)
+void weapon_manager::init()
 {
-	m_audio_manager = audio_manager;
 	//Maximum of 5 grenades
 	for (size_t i = 0; i < 5; ++i)
 	{
@@ -52,8 +51,11 @@ void weapon_manager::update(const engine::timestep& ts)
 			//No longer active, so move back into pool
 
 			//Explosion time!
-			sfx_manager::explode_at(gren->object()->position());
-			m_audio_manager->play("grenade_explosion");
+			auto grenade_position = gren->object()->position();
+			sfx_manager::explode_at(grenade_position);
+
+			//m_audio_manager->play("grenade_explosion");
+			gameplay_manager::audio_manager()->play_spatialised_sound("grenade_explosion", grenade_position,5.f);
 
 			//Deactivate the object			
 			gren->object()->set_active(false);
@@ -112,7 +114,7 @@ void weapon_manager::launch_grenade(glm::vec3 start, glm::vec3 direction, const 
 		m_grenades.pop_back();
 		nade->object()->set_active(true);
 		nade->launch(start, direction, (1/ts.seconds())*force);//Scale with timestep
-		m_audio_manager->play("grenade_launch");
+		gameplay_manager::audio_manager()->play("grenade_launch");
 		m_grenade_cooldown_timer.reset();
 	}
 }

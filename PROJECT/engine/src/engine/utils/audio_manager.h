@@ -2,6 +2,8 @@
 #include "../FMOD/include/fmod.hpp"
 #include "engine/core.h"
 
+#include "engine/renderer/camera.h"
+
 namespace engine
 {
 	class sound;
@@ -9,7 +11,8 @@ namespace engine
 	enum class sound_type
 	{
 		event,
-		track
+		track,
+		spatialised
 	};
 
 	class audio_manager
@@ -27,6 +30,9 @@ namespace engine
 
 		/// \brief Number of total channels already in use;
 		static uint32_t                                  used_channels;
+
+		FMOD::DSP* m_dsp_low_pass;
+		FMOD::DSP* m_dsp_high_pass;
 
 		//-------------------------------------------------------------------------
 
@@ -56,13 +62,36 @@ namespace engine
 		/// \brief plays the specified sound
 		void play(const std::string &sound);
 
+		void pause(const std::string &track);
+
+		void unpause(const std::string &track);
+
+		void stop(const std::string& track);
+
+		void volume(const std::string& track, float volume);
+
+		void loop(const std::string& track, bool loop);
+
 		/// \brief Retrieves a pointer to the specified sound
 		sound * sound(const std::string &sound) const;
 
+		void play_spatialised_sound(const std::string& spatialised_sound,glm::vec3 position,float min_distance = 1.f);
+
+		void update_with_camera(engine::perspective_camera& camera);
+
 		//-------------------------------------------------------------------------
+
+		bool create_high_pass_filter();
+		bool set_high_pass_filter(float freq);
+		bool create_low_pass_filter();
+		bool set_low_pass_filter(float freq);
+
+
+
 	private:
-		bool load_event(const std::string &filePath, const std::string &name);
-		bool load_track(const std::string &filePath, const std::string &name);
+		bool load_event(const std::string &filePath, const engine::sound_type& type, const std::string &name);
+		bool load_track(const std::string &filePath, const engine::sound_type& type, const std::string &name);
+		bool load_spatialised_sound(const std::string& filePath, const engine::sound_type& type, const std::string name);
 
 		//-------------------------------------------------------------------------
 	public:

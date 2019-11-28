@@ -73,7 +73,8 @@ void turret_manager::update(const engine::timestep& ts)
 				if (damage > 0)//Positive damage indicates turret fired successfully
 				{
 					enemy->deal_damage(damage);//Deals damage to the enemy if the turret is not on cooldown.
-					gameplay_manager::audio_manager()->play("laser");
+					//gameplay_manager::audio_manager()->play("laser");
+					gameplay_manager::audio_manager()->play_spatialised_sound("laser", current_turret->barrel_position(),3.f);
 					sfx_manager::make_beam(current_turret->barrel_position(), enemy->targetting_point(), glm::vec3(.9f, .1f, .1f), 0.25f);
 				}
 				break;

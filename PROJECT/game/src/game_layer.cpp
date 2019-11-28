@@ -45,11 +45,11 @@ game_layer::game_layer() :
 	//Alert from https://freesound.org/people/willy_ineedthatapp_com/sounds/167337/
 	m_audio_manager->load_sound("assets/audio/8_bit_alert.mp3", engine::sound_type::event, "alert");
 	//Sound from https://freesound.org/people/TiesWijnen/sounds/338722/
-	m_audio_manager->load_sound("assets/audio/grenade_explosion.mp3", engine::sound_type::event, "grenade_explosion");
+	m_audio_manager->load_sound("assets/audio/grenade_explosion.mp3", engine::sound_type::spatialised, "grenade_explosion");
 	//Sound from https://freesound.org/people/LeMudCrab/sounds/163458/
 	m_audio_manager->load_sound("assets/audio/grenade_launch.wav", engine::sound_type::event, "grenade_launch");
 	//Sound from https://freesound.org/people/wcoltd/sounds/417731/
-	m_audio_manager->load_sound("assets/audio/laser.wav", engine::sound_type::event, "laser");
+	m_audio_manager->load_sound("assets/audio/laser.wav", engine::sound_type::spatialised, "laser");
 
 	physics_manager::init();
 
@@ -269,7 +269,7 @@ game_layer::game_layer() :
 	enemy_manager::init(m_level_grid);
 	gameplay_manager::init(&m_player,m_text_manager,&m_3d_camera,m_level_grid,m_audio_manager,&m_decorational_objects);
 	sfx_manager::init(&m_3d_camera);
-	weapon_manager::init(m_audio_manager);
+	weapon_manager::init();
 	pickup_manager::init();
 	projectile_manager::init();	
 }
@@ -323,6 +323,7 @@ void game_layer::on_update(const engine::timestep& time_step)
 		projectile_manager::on_update(time_step);
 
 		physics_manager::update(time_step);
+		m_audio_manager->update_with_camera(m_3d_camera);
 	}
 }
 
@@ -562,15 +563,6 @@ void game_layer::on_event(engine::event& event)
 				event.handled = true;
 			}
 			break;
-
-			//TODO remove
-		case engine::key_codes::KEY_6://Testing
-			m_audio_manager->play("laser");
-			break;
-		case engine::key_codes::KEY_7://Testing
-			m_audio_manager->play("grenade_explosion");
-			break;
-		
 		default:
 			break;
 		}		
