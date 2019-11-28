@@ -26,6 +26,7 @@ public:
 
 	float fire();
 
+	//Repositions all the objects making up the turret
 	void set_position(glm::vec3 position);
 
 	const float& range_squared() const { return m_range_squared; };
@@ -44,6 +45,7 @@ private:
 
 	glm::mat4 m_barrel_transform{};
 
+	const float m_scale_multiplier = 1.5f;;
 	const float m_base_height = .3f;
 	const float m_swivel_height = .7f;
 

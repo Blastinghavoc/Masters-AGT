@@ -135,16 +135,16 @@ void gameplay_manager::init(player* playr,engine::ref<engine::text_manager> text
 	wave_enemies = { {5,enemy_type::robot1},{1,enemy_type::animated_humanoid} };//1st wave
 	m_waves.push_back({ total_enemies(wave_enemies),5,30, wave_enemies});
 
-	wave_enemies = { {5,enemy_type::robot1},{2,enemy_type::flyer1} };
+	wave_enemies = { {5,enemy_type::robot1},{4,enemy_type::flyer1} };
 	m_waves.push_back({ total_enemies(wave_enemies),3,30, wave_enemies});
 
-	wave_enemies = { {2,enemy_type::robot1},{2,enemy_type::flyer1},{2,enemy_type::robot1},{1,enemy_type::robot2} };
+	wave_enemies = { {4,enemy_type::robot1},{4,enemy_type::flyer1},{4,enemy_type::robot1},{1,enemy_type::robot2} };
 	m_waves.push_back({ total_enemies(wave_enemies),3,30,wave_enemies });
 
-	wave_enemies = { {2,enemy_type::animated_humanoid},{2,enemy_type::robot1},{1,enemy_type::robot2},{2,enemy_type::flyer2} };
+	wave_enemies = { {2,enemy_type::animated_humanoid},{4,enemy_type::robot1},{2,enemy_type::robot2},{6,enemy_type::flyer2} };
 	m_waves.push_back({ total_enemies(wave_enemies),2,30, wave_enemies });
 
-	wave_enemies = { {2,enemy_type::animated_humanoid},{3,enemy_type::robot1},{2,enemy_type::robot2},{2,enemy_type::flyer2},{2,enemy_type::flyer1} };//Last wave
+	wave_enemies = { {2,enemy_type::animated_humanoid},{6,enemy_type::robot1},{3,enemy_type::robot2},{4,enemy_type::flyer2},{6,enemy_type::flyer1},{6,enemy_type::robot1} };//Last wave
 	m_waves.push_back({ total_enemies(wave_enemies),1,30,wave_enemies });
 
 	m_max_waves = (int)m_waves.size();

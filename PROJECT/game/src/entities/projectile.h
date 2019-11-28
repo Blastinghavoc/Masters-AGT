@@ -36,7 +36,7 @@ private:
 	bool m_is_enemy;//Flag indicating whether the projectile is affiliated with enemies or allies
 	trigger_box m_box;
 	engine::timer m_lifetimer;
-	float m_max_lifetime = { 50.f };
+	float m_max_lifetime = { 30.f };//Maximum lifetime of the projectile, in seconds
 	bool m_active = true;
 
 	glm::mat4 m_transform{};//Custom transform for rendering

@@ -40,6 +40,7 @@
 #include "engine/entities/shapes/hollow_cuboid.h"
 #include "engine/entities/shapes/quad.h"
 #include "engine/entities/shapes/shape_utils.h"
+#include "engine/entities/shapes/archway.h"
 
 // ---utils---------------------------
 #include "engine/utils/bullet_manager.h"

@@ -42,7 +42,7 @@ private:
 	void make_room(const engine::timestep& time_step,static_flying_enemy& body);
 	void pursue(const engine::timestep& time_step, static_flying_enemy& body);
 
-	float m_agro_range2 = 9.f;//Square of agro distance
+	float m_agro_range2 = 16.f;//Square of agro distance in meters
 	engine::timer m_shooting_cooldown_timer;
 	float m_shooting_cooldown = 1.f;
 

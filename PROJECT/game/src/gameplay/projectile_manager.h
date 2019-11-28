@@ -28,6 +28,6 @@ private:
 
 	static engine::ref<projectile> get_projectile(bool is_enemy);
 
-	static constexpr float m_projectile_speed = 2.f;
+	static constexpr float m_projectile_speed = 3.f;
 
 };

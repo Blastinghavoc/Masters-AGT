@@ -199,11 +199,11 @@ game_layer::game_layer() :
 		//stepped pyramid
 		engine::ref<engine::texture_2d> pyr_texture = engine::texture_2d::create("assets/textures/pale_brick.png", false);
 		engine::ref<engine::texture_2d> pyr_texture_border = engine::texture_2d::create("assets/textures/pyramid_border.png", true);
-		engine::ref<engine::stepped_pyramid> pyr_shape = engine::stepped_pyramid::create(15.f, 1.f, terrain_dimensions.x, 8,0.1f,8,4.f);
+		engine::ref<engine::stepped_pyramid> pyr_shape = engine::stepped_pyramid::create(15.f, 1.f, terrain_dimensions.x, 8, 0.1f, 8, 4.f);
 		shape_props.meshes = pyr_shape->meshes();
 		shape_props.textures = { pyr_texture, pyr_texture_border };
 		shape_props.bounding_shape = glm::vec3(5.f);
-		shape_props.position = m_terrain->position() - glm::vec3(0,terrain_dimensions.y,0);
+		shape_props.position = m_terrain->position() - glm::vec3(0, terrain_dimensions.y, 0);
 		shape_props.rotation_axis = { 0,0,1 };
 		shape_props.rotation_amount = (float)M_PI;
 		m_decorational_objects.push_back(engine::game_object::create(shape_props));
@@ -211,14 +211,21 @@ game_layer::game_layer() :
 		//hollow cuboid
 		engine::ref<engine::texture_2d> hollow_texture = engine::texture_2d::create("assets/textures/funky_cube.png", false);
 		float size = 1.1f;
-		engine::ref<engine::hollow_cuboid> hollow_shape = engine::hollow_cuboid::create({ size,size,size },size/2,2*size);
+		engine::ref<engine::hollow_cuboid> hollow_shape = engine::hollow_cuboid::create({ size,size,size }, size / 2, 2 * size);
 		shape_props.meshes = hollow_shape->meshes();
 		shape_props.textures = { hollow_texture };
 		shape_props.bounding_shape = glm::vec3(5.f);
-		shape_props.position = center + glm::vec3(0, m_big_decor_height,0);
+		shape_props.position = center + glm::vec3(0, m_big_decor_height, 0);
 		shape_props.rotation_amount = (float)M_PI;
 		shape_props.rotation_axis = { 1,1,1 };
 		m_decorational_objects.push_back(engine::game_object::create(shape_props));
+
+		engine::ref < engine::archway > archway_shape = engine::archway::create(2, 2, 1, 0.5f);
+		shape_props.meshes = { archway_shape->mesh() };
+		shape_props.position = { 3,0,0 };
+		shape_props.rotation_amount = 0;
+		shape_props.textures = {};
+		m_test_obj = engine::game_object::create(shape_props);
 	}
 
 	//Create text manager
@@ -493,6 +500,10 @@ void game_layer::on_render()
 	engine::renderer::begin_scene(m_3d_camera, textured_material_shader);
 	//Render materialed SFX
 	sfx_manager::on_render_material(textured_material_shader);
+
+	//TESTING
+	engine::renderer::submit(textured_material_shader, m_test_obj);
+
 	engine::renderer::end_scene();
 
 
