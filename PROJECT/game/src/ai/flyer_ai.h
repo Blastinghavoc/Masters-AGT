@@ -46,7 +46,8 @@ private:
 	engine::timer m_shooting_cooldown_timer;
 	float m_shooting_cooldown = 1.f;
 
-	engine::timer m_decision_timer;//For use when deciding how long to stick with a decision
+	//For use when deciding how long to stick with a decision. prevents rapid flip-flopping between states
+	engine::timer m_decision_timer;
 	float m_decision_wait = 0.5f;
 
 	glm::vec3 m_flock_force{0};

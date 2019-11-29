@@ -59,13 +59,13 @@ void flyer_ai::update_state(static_flying_enemy& body)
 		{
 			change_state(flyer_state::shooting);
 		}
-		//else if (m_flock_force != glm::zero<glm::vec3>()) {
-		//	/*
-		//	This transition prevents flyers from stacking up at all, even when not shooting.
-		//	Personally not sure whether it actually looks better or not.
-		//	*/
-		//	change_state(flyer_state::making_room,0.f);
-		//}
+		else if (m_flock_force != glm::zero<glm::vec3>()) {
+			/*
+			This transition prevents flyers from stacking up at all, even when not shooting.
+			Personally not sure whether it actually looks better or not.
+			*/
+			change_state(flyer_state::making_room,0.f);//Can be almost immediately exited
+		}
 		break;
 	case flyer_state::shooting:
 		if (!ready_to_change_state())

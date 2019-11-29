@@ -50,6 +50,8 @@ game_layer::game_layer() :
 	m_audio_manager->load_sound("assets/audio/grenade_launch.wav", engine::sound_type::event, "grenade_launch");
 	//Sound from https://freesound.org/people/wcoltd/sounds/417731/
 	m_audio_manager->load_sound("assets/audio/laser.wav", engine::sound_type::spatialised, "laser");
+	//Sound from https://freesound.org/people/Under7dude/sounds/163441/
+	m_audio_manager->load_sound("assets/audio/oof.wav", engine::sound_type::event, "oof");
 
 	physics_manager::init();
 
@@ -429,9 +431,7 @@ void game_layer::on_render()
 	//Render decorational objects
 	for (auto& obj : m_decorational_objects) {		
 		engine::renderer::submit(textured_lighting_shader, obj);
-	}
-
-	projectile_manager::on_render(textured_lighting_shader);
+	}	
 
 	//Render weapons
 	weapon_manager::on_render(textured_lighting_shader);
@@ -502,6 +502,9 @@ void game_layer::on_render()
 		engine::renderer::submit(textured_lighting_shader, pair.second);
 	}
 	std::dynamic_pointer_cast<engine::gl_shader>(textured_lighting_shader)->set_uniform("transparency", 1.f);
+
+	//Render semi-transparent projectiles
+	projectile_manager::on_render(textured_lighting_shader);
 
 	//Render textured SFX
 	sfx_manager::on_render_textured(textured_lighting_shader, m_3d_camera);

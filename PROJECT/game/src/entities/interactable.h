@@ -2,6 +2,12 @@
 #include "abstract_actor.h"
 #include "trigger_box.h"
 
+/*
+Class representing an object that can be interacted with in the scene.
+It has a trigger box and a message to be displayed while that trigger box
+is in range of the player's trigger box.
+This is currently only used for the hard-mode lever in the middle of the map
+*/
 class interactable : public abstract_actor {
 public:
 	interactable() {};

@@ -74,13 +74,14 @@ void projectile_manager::on_update(const engine::timestep& ts)
 	}
 }
 
+//Projectiles are rendered with some transparency
 void projectile_manager::on_render(const engine::ref<engine::shader>& shader)
 {
+	std::dynamic_pointer_cast<engine::gl_shader>(shader)->set_uniform("transparency", 0.6f);
 	for (auto& proj : m_active_projectiles) {
 		proj->render(shader);
-		//proj->object()->render_obb(glm::vec3(.1f, .1f, .9f), shader);
-		//proj->get_trigger_box().on_render(shader);
 	}
+	std::dynamic_pointer_cast<engine::gl_shader>(shader)->set_uniform("transparency", 1.f);
 }
 
 engine::ref<projectile> projectile_manager::get_projectile(bool is_enemy)

@@ -254,6 +254,9 @@ void gameplay_manager::damage_player(float amnt)
 	if (m_immunity_timer.total() > m_immunity_duration)
 	{
 		m_immunity_timer.reset();
+
+		//Play damage sound
+		m_audio_manager->play("oof");
 		
 		m_player_ptr->deal_damage(amnt);
 		sfx_manager::cross_fade_effect.activate(1.f);
