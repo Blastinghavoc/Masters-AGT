@@ -85,7 +85,8 @@ void flyer_ai::update_state(static_flying_enemy& body)
 			auto dice_roll = rand() % 100;
 			if (dice_roll < chance_to_pursue)
 			{
-				change_state(flyer_state::pursuing);
+				//Pursuing has longer wait time, to really catch up to the player
+				change_state(flyer_state::pursuing,1.f);
 			}
 			else {
 				change_state(flyer_state::returning_to_path);
@@ -177,18 +178,25 @@ void flyer_ai::follow_path(const engine::timestep& time_step, static_flying_enem
 //Aim at the player and fire a projectile
 void flyer_ai::shoot(static_flying_enemy& body)
 {
+	float projectile_speed = 3.f;
 	auto playr = gameplay_manager::get_player();
-	auto direction = glm::normalize( playr->object()->position() - body.position());
+	auto player_pos = playr->object()->position();
+	auto player_vel = playr->object()->velocity();
 
-	float yaw = atan2(direction.x, direction.z);
-	//Rotate to face
+	auto look_direction = glm::normalize(player_pos - body.position());
+	float yaw = atan2(look_direction.x, look_direction.z);
+	//Rotate to face the player
 	body.m_object->set_rotation_axis({ 0,1,0 });
 	body.m_object->set_rotation_amount(yaw);
 
 	if (m_shooting_cooldown_timer.total() > m_shooting_cooldown)
 	{
-		//Shoot if possible
-		projectile_manager::launch_projectile(true, body.position(), direction);
+		//Shoot if possible, at predicted position of player
+		auto predicted_impact_time = predict_time_of_impact(player_pos, player_vel, body.position(), projectile_speed);
+		auto predicted_position = player_pos + player_vel * predicted_impact_time;
+		auto aim_direction = glm::normalize(predicted_position - body.position());
+
+		projectile_manager::launch_projectile(true, body.position(), aim_direction,projectile_speed);
 		m_shooting_cooldown_timer.reset();
 	}
 }
@@ -309,4 +317,42 @@ glm::vec3 flyer_ai::lateral_vector_to_player(static_flying_enemy& body)
 	//Again acting as if the player and flyer are on the same level, to preserve flyer altitude
 	auto player_vector = player_position - adjusted_position;
 	return player_vector;
+}
+
+//Predicts time that a projectile will hit a target, assuming no acceleration and stationary shooter
+float flyer_ai::predict_time_of_impact(glm::vec3 target_position, glm::vec3 target_velocity, glm::vec3 shooter_position, float projectile_speed)
+{
+	/*REF http://playtechs.blogspot.com/2007/04/aiming-at-moving-target.html
+	Using formula given there and quadratic formula to solve.
+	*/
+	auto target_relative_position = target_position - shooter_position;
+
+	float a = glm::dot(target_velocity, target_velocity) - projectile_speed * projectile_speed;
+	float b = 2 * glm::dot(target_relative_position, target_velocity);
+	float c = glm::dot(target_relative_position, target_relative_position);
+
+	float d = (b * b) - (4 * a * c);
+
+	if (d >= 0)
+	{
+		//Potentially 2 solutions
+		float t1 = (-b + std::sqrt(d)) / (2*a);
+		float t2 = (-b - std::sqrt(d)) / (2 * a);
+		
+		bool t1Pos = t1 > 0;
+		bool t2Pos = t2 > 0;
+		if (t1Pos && t2Pos)
+		{
+			//Obtain earliest possible time of impact
+			return std::min(t1, t2);
+		}
+		else if(t1Pos){
+			return t1;
+		}
+		else if (t2Pos){
+			return t2;
+		}		
+	}
+	//If all posibilities were negative, or no solution exists, return 0 to aim at current position
+	return 0.0f;
 }

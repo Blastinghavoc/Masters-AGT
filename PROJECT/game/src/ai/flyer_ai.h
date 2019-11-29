@@ -65,11 +65,13 @@ private:
 		m_previous_state = m_state;
 		m_state = s;
 		m_decision_timer.reset();
-		m_decision_wait = .5f;
+		m_decision_wait = wait_time;
 	}
 
 	glm::vec3 lateral_vector_to_player(static_flying_enemy& body);
 
 	static std::vector<engine::ref<static_flying_enemy>> m_active_flyers_this_tick;
+
+	float predict_time_of_impact(glm::vec3 target_position, glm::vec3 target_velocity, glm::vec3 shooter_position, float projectile_speed);
 
 };

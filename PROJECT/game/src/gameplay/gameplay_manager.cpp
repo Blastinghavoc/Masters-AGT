@@ -130,7 +130,7 @@ void gameplay_manager::init(player* playr,engine::ref<engine::text_manager> text
 	};
 
 	//Adding waves
-	std::deque<std::pair<int, enemy_type>> wave_enemies;	
+	std::deque<std::pair<int, enemy_type>> wave_enemies;
 
 	wave_enemies = { {5,enemy_type::robot1},{1,enemy_type::animated_humanoid} };//1st wave
 	m_waves.push_back({ total_enemies(wave_enemies),5,30, wave_enemies});
@@ -356,6 +356,7 @@ void gameplay_manager::on_event(engine::event& event)
 			//Debug tool left active for easy demonstration
 		case engine::key_codes::KEY_T:
 			pickup_manager::make_powerup_at(m_player_ptr->object()->position()+glm::vec3(2,0,2));
+			break;
 			break;
 		default:
 			break;

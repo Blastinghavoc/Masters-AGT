@@ -46,7 +46,11 @@ private:
 	glm::vec3 m_rotation_axis{ 0,1,0 };
 	glm::vec3 m_camera_forward{0,0,1};
 
+	//Counts down how much time is left for the jump animation
 	float m_jump_timer{0.f};
+
+	//As above, for dancing. Just for fun!
+	float m_dance_timer{ 0.f };
 
 	//camera details (distance behind the player to put the camera)
 	const float camera_backoff_distance_default{1.f};

@@ -112,7 +112,7 @@ private:
 
 	//Provide the player with brief immunity so they aren't killed instantaneously on contact.
 	static engine::timer m_immunity_timer;
-	static constexpr float m_immunity_duration = 1.f;
+	static constexpr float m_immunity_duration = .5f;
 	static bool m_invincible;//Allows the player to be made invincible
 
 	static bool m_hardmode_active;

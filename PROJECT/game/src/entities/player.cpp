@@ -4,6 +4,7 @@
 #include <math.h>
 
 #include "engine/events/mouse_event.h"
+#include <engine\events\key_event.h>
 
 player::player(glm::vec3 position):
 	m_camera_backoff_distance{camera_backoff_distance_default}
@@ -23,11 +24,12 @@ player::player(glm::vec3 position):
 	//skinned_mesh->LoadAnimationFile("assets/models/animated/mannequin/jump.dae");
 	skinned_mesh->LoadAnimationFile("assets/models/animated/ybot/standard_run.dae");
 	//skinned_mesh->LoadAnimationFile("assets/models/animated/mannequin/standard_run.dae");
+	skinned_mesh->LoadAnimationFile("assets/models/animated/ybot/gangnam_style.dae");
 	skinned_mesh->switch_root_movement(false);
 	engine::game_object_properties props;
 	props.animated_mesh = skinned_mesh;
 
-	//NOTE the ybot size for some reason includes a huge amount of empty space, that has to be adjusted for when rendering.
+	//NOTE the ybot size for some reason includes a huge amount of empty space that has to be adjusted for when rendering.
 	props.scale = glm::vec3(1.f / glm::max(skinned_mesh->size().x, glm::max(skinned_mesh->size().y, skinned_mesh->size().z)));
 	props.type = 0;
 	props.is_static = false;
@@ -41,6 +43,7 @@ player::player(glm::vec3 position):
 	m_animations["idle"] = 2;
 	m_animations["jump"] = 3;
 	m_animations["run"] = 4;
+	m_animations["dance"] = 5;
 
 	m_object = engine::game_object::create(props);
 
@@ -63,6 +66,15 @@ player::~player()
 void player::on_update(const engine::timestep& time_step)
 {
 	m_box.on_update(m_object->position());
+
+	//This is not relevant to normal operation, it's just for fun
+	if (m_dance_timer > 0.f)
+	{
+		//Just keep dancing!
+		m_dance_timer -= (float)time_step;
+		m_object->animated_mesh()->on_update(time_step);
+		return;
+	}
 
 	bool jumping = false;
 
@@ -178,14 +190,6 @@ void player::update_camera(engine::perspective_camera& camera)
 
 	//Set the forward direction of the gameobject to be where we're looking, so the player can run in a direction by just looking there.
 	m_camera_forward = glm::vec3(forward_unit.x, 0.f, forward_unit.z);
-
-	//m_object->set_forward(glm::normalize(glm::vec3(forward_unit.x,0.f,forward_unit.z)));
-	/*auto cam_angle = atan2(forward_unit.x, forward_unit.z);
-	auto current_angle = atan2(m_object->forward().x, m_object->forward().z);
-	auto correction = cam_angle - current_angle;*/
-	/*m_object->set_rotation_axis(m_rotation_axis);
-	m_object->set_rotation_amount(cam_angle);*/
-	//m_object->set_angular_velocity(glm::vec3(0.f, correction, 0.f));
 }
 
 //Play the jump animation.
@@ -213,5 +217,16 @@ void player::on_event(engine::event& event) {
 		}
 
 		e.handled = true;
+	}
+
+	if (event.event_type() == engine::event_type_e::key_pressed)
+	{
+		auto& e = dynamic_cast<engine::key_pressed_event&>(event);
+		if (e.key_code() == engine::key_codes::KEY_G)
+		{
+			//Celebratory dance, just for fun!
+			switch_animation(m_animations["dance"]);
+			m_dance_timer = (float)(m_object->animated_mesh()->animations().at(m_animations["dance"])->mDuration);
+		}
 	}
 }
