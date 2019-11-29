@@ -5,7 +5,9 @@
 
 /*
 Class to represnt the player character and the controls it has.
-Heavily modified, but originally based on the one from Lab 4
+Heavily modified, but originally based on the one from Lab 4.
+Note that this class currently uses a more advanced model than the
+mannequin, leading to slightly reduced framerate.
 */
 class player: public animated_actor
 {

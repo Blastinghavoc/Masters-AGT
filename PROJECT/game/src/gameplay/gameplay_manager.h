@@ -12,7 +12,9 @@
 /*
 Static class to manage gameplay elements
 like health, money, score etc, as well as the
-flow of the gameplay
+flow of the gameplay.
+Responsible for updating most of the UI, sequencing build/battle phases
+and providing utilities to several other classes.
 */
 class gameplay_manager {
 public:
@@ -29,12 +31,15 @@ public:
 	static int portal_health() { return m_portal_health; };//The health of the portal the player is defending.
 	static int build_time() { return m_max_build_time - (int)m_build_timer.total(); };
 
+	//damage the exit portal
 	static void damage_portal();
+	//damage the player
 	static void damage_player(float amnt = 10.f);
 
 	static void add_score(int amnt) {
 		m_score += (int)(m_score_multiplier*amnt);
 	};
+
 	static bool buy(std::string name) {
 		if (m_prices.count(name) > 0)
 		{
@@ -48,6 +53,7 @@ public:
 		return false;
 	};
 
+	//Transition to next build phase
 	static void next_build_phase();
 
 	static bool is_wave_active() { return m_wave_active; };

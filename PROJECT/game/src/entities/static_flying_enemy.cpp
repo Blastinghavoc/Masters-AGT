@@ -20,8 +20,6 @@ void static_flying_enemy::on_update(const engine::timestep& time_step)
 	update_trigger_box();//Update trigger box after any movements.
 }
 
-
-
 float static_flying_enemy::square_distance_to_next_waypoint() const
 {
 	return glm::distance2(ground_position(), next_waypoint());;

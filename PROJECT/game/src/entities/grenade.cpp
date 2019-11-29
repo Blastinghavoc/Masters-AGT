@@ -8,7 +8,7 @@ grenade::grenade(float scale,float lifetime)
 {
 	engine::game_object_properties props;
 	if (!prefab_ready)
-	{
+	{//if there's no prefab ready, instantiate the new object by loading the assets.
 		engine::ref<engine::texture_2d> rhombi_texture_sqr = engine::texture_2d::create("assets/textures/rhombi_bomb_face_sqr.png", true);//These textures made by me
 		engine::ref<engine::texture_2d> rhombi_texture_tri = engine::texture_2d::create("assets/textures/rhombi_bomb_face_tri.png", true);
 		engine::ref<engine::rhombicuboctahedron> rhombi_shape = engine::rhombicuboctahedron::create(1.f);
@@ -28,6 +28,7 @@ grenade::grenade(float scale,float lifetime)
 		prefab_ready = true;
 	}
 	else {
+		//If a prefab is ready, copy it.
 		props = prefab;
 		props.scale = glm::vec3(scale);
 	}

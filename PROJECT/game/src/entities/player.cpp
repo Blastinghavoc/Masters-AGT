@@ -12,7 +12,7 @@ player::player(glm::vec3 position):
 	/*
 	load and intialise the player gameobject/mesh.
 	Initially used the mannequin mesh, but was upgraded to the mixamo ybot.
-	Original code left in comments
+	Original code left in comments in case the decision needs to be reverted.
 	*/
 	engine::ref<engine::skinned_mesh> skinned_mesh = engine::skinned_mesh::create("assets/models/animated/ybot/ybot.dae");
 	//engine::ref<engine::skinned_mesh> skinned_mesh = engine::skinned_mesh::create("assets/models/animated/mannequin/free3Dmodel.dae");
@@ -56,6 +56,7 @@ player::player(glm::vec3 position):
 	m_object->set_rotation_axis(m_rotation_axis);
 
 	m_box.set_box(props);
+	//Defines where to return the player to if they die
 	m_spawn_point = position;
 }
 
@@ -90,7 +91,7 @@ void player::on_update(const engine::timestep& time_step)
 	float speed = m_walk_speed;
 	auto movement_animation = m_animations["walk"];
 
-	//Directional movement
+	//Directional movement as the sum of input directions
 	if (engine::input::key_pressed(engine::key_codes::KEY_W))
 	{		
 		movement_direction += forward_direction;
@@ -127,7 +128,7 @@ void player::on_update(const engine::timestep& time_step)
 	//If player has a direction, move
 	if (glm::length(movement_direction) > 0.0f)
 	{
-		//move(movement_direction, speed, time_step);
+		//Move using the Bullet engine
 		move_physics(movement_direction,speed);
 
 		//Play the movement animation if we aren't already (and we're not jumping)
@@ -154,18 +155,30 @@ void player::move_physics(const glm::vec3& direction, const float& speed)
 	//Set the speed in the desired direction without affecting speed in other directions.
 	m_object->set_velocity(m_object->velocity() + adjustment);
 
+	//Face movement direction
 	m_object->set_rotation_axis(m_rotation_axis);
 	m_object->set_rotation_amount(atan2(direction.x, direction.z));
+
 	m_object->animated_mesh()->switch_root_movement(false);
 }
 
 void player::on_render(const engine::ref<engine::shader>& shader)
 {
+	if (m_camera_backoff_distance == 0.f)
+	{
+		/*
+		First person -> don't render the model.
+		Ideally you'd just hide the head, but I don't really have that option.
+		This prevents the head clipping into the camera when the player jumps.
+		*/
+		return;
+	}
+
 	//Modified rendering to bring the ybot back up to the correct visual scale
 	glm::mat4 transform(1.0f);
 	transform = glm::translate(transform, m_object->position() - m_object->offset() * m_object->scale());
 	transform = glm::rotate(transform, m_object->rotation_amount(), m_object->rotation_axis());
-	transform = glm::scale(transform, 100.f * m_object->scale());
+	transform = glm::scale(transform, 100.f * m_object->scale());//For some reason the ybot is visually 100* smaller than it should be!
 	engine::renderer::submit(shader, transform, m_object);
 
 	//Original
@@ -209,10 +222,11 @@ void player::on_event(engine::event& event) {
 		auto& e = dynamic_cast<engine::mouse_scrolled_event&>(event);
 
 		//each scroll increment slightly moves the camera closer/further up to a max/min
-		//Min is practically first person.
+		//Min is first person.
 		float amnt = (e.y_offset() > 0)? -.1f:.1f;		
 		if (engine::input::key_pressed(engine::key_codes::KEY_LEFT_CONTROL))
 		{
+			//Back off somewhere between 0 and 3 times the default distance
 			m_camera_backoff_distance = std::clamp(m_camera_backoff_distance + amnt,0.f,3.f*camera_backoff_distance_default);
 		}
 

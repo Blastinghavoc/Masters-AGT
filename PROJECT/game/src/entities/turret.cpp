@@ -4,6 +4,7 @@
 
 turret::turret(glm::vec3 position)
 {
+	//Instantiate component objects and position them relative to each other
 	engine::ref <engine::model> model = engine::model::create("assets/models/static/turrets/modified/base.obj");
 	engine::game_object_properties props;
 	props.meshes = model->meshes();
@@ -59,7 +60,8 @@ void turret::face(glm::vec3 target)
 
 	//Custom transformation of the barrel to rotate it on two axes
 	//REF: https://gamedev.stackexchange.com/questions/150120/rotate-an-object-to-face-a-point-with-glmlookat
-	glm::mat4 barrel_transform(1.f);	
+	glm::mat4 barrel_transform(1.f);
+	//Inverse of look at makes one gameobject look at another
 	barrel_transform = glm::inverse(glm::lookAt(m_barrel_position, m_barrel_position - dir, { 0,1,0 }));
 	barrel_transform = glm::scale(barrel_transform, m_barrel->scale());
 	m_barrel_transform = barrel_transform;

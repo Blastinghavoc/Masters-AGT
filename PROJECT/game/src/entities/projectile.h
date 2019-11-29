@@ -4,7 +4,9 @@
 #include "engine/utils/timer.h"
 
 /*
-Class representing the projectiles fired by NPCs
+Class representing the projectiles fired by NPCs.
+Has support for enemy and ally projectiles, but in the end only the
+enemy ones are used.
 */
 class projectile : public abstract_actor {
 public:
@@ -36,11 +38,13 @@ private:
 	bool m_is_enemy;//Flag indicating whether the projectile is affiliated with enemies or allies
 	trigger_box m_box;
 	engine::timer m_lifetimer;
-	float m_max_lifetime = { 30.f };//Maximum lifetime of the projectile, in seconds
+	//Maximum lifetime of the projectile, in seconds. Ensures that projectiles fired off the map eventually stop!
+	float m_max_lifetime = { 20.f };
 	bool m_active = true;
 
 	glm::mat4 m_transform{};//Custom transform for rendering
 
+	//Prefabs for the enemy and ally affiliated versions.
 	static bool m_ally_prefab_ready;
 	static bool m_enemy_prefab_ready;
 	static engine::game_object_properties m_ally_prefab;

@@ -1,6 +1,12 @@
 #pragma once
 
 #include "engine.h"
+
+/*
+Abstract class representing a controller for a game_object that has some behaviour
+executed every update.
+Contains a basic non-Bullet movement function that is appropriate for simple movements.
+*/
 class abstract_actor {
 public:
 	virtual ~abstract_actor() {};

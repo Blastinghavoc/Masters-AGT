@@ -4,6 +4,9 @@
 
 /*
 Class representing some object that can be pickup up by the player.
+The actual pickup can be any game_object; this class just defines
+the trigger for it being picked up, and a rotation effect while the pickup
+is active.
 */
 class pickup : public abstract_actor
 {
@@ -22,7 +25,7 @@ public:
 private:
 
 	trigger_box m_box{};
-	float m_rotation_speed;
+	float m_rotation_speed;//in radians per second
 	bool m_active = false;
 };
 

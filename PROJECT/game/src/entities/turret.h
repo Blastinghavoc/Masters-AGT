@@ -24,6 +24,7 @@ public:
 
 	void update(const engine::timestep& ts);
 
+	//Fire the gun (if possible) returning damage dealt. 0 if couldn't fire
 	float fire();
 
 	//Repositions all the objects making up the turret

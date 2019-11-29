@@ -1,7 +1,10 @@
 #pragma once
 #include <engine.h>
 
-//Modified from lab 7 bounding box.
+/*Modified from lab 7 bounding box.
+Used to detect non-physical collisions, or otherwise
+make collision detection explicit rather than handled by Bullet
+*/
 class trigger_box
 {
 public:

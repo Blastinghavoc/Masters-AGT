@@ -61,6 +61,7 @@ void gameplay_manager::init(player* playr,engine::ref<engine::text_manager> text
 	m_level_grid = level_grid;
 	m_audio_manager = audio_manager;
 
+	//Create the hard-mode switch object and add it to the game_layer decorational objects
 	engine::ref <engine::model> model = engine::model::create("assets/models/static/dungeon/Lever_Floor.obj");
 	engine::game_object_properties props;
 	props.is_static = true;
@@ -76,7 +77,8 @@ void gameplay_manager::init(player* playr,engine::ref<engine::text_manager> text
 	m_hard_mode_switch = interactable(obj,"Press E to activate hard mode");
 	m_level_grid->set_state(5, 5, grid_tile::tile_state::border);//Prevent blocks being placed on top of the switch
 
-	//TODO could store the crosshair somewhere? Only if I ever need to modify it.
+	//---UI elements
+
 	auto y_scale = (float)engine::application::window().width() / (float)engine::application::window().height();
 	auto crosshair = hud_element::create(glm::vec2(.5f, .5f),
 		{ 0.025f,0.025f * y_scale },
@@ -129,7 +131,7 @@ void gameplay_manager::init(player* playr,engine::ref<engine::text_manager> text
 		return count;
 	};
 
-	//Adding waves
+	//Adding wave definitions
 	std::deque<std::pair<int, enemy_type>> wave_enemies;
 
 	wave_enemies = { {5,enemy_type::robot1},{1,enemy_type::animated_humanoid} };//1st wave
@@ -154,9 +156,10 @@ void gameplay_manager::init(player* playr,engine::ref<engine::text_manager> text
 
 void gameplay_manager::update(const engine::timestep& ts)
 {
-
+	//Check the player hasn't fallen off the map, and kill them if they have
 	check_player_in_bounds();
 
+	//Update basic UI
 	m_money_display->set_text("Money: "+std::to_string(m_money));
 	m_health_display->set_text("Health: " + std::to_string(health()));
 	m_score_display->set_text("Score: "+ std::to_string(m_score));
@@ -176,6 +179,7 @@ void gameplay_manager::update(const engine::timestep& ts)
 		return;//everything else stops updating when the game is over.
 	}
 
+	//Switch based on the two gameplay phases
 	if (m_wave_active)
 	{
 		if (m_fire_weapon)
@@ -207,6 +211,7 @@ void gameplay_manager::update(const engine::timestep& ts)
 		//The player may wish to press the hardmode switch during a build phase
 		check_interaction_with_hardmode_switch();
 
+		//Update active tool UI
 		std::string tool_text = "Tool: ";
 		if (m_current_tool == tool::turret)
 		{
@@ -219,6 +224,7 @@ void gameplay_manager::update(const engine::timestep& ts)
 		}
 		m_tool_display->set_text(tool_text);
 
+		//Update countdown time display, or start the wave if it's run out
 		int time_remaining = build_time();
 		if (time_remaining > 0)
 		{
@@ -233,9 +239,11 @@ void gameplay_manager::update(const engine::timestep& ts)
 
 void gameplay_manager::damage_portal()
 {
+	//Any enemy reaching the exit portal deals the same fixed damage
 	m_portal_health -= 10;
+
 	m_audio_manager->play("alert");
-	sfx_manager::jitter_effect.activate(0.2f, 0.5f);
+	sfx_manager::jitter_effect.activate(0.3f, 0.5f);
 
 	if (m_portal_health <= 0)
 	{
@@ -255,12 +263,15 @@ void gameplay_manager::damage_player(float amnt)
 	{
 		m_immunity_timer.reset();
 
+		m_player_ptr->deal_damage(amnt);
+
 		//Play damage sound
 		m_audio_manager->play("oof");
-		
-		m_player_ptr->deal_damage(amnt);
+
+		//Play sfx
 		sfx_manager::cross_fade_effect.activate(1.f);
-		sfx_manager::jitter_effect.activate(0.2f, 0.5f);
+		sfx_manager::jitter_effect.activate(0.3f, 0.5f);
+
 		if (health() <= 0)
 		{
 			kill_player();
@@ -288,13 +299,13 @@ void gameplay_manager::next_build_phase()
 		m_hardmode_active = false;//Player has to press the switch again if they still want hardmode
 		m_score_multiplier = 1.f;//Reset global score multiplier
 
-		//TODO could make number of blocks and money awarded determined by wave definition?
 		m_available_blocks += 4;
 		m_money += 50;
 
 		++m_wave_number;
 	}
 	else {
+		//End the game with a victory if all the waves are over
 		end_game(true);
 	}
 }
@@ -359,6 +370,7 @@ void gameplay_manager::on_event(engine::event& event)
 			//Debug tool left active for easy demonstration
 		case engine::key_codes::KEY_T:
 			pickup_manager::make_powerup_at(m_player_ptr->object()->position()+glm::vec3(2,0,2));
+			e.handled = true;
 			break;
 			break;
 		default:
@@ -380,8 +392,9 @@ void gameplay_manager::mouse1_event_handler(bool press)
 			//Does nothing on mouse button released
 			return;
 		}
+
 		//Remove a block at the targeted position (if possible)
-		//Delete Block
+
 		auto fv = m_camera->front_vector();
 		if (fv.y > 0)
 		{
@@ -393,6 +406,7 @@ void gameplay_manager::mouse1_event_handler(bool press)
 		if (m_current_tool == tool::turret)
 		{
 			delta_y += m_level_grid->block_height();//Add height of block.
+			//This means the player must aim at the top of a block, from above it, to perform this action.
 		}
 		auto ground_pos = cam_pos + (delta_y / fv.y) * fv;
 		auto grid_coords = m_level_grid->world_to_grid_coords(ground_pos);
@@ -446,6 +460,7 @@ void gameplay_manager::mouse2_event_handler()
 	}
 }
 
+//Transition from build to combat phase
 void gameplay_manager::start_combat_phase()
 {
 	m_build_timer.reset();
@@ -463,6 +478,7 @@ void gameplay_manager::start_combat_phase()
 	enemy_manager::begin_wave(m_current_wave_definition);	
 }
 
+//Attempt to place a block at the given grid coordinates
 void gameplay_manager::place_block(int x, int z)
 {
 	if (m_available_blocks <= 0)
@@ -502,6 +518,7 @@ void gameplay_manager::remove_block(int x, int z)
 	}
 }
 
+//Attempt to place a turret at the center of the grid position indicated by the parameters
 void gameplay_manager::place_turret(int x, int z)
 {
 	bool success = false;
@@ -577,6 +594,7 @@ void gameplay_manager::check_enemies_touching_player()
 	}
 }
 
+//Checks if the player is near the hardmode switch, and displays the interaction text if they are
 void gameplay_manager::check_interaction_with_hardmode_switch()
 {
 	if (!m_hardmode_active && m_hard_mode_switch.in_range_of(m_player_ptr->get_trigger_box()))
@@ -593,6 +611,7 @@ void gameplay_manager::check_interaction_with_hardmode_switch()
 	}
 }
 
+//End the game in a win or a loss
 void gameplay_manager::end_game(bool win)
 {
 	m_game_over = true;

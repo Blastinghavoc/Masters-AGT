@@ -5,6 +5,7 @@ std::map<enemy_type, engine::game_object_properties> enemy_factory::prefabs;
 
 /*
 Constructs the required object for any enemy type.
+This is where the gameplay statistics for the enemies are defined.
 */
 engine::ref<abstract_enemy> enemy_factory::create(int id, glm::vec3 position, enemy_type type)
 {

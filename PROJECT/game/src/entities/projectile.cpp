@@ -21,6 +21,7 @@ projectile::projectile(bool enemy) :m_is_enemy{ enemy }
 			props = m_enemy_prefab;
 		}
 		else {
+			//In principle more things could vary about enemy/ally projectiles; currently on the texture (colour) changes
 			tex = engine::texture_2d::create("assets/textures/laser_red.png", false);
 			had_prefab = false;
 		}
@@ -49,7 +50,7 @@ projectile::projectile(bool enemy) :m_is_enemy{ enemy }
 	}
 	
 	m_object = engine::game_object::create(props);
-	m_object->set_angular_factor({ 0, 0, 0 });//Do not allow projectiles to be rotated
+	m_object->set_angular_factor({ 0, 0, 0 });//Do not allow projectiles to be rotated physically
 	m_box.set_box(props);
 	m_lifetimer.start();
 }

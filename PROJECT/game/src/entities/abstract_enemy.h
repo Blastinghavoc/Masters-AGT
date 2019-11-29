@@ -4,7 +4,14 @@
 #include "trigger_box.h"
 #include "enemy_type.h"
 
-//Represents the abstract capabilities of an enemy.
+/*
+Abstract class representing the capabilities of an enemy.
+Almost all of the functions are concretely implemented, an some of them can
+be overriden in derived classes. However, this class does not implement an on_update
+function because an abstract enemy has no behaviour.
+
+Note virtual inheritance ensuring a single instance of abstract_actor for derived classes.
+*/
 class abstract_enemy : public virtual abstract_actor{
 public:	
 

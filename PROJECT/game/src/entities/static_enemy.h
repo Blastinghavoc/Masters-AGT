@@ -4,7 +4,7 @@
 
 /*
 Represents a non-animated enemy, i.e an enemy with a static model.
-NOT an enemy that does not move.
+NOT an enemy that doesn't move.
 */
 class static_enemy : public abstract_enemy {
 public:	
