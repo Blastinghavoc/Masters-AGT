@@ -485,7 +485,7 @@ void game_layer::on_render()
 	light_manager::submit(animated_mesh_shader);
 
 	//Render the player object
-	engine::renderer::submit(animated_mesh_shader, m_player.object());
+	m_player.on_render(animated_mesh_shader);	
 
 	//Render animated enemies
 	enemy_manager::render_animated(animated_mesh_shader);
@@ -496,15 +496,15 @@ void game_layer::on_render()
 	//Render anything with transparency
 	//----
 	engine::renderer::begin_scene(m_3d_camera, textured_lighting_shader);
-	//Render textured SFX
-	sfx_manager::on_render_textured(textured_lighting_shader, m_3d_camera);
-
 	//Transparent decor
 	for (auto& pair : m_transparent_decorational_objects) {
 		std::dynamic_pointer_cast<engine::gl_shader>(textured_lighting_shader)->set_uniform("transparency", pair.first);
 		engine::renderer::submit(textured_lighting_shader, pair.second);
 	}
 	std::dynamic_pointer_cast<engine::gl_shader>(textured_lighting_shader)->set_uniform("transparency", 1.f);
+
+	//Render textured SFX
+	sfx_manager::on_render_textured(textured_lighting_shader, m_3d_camera);
 
 	engine::renderer::end_scene();
 

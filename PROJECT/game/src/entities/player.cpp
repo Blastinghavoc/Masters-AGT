@@ -8,15 +8,26 @@
 player::player(glm::vec3 position):
 	m_camera_backoff_distance{camera_backoff_distance_default}
 {
-	//load and intialise the player gameobject/mesh
-	engine::ref<engine::skinned_mesh> skinned_mesh = engine::skinned_mesh::create("assets/models/animated/mannequin/free3Dmodel.dae");
-	skinned_mesh->LoadAnimationFile("assets/models/animated/mannequin/walking.dae");
-	skinned_mesh->LoadAnimationFile("assets/models/animated/mannequin/idle.dae");
-	skinned_mesh->LoadAnimationFile("assets/models/animated/mannequin/jump.dae");
-	skinned_mesh->LoadAnimationFile("assets/models/animated/mannequin/standard_run.dae");
+	/*
+	load and intialise the player gameobject/mesh.
+	Initially used the mannequin mesh, but was upgraded to the mixamo ybot.
+	Original code left in comments
+	*/
+	engine::ref<engine::skinned_mesh> skinned_mesh = engine::skinned_mesh::create("assets/models/animated/ybot/ybot.dae");
+	//engine::ref<engine::skinned_mesh> skinned_mesh = engine::skinned_mesh::create("assets/models/animated/mannequin/free3Dmodel.dae");
+	skinned_mesh->LoadAnimationFile("assets/models/animated/ybot/walking.dae");
+	//skinned_mesh->LoadAnimationFile("assets/models/animated/mannequin/walking.dae");
+	skinned_mesh->LoadAnimationFile("assets/models/animated/ybot/idle.dae");
+	//skinned_mesh->LoadAnimationFile("assets/models/animated/mannequin/idle.dae");
+	skinned_mesh->LoadAnimationFile("assets/models/animated/ybot/jump.dae");
+	//skinned_mesh->LoadAnimationFile("assets/models/animated/mannequin/jump.dae");
+	skinned_mesh->LoadAnimationFile("assets/models/animated/ybot/standard_run.dae");
+	//skinned_mesh->LoadAnimationFile("assets/models/animated/mannequin/standard_run.dae");
 	skinned_mesh->switch_root_movement(false);
 	engine::game_object_properties props;
 	props.animated_mesh = skinned_mesh;
+
+	//NOTE the ybot size for some reason includes a huge amount of empty space, that has to be adjusted for when rendering.
 	props.scale = glm::vec3(1.f / glm::max(skinned_mesh->size().x, glm::max(skinned_mesh->size().y, skinned_mesh->size().z)));
 	props.type = 0;
 	props.is_static = false;
@@ -24,8 +35,7 @@ player::player(glm::vec3 position):
 	props.friction = 0.8f;
 	props.mass = 55;
 	props.type = 0;
-	props.bounding_shape = glm::vec3(skinned_mesh->size().x / 4.f,
-		skinned_mesh->size().y / 2.f, skinned_mesh->size().x / 4.f);
+	props.bounding_shape = glm::vec3(skinned_mesh->size().x / 4.f,skinned_mesh->size().y / 2.f, skinned_mesh->size().x / 4.f);
 
 	m_animations["walk"] = 1;
 	m_animations["idle"] = 2;
@@ -135,6 +145,20 @@ void player::move_physics(const glm::vec3& direction, const float& speed)
 	m_object->set_rotation_axis(m_rotation_axis);
 	m_object->set_rotation_amount(atan2(direction.x, direction.z));
 	m_object->animated_mesh()->switch_root_movement(false);
+}
+
+void player::on_render(const engine::ref<engine::shader>& shader)
+{
+	//Modified rendering to bring the ybot back up to the correct visual scale
+	glm::mat4 transform(1.0f);
+	transform = glm::translate(transform, m_object->position() - m_object->offset() * m_object->scale());
+	transform = glm::rotate(transform, m_object->rotation_amount(), m_object->rotation_axis());
+	transform = glm::scale(transform, 100.f * m_object->scale());
+	engine::renderer::submit(shader, transform, m_object);
+
+	//Original
+	//engine::renderer::submit(shader, m_object);
+	
 }
 
 

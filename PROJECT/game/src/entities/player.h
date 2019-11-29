@@ -18,6 +18,8 @@ public:
 
 	void move_physics(const glm::vec3& direction, const float& speed);
 
+	void on_render(const engine::ref<engine::shader>& shader);
+
 	//Update the camera to provide a 3rd person perspective of the player.
 	void update_camera(engine::perspective_camera& camera);
 
