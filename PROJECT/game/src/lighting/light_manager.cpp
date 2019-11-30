@@ -57,6 +57,7 @@ void light_manager::submit(engine::ref<engine::shader> shader)
 	}
 }
 
+//Set the colour for all the "mood lighting" point lights
 void light_manager::set_point_light_colour(const glm::vec3& colour)
 {
 	for (auto& point_light : point_lights) {

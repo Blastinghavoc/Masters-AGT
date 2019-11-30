@@ -5,7 +5,8 @@
 #include "../gui/hud_manager.h"
 
 /*
-Static class to manage the gameplay effects of pickups
+Static class to manage the gameplay effects of pickups.
+Also responsible for creating pickups in the level.
 */
 class pickup_manager {
 public:
@@ -18,6 +19,7 @@ public:
 
 	static bool powerup_active() { return m_powerup_active; };
 
+	//Create a powerup with some small probability.
 	static void roll_for_powerup(glm::vec3 position);
 
 	static void make_powerup_at(glm::vec3 position);

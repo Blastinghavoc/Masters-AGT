@@ -162,15 +162,15 @@
     <ClInclude Include="src\gui\hud_element.h" />
     <ClInclude Include="src\gui\hud_manager.h" />
     <ClInclude Include="src\gui\text_hud_element.h" />
-    <ClInclude Include="src\intro_screen.h" />
     <ClInclude Include="src\lighting\light_manager.h" />
-    <ClInclude Include="src\orientation.h" />
     <ClInclude Include="src\physics\physics_manager.h" />
     <ClInclude Include="src\sfx\beam.h" />
     <ClInclude Include="src\sfx\billboard.h" />
     <ClInclude Include="src\sfx\camera_jitter.h" />
     <ClInclude Include="src\sfx\cross_fade.h" />
     <ClInclude Include="src\sfx\sfx_manager.h" />
+    <ClInclude Include="src\utils\intro_screen.h" />
+    <ClInclude Include="src\utils\orientation.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ai\enemy_manager.cpp" />
@@ -202,15 +202,15 @@
     <ClCompile Include="src\gui\hud_element.cpp" />
     <ClCompile Include="src\gui\hud_manager.cpp" />
     <ClCompile Include="src\gui\text_hud_element.cpp" />
-    <ClCompile Include="src\intro_screen.cpp" />
     <ClCompile Include="src\lighting\light_manager.cpp" />
-    <ClCompile Include="src\orientation.cpp" />
     <ClCompile Include="src\physics\physics_manager.cpp" />
     <ClCompile Include="src\sfx\beam.cpp" />
     <ClCompile Include="src\sfx\billboard.cpp" />
     <ClCompile Include="src\sfx\camera_jitter.cpp" />
     <ClCompile Include="src\sfx\cross_fade.cpp" />
     <ClCompile Include="src\sfx\sfx_manager.cpp" />
+    <ClCompile Include="src\utils\intro_screen.cpp" />
+    <ClCompile Include="src\utils\orientation.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\engine\engine.vcxproj">

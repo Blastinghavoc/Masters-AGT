@@ -3,7 +3,8 @@
 
 /*
 Static class to manage physics-enabled objects.
-Mainly serves as a globally accessible wrapper to the bullet manager
+Mainly serves as a globally accessible wrapper to the bullet manager,
+and a centralized repository for references to physics-enable game_objects
 */
 class physics_manager {
 public:

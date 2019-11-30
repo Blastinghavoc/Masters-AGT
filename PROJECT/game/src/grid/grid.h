@@ -2,7 +2,7 @@
 #include <engine.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include "../orientation.h"
+#include "../utils/orientation.h"
 #include "grid_tile.h"
 
 /*

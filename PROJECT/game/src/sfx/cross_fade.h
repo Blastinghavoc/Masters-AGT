@@ -1,6 +1,9 @@
 #pragma once
 #include "../gui/hud_element.h"
 
+/*
+Cross fade implemented using functionality of the hud_element.
+*/
 class cross_fade {
 public:
 	cross_fade(engine::ref<hud_element> panel) :m_panel{ panel } {};

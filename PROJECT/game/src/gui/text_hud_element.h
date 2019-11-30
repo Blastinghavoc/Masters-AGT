@@ -1,6 +1,10 @@
 #pragma once
 #include "abstract_hud_element.h"
 
+/*
+Combines the relative positioning of the abstract_hud_element with the
+functionality of the text_manager to display text at a particular screen position.
+*/
 class text_hud_element : public abstract_hud_element {
 public:
 	text_hud_element(engine::ref<engine::text_manager> text_manager,std::string text = "", glm::vec2 relative_text_position = { 0,0 });
@@ -17,7 +21,6 @@ public:
 	};
 
 	static glm::vec4 default_colour;
-
 
 private:
 	engine::ref<engine::text_manager> m_text_manager;

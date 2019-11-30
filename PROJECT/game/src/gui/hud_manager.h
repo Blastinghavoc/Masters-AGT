@@ -5,11 +5,14 @@
 #include "text_hud_element.h"
 #include "hud_element.h"
 
-//Static class to manage the HUD
+/*
+Static class to manage the HUD.
+Keeps a reference to every HUD element and renders them.
+Other classes can keep their own references to change the state of HUD elements, but this
+class separates out the concerns of rendering.
+*/
 class hud_manager {
 public:
-
-	//static void on_update(engine::timestep time_step);
 
 	static void render(engine::orthographic_camera& cam_2d,engine::ref<engine::shader> shader);
 

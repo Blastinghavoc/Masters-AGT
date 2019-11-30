@@ -84,6 +84,7 @@ void projectile_manager::on_render(const engine::ref<engine::shader>& shader)
 	std::dynamic_pointer_cast<engine::gl_shader>(shader)->set_uniform("transparency", 1.f);
 }
 
+//Obtain a projectile of the given affiliation
 engine::ref<projectile> projectile_manager::get_projectile(bool is_enemy)
 {
 	if (is_enemy)

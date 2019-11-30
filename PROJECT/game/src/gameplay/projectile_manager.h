@@ -3,8 +3,8 @@
 #include "../entities/projectile.h"
 
 /*
-Class to manage the lifetime of projectiles fired by NPCs,
-including turrets and enemies.
+Class to manage the lifetime of projectiles fired by NPCs.
+Currently only flying enemies fire projectiles in this manner.
 */
 class projectile_manager {
 public:
@@ -23,6 +23,8 @@ public:
 
 private:
 	static std::vector<engine::ref<projectile>> m_active_projectiles;
+
+	//Separate pools for enemy-affiliated and ally-affilated projectiles.
 	static std::vector<engine::ref<projectile>> m_enemy_projectile_pool;
 	static std::vector<engine::ref<projectile>> m_ally_projectile_pool;
 

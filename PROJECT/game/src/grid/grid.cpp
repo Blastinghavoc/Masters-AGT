@@ -229,7 +229,7 @@ void grid::set_state(const int& x, const int& z, grid_tile::tile_state state, bo
 }
 
 /*
-Adds corners if they are missing, and removes extraneous corners around a given index
+Adds corners if they are missing, and removes extraneous corners around a given index.
 */
 void grid::resolve_corners(std::pair<int, int> index, std::map<orientation, bool> adjacent_is_maze)
 {

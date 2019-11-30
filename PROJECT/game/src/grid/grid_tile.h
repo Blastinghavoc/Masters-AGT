@@ -1,6 +1,6 @@
 #pragma once
 #include <engine.h>
-#include "../orientation.h"
+#include "../utils/orientation.h"
 
 //Represents a square tile on the world grid
 class grid_tile {

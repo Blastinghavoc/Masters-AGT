@@ -2,7 +2,9 @@
 #include <engine.h>
 #include "engine/utils/timer.h"
 
-//transparent beam class based on lightning effect from SFX template
+/*
+Transparent beam class based on lightning effect from SFX template.
+*/
 class beam {
 public:
 	beam();

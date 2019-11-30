@@ -4,6 +4,8 @@
 
 /*Static class for lighting
 See also modifications to engine/renderer/light.cpp
+Has capabilities for a day/night cycle, but this is unused
+as the "night" lighting was overall much more interesting!
 */
 class light_manager {
 public:

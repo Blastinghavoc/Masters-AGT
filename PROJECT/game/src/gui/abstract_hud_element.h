@@ -2,6 +2,12 @@
 
 #include "engine.h"
 
+/*
+Represents the common functionality of HUD elements,
+but does not define how they are to be rendered.
+Allows HUD elements to be positioned using relative screen coordinates,
+i.e (0.5,0.5) would be the center of the screen.
+*/
 class abstract_hud_element {
 public:
 	virtual ~abstract_hud_element() {};

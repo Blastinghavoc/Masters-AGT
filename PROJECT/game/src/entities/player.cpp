@@ -144,8 +144,11 @@ void player::on_update(const engine::timestep& time_step)
 		}
 	}
 
-	//Increment animation
-	m_object->animated_mesh()->on_update(time_step);
+	//Increment animation if it's going to be visible, saves a LOT of time if it isn't!
+	if (m_camera_backoff_distance != 0.f)
+	{
+		m_object->animated_mesh()->on_update(time_step);
+	}
 }
 
 void player::move_physics(const glm::vec3& direction, const float& speed)
@@ -241,6 +244,8 @@ void player::on_event(engine::event& event) {
 			//Celebratory dance, just for fun!
 			switch_animation(m_animations["dance"]);
 			m_dance_timer = (float)(m_object->animated_mesh()->animations().at(m_animations["dance"])->mDuration);
+			//Allow the dance to move the model
+			m_object->animated_mesh()->switch_root_movement(true);
 		}
 	}
 }

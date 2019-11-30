@@ -11,10 +11,7 @@ namespace fs = std::filesystem;
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-#include "intro_screen.h"
-
-#include "btBulletDynamicsCommon.h"//For bt rigid body?
-
+#include "utils/intro_screen.h"
 #include "sfx/sfx_manager.h"
 #include "physics/physics_manager.h"
 #include "gameplay/weapon_manager.h"
@@ -53,8 +50,8 @@ game_layer::game_layer() :
 	//Sound from https://freesound.org/people/Under7dude/sounds/163441/
 	m_audio_manager->load_sound("assets/audio/oof.wav", engine::sound_type::event, "oof");
 
+	//Get the physics manager ready for accepting new objects
 	physics_manager::init();
-
 
 	// Initialise the shaders, materials, and lights
 	auto text_shader = engine::renderer::shaders_library()->get("text_2D");
@@ -112,6 +109,7 @@ game_layer::game_layer() :
 		  engine::texture_2d::create(skybox_path + "bkg1_bot" + skybox_extn,true)
 		});
 
+	//Initialise variables for defining the world space
 	int max_grid_dimension = 11;
 	auto cell_size = m_level_grid->cell_size();
 
@@ -144,7 +142,7 @@ game_layer::game_layer() :
 		
 		for (int j = 0; j < max_grid_dimension; j++)
 		{
-			//Forcibly create empty tiles
+			//Forcibly create empty tiles for enemies to path through
 			m_level_grid->set_state(i, j,grid_tile::tile_state::empty,true);
 		}
 	}
@@ -165,7 +163,7 @@ game_layer::game_layer() :
 	m_level_grid->del_border(1, 0, orientation::south);
 	m_level_grid->set_end(1, -1);	
 
-	//Add collision objects
+	//Add collision objects for the level walls
 	for (int i = 0; i < max_grid_dimension; i++)
 	{
 		for (int j = 0; j < max_grid_dimension; j++) {
@@ -266,10 +264,10 @@ game_layer::game_layer() :
 	light_manager::point_lights.push_back(point_light_3);
 
 
-
 	physics_manager::add(m_player.object());
 	physics_manager::add(m_terrain);		
 
+	//Initialise subsystems
 	turret_manager::init();
 	enemy_manager::init(m_level_grid);
 	gameplay_manager::init(&m_player,m_text_manager,&m_3d_camera,m_level_grid,m_audio_manager,&m_decorational_objects);
@@ -285,12 +283,13 @@ game_layer::~game_layer()
 
 void game_layer::on_update(const engine::timestep& time_step)
 {
-	//increase rhombi angle
+	//increase rhombi angle for the spinning decorations
 	float tmp = m_rhombi_angle;
 	m_rhombi_angle = (float) fmod(m_rhombi_angle + 0.05f, 2 * M_PI);
 	tmp = (float) fmod(tmp + 0.025f, 2 * M_PI);
 	m_rhombi_trig_vector = 2.f*glm::vec3(sin(m_rhombi_angle),cos(m_rhombi_angle),sin(tmp));
 
+	//Update lighting
 	light_manager::on_update(time_step);
 
 	//Update the displayed fps counter every second.
@@ -309,6 +308,8 @@ void game_layer::on_update(const engine::timestep& time_step)
 		intro_screen::update(m_3d_camera, time_step);
 	}
 	else {
+		//main gameplay updates
+
 		enemy_manager::on_update(time_step);
 		turret_manager::update(time_step);
 
@@ -320,7 +321,8 @@ void game_layer::on_update(const engine::timestep& time_step)
 		else {
 			m_player.update_camera(m_3d_camera);
 			m_player.on_update(time_step);
-		}		
+		}
+
 		pickup_manager::on_update(time_step, m_player.get_trigger_box());
 		gameplay_manager::update(time_step);
 		sfx_manager::on_update(time_step);
@@ -450,9 +452,8 @@ void game_layer::on_render()
 	m_material->submit(textured_material_shader);
 	std::dynamic_pointer_cast<engine::gl_shader>(textured_material_shader)->set_uniform("gEyeWorldPos", m_3d_camera.position());
 
-	//Render Bounding boxes
-	//m_player.object()->render_obb({1,0,0},textured_material_shader);
-	//m_terrain->render_obb({ 1,0,0 }, textured_material_shader);	
+	//Render Bounding boxes for DEBUG purposes
+	//m_player.object()->render_obb({1,0,0},textured_material_shader);	
 	//enemy_manager::render_trigger_boxes(textured_material_shader);
 	//weapon_manager::render_trigger_boxes(textured_material_shader);
 
@@ -466,6 +467,7 @@ void game_layer::on_render()
 			transform = glm::translate(transform, sl->Position - glm::vec3(0,0.6f,0));
 			transform = glm::scale(transform, 0.125f * glm::vec3(1.f));
 
+			//Marker takes the colour of the light
 			m_material->set_ambient(sl->Color);
 			m_material->set_diffuse(sl->Color);
 			m_material->submit(textured_material_shader);
@@ -480,7 +482,6 @@ void game_layer::on_render()
 	const auto animated_mesh_shader = engine::renderer::shaders_library()->get("animated_mesh");
 	engine::renderer::begin_scene(m_3d_camera, animated_mesh_shader);
 	std::dynamic_pointer_cast<engine::gl_shader>(animated_mesh_shader)->set_uniform("gEyeWorldPos", m_3d_camera.position());
-
 	//update the lighting for this shader
 	light_manager::submit(animated_mesh_shader);
 
@@ -495,6 +496,8 @@ void game_layer::on_render()
 	//-----
 	//Render anything with transparency
 	//----
+
+	//Transparent textures
 	engine::renderer::begin_scene(m_3d_camera, textured_lighting_shader);
 	//Transparent decor
 	for (auto& pair : m_transparent_decorational_objects) {
@@ -511,6 +514,7 @@ void game_layer::on_render()
 
 	engine::renderer::end_scene();
 
+	//Transparent materials
 	engine::renderer::begin_scene(m_3d_camera, textured_material_shader);
 	//Render materialed SFX
 	sfx_manager::on_render_material(textured_material_shader);	

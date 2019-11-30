@@ -3,7 +3,11 @@
 #include "engine.h"
 #include "abstract_hud_element.h"
 
-//Hud element based on cross-fade example
+/*
+Textured HUD element based on cross-fade example.
+Extended to support z ordering, and to use relative positioning inherited from
+abstract_hud_element
+*/
 class hud_element: public abstract_hud_element {
 public:
 	hud_element() {};

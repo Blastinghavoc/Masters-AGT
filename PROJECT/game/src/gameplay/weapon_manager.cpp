@@ -13,7 +13,7 @@ bool weapon_manager::m_is_charging = false;
 
 void weapon_manager::init()
 {
-	//Maximum of 5 grenades
+	//Maximum of 5 grenades active at once; somewhat arbitrary but also penalises bad aiming.
 	for (size_t i = 0; i < 5; ++i)
 	{
 		auto nade = grenade::create(0.125f, 3.f);

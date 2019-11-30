@@ -18,6 +18,7 @@ engine::ref<engine::SpotLight> pickup_manager::m_spot_light;
 
 void pickup_manager::init()
 {
+	//Create the objects for the powerups
 	engine::game_object_properties props;
 	engine::ref<engine::texture_2d> tex = engine::texture_2d::create("assets/textures/freeze_powerup.png", false);
 	float size = 0.3f;
@@ -34,6 +35,7 @@ void pickup_manager::init()
 	props.textures = { tex };
 	m_invincibility_pickup = pickup(engine::game_object::create(props), .4f);
 
+	//Create the hud elements to display powerup overlays
 	auto invin_overlay = hud_element::create({ .5f,.5f }, { 1,1 }, engine::texture_2d::create("assets/textures/invincibility_overlay.png", true));
 	hud_manager::add_element(invin_overlay);	
 	invin_overlay->set_z_order(0.11f);//Just a little bit ahead of the rest of the HUD so that it appears over all of it.
@@ -48,6 +50,7 @@ void pickup_manager::init()
 
 	srand(time(nullptr));//Initialise random number generator.
 
+	//Initialise a spotlight to highlight the pickups
 	m_spot_light = std::make_shared<engine::SpotLight>();
 	m_spot_light->Color = glm::vec3(.1f, .1f, .75f);
 	m_spot_light->AmbientIntensity = 0.4f;
@@ -63,6 +66,11 @@ void pickup_manager::init()
 	light_manager::spot_lights.push_back(m_spot_light);
 }
 
+/*
+If any pickups are active in the world, check whether the player is in range to
+collect them, and activate the effects if they are. If any effects are active, check their
+remaining duration and deactivate them when they run out of time.
+*/
 void pickup_manager::on_update(const engine::timestep& ts, trigger_box& player_trigger_box)
 {
 	if (m_freeze_active && m_freeze_timer.total() > m_freeze_duration)

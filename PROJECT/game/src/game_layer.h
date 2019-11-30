@@ -10,7 +10,10 @@
 #include "gameplay/gameplay_manager.h"
 #include "ai/turret_manager.h"
 
-//The main layer for the game.
+/*
+The main layer for the game, constructs and initialises all subsystems, and sequences
+updating and rendering.
+*/
 class game_layer : public engine::layer
 {
 public:
@@ -36,9 +39,9 @@ private:
 
 	engine::ref<engine::material>		m_material{};
 
+	//The sun!
 	engine::DirectionalLight            m_directionalLight;
 
-	//engine::ref<engine::bullet_manager> m_physics_manager{};
 	engine::ref<engine::audio_manager>  m_audio_manager{};
 	engine::ref<engine::text_manager>	m_text_manager{};
 
@@ -52,10 +55,13 @@ private:
 	engine::ref<grid> m_level_grid{};
 	glm::vec3 m_grid_center{};
 
+	//The Player instance
 	player m_player{glm::vec3(3.f,.5f,0.f)};
 
+	//Wether or not to show debug HUD
 	bool m_show_debug{ false };
 
+	//Debug info
 	engine::timer m_fps_timer{};
 	unsigned int m_num_updates{0};
 	unsigned int m_updates_last_interval{0};

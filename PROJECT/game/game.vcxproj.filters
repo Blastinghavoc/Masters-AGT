@@ -11,9 +11,6 @@
     <ClCompile Include="src\game_layer.cpp">
       <Filter>layers</Filter>
     </ClCompile>
-    <ClCompile Include="src\orientation.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
     <ClCompile Include="src\gui\hud_manager.cpp">
       <Filter>gui</Filter>
     </ClCompile>
@@ -26,7 +23,6 @@
     <ClCompile Include="src\lighting\light_manager.cpp">
       <Filter>lighting</Filter>
     </ClCompile>
-    <ClCompile Include="src\intro_screen.cpp" />
     <ClCompile Include="src\gameplay\gameplay_manager.cpp">
       <Filter>gameplay</Filter>
     </ClCompile>
@@ -111,6 +107,12 @@
     <ClCompile Include="src\physics\physics_manager.cpp">
       <Filter>physics</Filter>
     </ClCompile>
+    <ClCompile Include="src\utils\intro_screen.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\orientation.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="layers">
@@ -154,9 +156,6 @@
     <ClInclude Include="src\game_layer.h">
       <Filter>layers</Filter>
     </ClInclude>
-    <ClInclude Include="src\orientation.h">
-      <Filter>utils</Filter>
-    </ClInclude>
     <ClInclude Include="src\gui\hud_manager.h">
       <Filter>gui</Filter>
     </ClInclude>
@@ -172,7 +171,6 @@
     <ClInclude Include="src\lighting\light_manager.h">
       <Filter>lighting</Filter>
     </ClInclude>
-    <ClInclude Include="src\intro_screen.h" />
     <ClInclude Include="src\gameplay\gameplay_manager.h">
       <Filter>gameplay</Filter>
     </ClInclude>
@@ -262,6 +260,12 @@
     </ClInclude>
     <ClInclude Include="src\sfx\beam.h">
       <Filter>sfx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\intro_screen.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\orientation.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

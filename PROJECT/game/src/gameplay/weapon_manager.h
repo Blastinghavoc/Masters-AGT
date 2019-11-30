@@ -21,7 +21,9 @@ public:
 
 	static void render_trigger_boxes(const engine::ref<engine::shader>& shader);
 
+	//Start the charge timer
 	static void start_charging();
+
 	static void launch_charged(glm::vec3 start, glm::vec3 direction, const engine::timestep& ts, float force = m_base_launch_force);
 
 	static float charge_percentage();
