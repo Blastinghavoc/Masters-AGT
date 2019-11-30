@@ -10,7 +10,7 @@ text_hud_element::text_hud_element(engine::ref<engine::text_manager> text_manage
 	m_text_colour = default_colour;
 }
 
-//Doesn't actually use the passed shader.
+//Doesn't actually use the passed shader, but has to keep it due to inheritance
 void text_hud_element::render(engine::ref<engine::shader> shader)
 {
 	if (!m_show)
